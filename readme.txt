@@ -1,14 +1,12 @@
-root@localhost
-xDv!r3A2U=j2
-{2H;*^Z3CPE6
-
-mysql -u root -pxDv!r3A2U=j2
-
-
-blab@localhost
-z2^E6J4$;u;d
-
-
-What sort of threats do data centre operators deal with when it comes to cyber security?
-What cyber security measures should they put in place to protect themselves?
-Do you think these measures match up to physical security strategies?
+This is the VeraDemo application - Blab
+It is a fairly simple forum type application which allows:
+ - users to post a message (blab)
+ - users to follow the messages of other users or not (listen or ignore)
+ - users to comment on other users messages (blabs)
+ 
+ There is a url (verademo/reset) which will reset the data in the database with a load of
+  - users
+  - blabs
+  - commments
+  
+ The main url (verademo/feed) shows the messages that are relevant to the current user 
