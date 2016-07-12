@@ -88,6 +88,8 @@ public class BlabController {
 				model.addAttribute("countForMe", countForMe);
 				model.addAttribute("blabIdForMe", blabIdForMe);
 				
+				model.addAttribute("currentUser", theUser.getBlabName());
+				
 				// Find the Blabs by this user
 				logger.info("Preparing the BlabsByMe Prepared Statement");
 				blabsByMe = connect.prepareStatement(sqlBlabsByMe);

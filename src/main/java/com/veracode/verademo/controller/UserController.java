@@ -5,6 +5,8 @@ import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -72,7 +74,7 @@ public class UserController {
         /* START BAD CODE */
 		Statement sqlStatement = null;
         /* END BAD CODE */
-        /* START GOOD CODE 
+        /* START GOOD CODE
 		PreparedStatement sqlStatement = null;
         /* END GOOD CODE */
 
@@ -89,6 +91,18 @@ public class UserController {
 			sqlStatement = connect.createStatement();
 			logger.info("Execute the Statement");
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
+			/* END BAD CODE */
+			/* START GOOD GODE
+			String sqlQuery = "select * from users where username=? and password=?;";
+			logger.info("Preparing the PreparedStatement");
+			sqlStatement = connect.prepareStatement(sqlQuery);
+			logger.info("Setting parameters for the PreparedStatement");
+			sqlStatement.setString(1, username);
+			sqlStatement.setString(2, password);
+			logger.info("Executing the PreparedStatement");
+			ResultSet result = sqlStatement.executeQuery();
+			/* END GOOD CODE */
+			
 			// Did we find exactly 1 user that matched?
 			if (result.first()) {
 				// OK we have found the user, lets setup their Session object
@@ -100,30 +114,21 @@ public class UserController {
 				theUser.setLoggedIn(true);
 
 				logger.info("Login complete. Redirecting (target=" + (null==target ? "null" : target) + ")");
-				if (0 != target.length())
+				if (0 != target.length()) {
+					logger.info("redirecting to target");
 					nextView = "redirect:" + target;
-				else 
+					
+				} else {
+					logger.info("redirecting to feed");
 					nextView = "redirect:feed";
+				}
 			} else {
 				logger.info("User Not Found");
 				// Login failed...
 				model.addAttribute("error", "Login failed. Please try again.");
 				model.addAttribute("target", target);
 			}
-			/* END BAD CODE */
 
-			/* START GOOD GODE 
-			String sqlQuery = "insert into users (username, password, date_created) values (?, ?, ?)";
-			logger.info("Preparing the PreparedStatement");
-			sqlStatement = connect.prepareStatement(sqlQuery);
-			logger.info("Setting parameters for the PreparedStatement");
-			sqlStatement.setString(1, username);
-			sqlStatement.setString(2, password);
-			sqlStatement.setDate(3,  new java.sql.Date(Calendar.getInstance().getTime().getTime()));
-			logger.info("Executing the PreparedStatement");
-			Boolean result = sqlStatement.execute();
-			logger.info("PreparedStatement Execution returned " + (result ? "true which is unexpected" : "false which is expected"));
-			/* END GOOD CODE */
 		}catch (SQLException exceptSql) {
 			logger.error(exceptSql);
 			model.addAttribute("error", exceptSql.getMessage());
@@ -153,6 +158,7 @@ public class UserController {
     			model.addAttribute("target", target);
             }
         }
+		logger.info("returning the nextView: " + nextView);
 		return nextView;
 	}
 	
@@ -261,8 +267,64 @@ public class UserController {
 	@RequestMapping(value="/profile", method=RequestMethod.GET)
 	public String showProfile(@RequestParam(value="type", required=false) String type, Model model) {
 		logger.info("Entering showProfile");
-		model.addAttribute("realName", theUser.getRealName());
-		model.addAttribute("blabName", theUser.getBlabName());
+		Connection connect = null;
+		PreparedStatement myHecklers = null;
+		String sqlMyHecklers = "SELECT users.userid, users.blab_name, users.date_created "
+                			+ "FROM users LEFT JOIN listeners ON users.userid = listeners.listener "
+                			+ "WHERE listeners.blabber=? AND listeners.status='Active';";
+		
+		
+		try {
+			logger.info("Getting Database connection");
+			// Get the Database Connection
+			Class.forName("com.mysql.jdbc.Driver");
+			connect = DriverManager.getConnection(dbConnStr);
+			
+			// Find the Blabs that this user listens to
+			logger.info("Preparing the BlabsForMe Prepared Statement");
+			myHecklers = connect.prepareStatement(sqlMyHecklers);
+			myHecklers.setInt(1,  theUser.getUserID());
+			logger.info("Executing the BlabsForMe Prepared Statement");
+			ResultSet myHecklersResults = myHecklers.executeQuery();
+			// Store them in the Model
+			SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
+			ArrayList<Integer> hecklerId = new ArrayList<Integer>();
+			ArrayList<String> hecklerName = new ArrayList<String>();
+			ArrayList<String> created = new ArrayList<String>();
+			
+			while (myHecklersResults.next()) {
+				hecklerId.add((Integer)myHecklersResults.getInt(1));
+				hecklerName.add(myHecklersResults.getString(2));
+				created.add(sdf.format(myHecklersResults.getDate(3)));
+			}
+			model.addAttribute("hecklerId", hecklerId);
+			model.addAttribute("hecklerName", hecklerName);
+			model.addAttribute("created", created);
+			model.addAttribute("realName", theUser.getRealName());
+			model.addAttribute("blabName", theUser.getBlabName());
+
+		}catch (SQLException exceptSql) {
+			logger.error(exceptSql);
+        } catch (ClassNotFoundException cnfe) {
+			logger.error(cnfe);
+        	
+        } finally {
+        	try {
+                if (myHecklers != null) {
+                	myHecklers.close();
+                }
+        	} catch (SQLException exceptSql) {
+    			logger.error(exceptSql);
+            }
+        	try {
+                if (connect != null){
+                    connect.close();
+                }
+            } catch (SQLException exceptSql) {
+    			logger.error(exceptSql);
+            }
+        }
+		
 		return "profile";
 	}
 

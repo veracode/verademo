@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
     pageEncoding="US-ASCII"%>
+<%@ page import="java.util.*" %>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -49,39 +50,97 @@
     <div class="container theme-showcase" role="main">
     
       <div class="page-header">
-        <h3>Profile</h3>
+        <h4>Profile</h4>
       </div>
+   <% 
+      String error = (String) request.getAttribute("error");
+      if (null != error) {
+   %>
+      <div class="alert alert-danger" role="alert">
+        <%= error %>
+      </div>
+   
+   <%
+      }
+   %>
+      
       <div class="row">
-        <div class="col-md-12">
-
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h3 class="panel-title">Manage your profile settings for Blab</h3>
-            </div>
-            <div class="panel-body">
-              <form method="POST" action="profile"><input type="hidden" name="returnPath" value="">
-              <table class="table table-condensed">
-                <tbody>
-                  <tr>
-                    <td>Real Name</td>
-                    <td><div class="form-group"><input type="text" class="form-control" name="realName" value="<%= request.getAttribute("realName") %>"></div></td>
-                  </tr>
-                  <tr>
-                    <td>Blab Name</td>
-                    <td><div class="form-group"><input type="text" class="form-control" name="blabName" value="<%= request.getAttribute("blabName") %>"></div></td>
-                  </tr>
-                  <tr>
-                    <td><button type="submit" class="btn btn-primary" id="login" name="Update" value="Update">Update</button></td>
-                    <td></td>
-                  </tr>
-                </tbody>
-              </table>
-              </form>
-            </div>
-          </div>
+      
+       <div class="col-md-6">
+        <div class="detailBox">
+         <div class="titleBox">
+          <label>Your Profile</label>
+         </div>
+         <div class="actionBox">
+          <form method="POST" action="profile"><input type="hidden" name="returnPath" value="">
+           <table class="table table-condensed">
+            <tbody>
+             <tr>
+              <td>Real Name</td>
+              <td><div class="form-group"><input type="text" class="form-control" name="realName" value="<%= request.getAttribute("realName") %>"></div></td>
+             </tr>
+             <tr>
+              <td>Blab Name</td>
+              <td><div class="form-group"><input type="text" class="form-control" name="blabName" value="<%= request.getAttribute("blabName") %>"></div></td>
+             </tr>
+             <tr>
+              <td><button type="submit" class="btn btn-primary" id="login" name="Update" value="Update">Update</button></td>
+              <td></td>
+             </tr>
+            </tbody>
+           </table>
+          </form>
+         </div>
         </div>
-      </div>
-    </div> <!-- /container -->
+       </div>
+        
+       <div class="col-md-6">
+        <div class="detailBox">
+         <div class="titleBox">
+          <label>Your Hecklers</label>
+         </div>
+         <div class="actionBox">
+          <ul class="commentList">
+              <% 
+              ArrayList<Integer> hecklerId = (ArrayList<Integer>) request.getAttribute("hecklerId");
+              ArrayList<String> hecklerName = (ArrayList<String>) request.getAttribute("hecklerName");
+              ArrayList<String> created = (ArrayList<String>) request.getAttribute("created");
+            	for (int i=0; i<hecklerId.size(); i++) {
+            		
+              %>
+           
+           <li>
+            <div class="commenterImage">
+             <img src="resources/images/<%= hecklerId.get(i) %>.png" />
+            </div>
+            <div class="blockquote">
+             <p class=""><%= hecklerName.get(i) %></p> 
+             <span class="date sub-text">member since <%= created.get(i) %></span><br>
+            </div>
+           </li>
+               <%
+            	}
+              %>
+              
+                
+          </ul>
+         </div>
+        </div>
+       </div>
+       
+      </div> 
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      </div> <!-- /container -->
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
