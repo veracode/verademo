@@ -51,7 +51,7 @@
     <div class="container theme-showcase" role="main">
     
       <div class="page-header">
-        <h3>Welcome to Blab-a-Gag</h3>
+        <h3>Hi <%= request.getAttribute("currentUser") %>, welcome to Blab-a-Gag</h3>
         <h4>The home of of witty one-liners</h4>
       </div>
       
