@@ -22,7 +22,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.veracode.verademo.utils.UserSession;
-
+import java.security.SecureRandom;
+import java.security.NoSuchAlgorithmException ;
+import java.security.NoSuchProviderException ;
+ 
 @Controller
 @Scope("request")
 public class Utils {
@@ -178,14 +181,26 @@ public class Utils {
 		return "reset";
 	}
 
+	// Generate random
+	public static SecureRandom generateRandom(String arg[]) {
+	        SecureRandom random1 = new SecureRandom();
+	        random1.nextBytes(new byte[20]);
+	        //random1.setSeed(123);
+	        return random1;
+	}
+
 	@RequestMapping(value="/reset", method=RequestMethod.POST)
 	public String processReset(@RequestParam(value="confirm", required=true) String confirm, 
 			                   @RequestParam(value="primary", required=false) String primary, Model model) {
 		logger.info("Entering processReset");
 		
 		
-		
+		/* BEGIN BAD CODE */
 		Random rand = new Random();
+		/* END BAD CODE */
+		/* BEGIN GOOD CODE 
+		SecureRandom rand = generateRandom(new String[]{});
+		/* END GOOD CODE */
 		int days_1 = 60 * 60 * 24;
 		int months_1 = days_1 * 31;
 		
