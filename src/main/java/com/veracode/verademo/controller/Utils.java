@@ -204,6 +204,9 @@ public class Utils {
 		int days_1 = 60 * 60 * 24;
 		int months_1 = days_1 * 31;
 		
+		// adding so I can commit
+		int y =0;
+		
 		Connection connect = null;
 		Statement tablesStatement = null;
 		PreparedStatement usersStatement = null;
