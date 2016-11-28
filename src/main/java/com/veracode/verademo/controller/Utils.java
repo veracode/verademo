@@ -181,7 +181,9 @@ public class Utils {
 		return "reset";
 	}
 
-	// Generate random
+	// SecureRandom
+	// NOTE: Use this method to get a SecureRandom object for use whenever
+	//       you need a Random number
 	public static SecureRandom generateRandom(String arg[]) {
 	        SecureRandom random1 = new SecureRandom();
 	        random1.nextBytes(new byte[20]);
@@ -195,10 +197,10 @@ public class Utils {
 		logger.info("Entering processReset");
 		
 		
-		/* BEGIN BAD CODE */
+		/* BEGIN BAD CODE 
 		Random rand = new Random();
 		/* END BAD CODE */
-		/* BEGIN GOOD CODE 
+		/* BEGIN GOOD CODE */
 		SecureRandom rand = generateRandom(new String[]{});
 		/* END GOOD CODE */
 		int days_1 = 60 * 60 * 24;
