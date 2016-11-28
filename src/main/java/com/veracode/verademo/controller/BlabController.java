@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.veracode.verademo.utils.UserSession;
+//import com.veracode.annotation.CRLFCleanser;
 
 @Controller
 @Scope("request")
@@ -460,6 +461,10 @@ public class BlabController {
 		}
 		return nextView;
 	}
+	
+	private String safeLog(String msg) {
+		return msg.replaceAll("\n", "[newline]");
+	}
 
 	@RequestMapping(value="/blabbers", method=RequestMethod.POST)
 	public String processBlabbers(@RequestParam(value="blabberId", required=true) Integer blabberId, 
@@ -472,7 +477,7 @@ public class BlabController {
 		} else {
 			logger.info("User is Logged In - continuing...");
 			logger.info("blabberId = " + blabberId);
-			logger.info("command = " + command);
+			logger.info("command = " + safeLog(command));
 			
 	 		Connection connect = null;
 			PreparedStatement action = null;
