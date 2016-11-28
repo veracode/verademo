@@ -77,7 +77,9 @@ public class UserController {
         /* START GOOD CODE */
 		PreparedStatement sqlStatement = null;
         /* END GOOD CODE */
-
+ 
+		int yy = 0;
+		
 		try {
 			// Get the Database Connection
 			logger.info("Creating the Database connection");

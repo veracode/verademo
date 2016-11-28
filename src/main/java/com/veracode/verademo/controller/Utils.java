@@ -196,7 +196,8 @@ public class Utils {
 			                   @RequestParam(value="primary", required=false) String primary, Model model) {
 		logger.info("Entering processReset");
 		
-		
+		 int yy=0;
+		 
 		/* BEGIN BAD CODE 
 		Random rand = new Random();
 		/* END BAD CODE */
