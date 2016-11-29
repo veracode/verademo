@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.veracode.verademo.utils.UserSession;
-//import com.veracode.annotation.CRLFCleanser;
+import com.veracode.annotation.CRLFCleanser;
 
 @Controller
 @Scope("request")
@@ -29,6 +29,12 @@ public class BlabController {
 
 	private String dbConnStr = "jdbc:mysql://localhost/blab?user=blab&password=z2^E6J4$;u;d";
 
+	@CRLFCleanser
+	private String safeLog(String msg) {
+		return msg.replaceAll("\n", "[newline]");
+	}
+
+	
 	@Autowired
 	private UserSession theUser;
 
@@ -462,9 +468,6 @@ public class BlabController {
 		return nextView;
 	}
 	
-	private String safeLog(String msg) {
-		return msg.replaceAll("\n", "[newline]");
-	}
 
 	@RequestMapping(value="/blabbers", method=RequestMethod.POST)
 	public String processBlabbers(@RequestParam(value="blabberId", required=true) Integer blabberId, 

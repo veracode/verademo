@@ -17,6 +17,12 @@
   <!-- Dependencies begin here -->
   <dependencies>
  
+    <dependency>
+      <groupId>com.veracode</groupId>
+      <artifactId>Annotations</artifactId>
+      <version>1.0</version>
+    </dependency>
+ 
     <!-- Spring dependencies -->
     <dependency>
       <groupId>org.springframework</groupId>
