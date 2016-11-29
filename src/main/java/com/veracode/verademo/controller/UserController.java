@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.veracode.verademo.utils.Cleansers;
 import com.veracode.verademo.utils.UserSession;
 
 
@@ -115,7 +116,7 @@ public class UserController {
 				theUser.setBlabName(result.getString(7));
 				theUser.setLoggedIn(true);
 
-				logger.info("Login complete. Redirecting (target=" + (null==target ? "null" : target) + ")");
+				logger.info("Login complete. Redirecting (target=" + (null==target ? "null" : Cleansers.cleanLog(target)) + ")");
 				if (0 != target.length()) {
 					logger.info("redirecting to target");
 					nextView = "redirect:" + target;
@@ -160,7 +161,7 @@ public class UserController {
     			model.addAttribute("target", target);
             }
         }
-		logger.info("returning the nextView: " + nextView);
+		logger.info("returning the nextView: " + Cleansers.cleanLog(nextView));
 		return nextView;
 	}
 	
