@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.veracode.verademo.utils.UserSession;
+import com.veracode.verademo.utils.*;
 import com.veracode.annotation.CRLFCleanser;
 
 @Controller
@@ -480,7 +480,7 @@ public class BlabController {
 		} else {
 			logger.info("User is Logged In - continuing...");
 			logger.info("blabberId = " + blabberId);
-			logger.info("command = " + safeLog(command));
+			logger.info("command = " + Cleansers.cleanLog(command));
 			
 	 		Connection connect = null;
 			PreparedStatement action = null;
