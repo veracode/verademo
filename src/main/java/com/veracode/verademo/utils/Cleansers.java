@@ -5,7 +5,6 @@ import com.veracode.annotation.CRLFCleanser;
 
 public class Cleansers {
 
-	@CRLFCleanser
 	public static String cleanLog(String msg) {
 		return msg.replaceAll("\n", "[newline]");
 	}
