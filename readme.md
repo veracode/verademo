@@ -1,13 +1,13 @@
-# About
+# VeraDemo - Blab-a-Gag
 
-This is the VeraDemo application - Blab-a-Gag
+## About
 
 Blab-a-Gag is a fairly simple forum type application which allows:
  - users to post a one-liner joke
  - users to follow the jokes of other users or not (heckle or ignore)
  - users to comment on other users messages (heckle)
  
-## URLs
+### URLs
 
 `/reset` will reset the data in the database with a load of:
  - users
@@ -24,19 +24,25 @@ Blab-a-Gag is a fairly simple forum type application which allows:
 
 `/register` allows you to create a new user account
    
-# Configure
+## Configure
 
-## Dependencies
+Build and installation requires [Maven](https://maven.apache.org), [MySQL](https://www.mysql.com/) and [Tomcat](https://tomcat.apache.org/).
 
-Download the Veracode custom cleanser library from `https://tools.veracode.com/customcleanser/VeracodeAnnotations.jar` then run:
+The simplest way to aquire these on MacOS is via [Homebrew](http://brew.sh/). Install Homebrew then:
+
+    brew install maven mysql tomcat
+
+### Dependencies
+
+Download the Veracode custom cleanser library from `https://tools.veracode.com/customcleanser/VeracodeAnnotations.jar` then install into a local Maven repository (~/.m2/ will be created for you):
 
     mvn install:install-file -Dfile=VeracodeAnnotations.jar -DgroupId=com.veracode -DartifactId=annotations -Dversion=1.0 -Dpackaging=jar
 
-## Database
+### Database
 
 Set up a database in MySQL called `blab` with a user of `blab` and password `z2^E6J4$;u;d`
  
-## Switching between good/bad code
+### Switching between good/bad code
 
     # Bad to good
     sed -i -e 's/\(START BAD CODE\) \*\/$/\1/g' UserController.java
@@ -46,7 +52,7 @@ Set up a database in MySQL called `blab` with a user of `blab` and password `z2^
     sed -i -e 's/\(START GOOD CODE\) \*\/$/\1/g' UserController.java
     sed -i -e 's/\(START BAD CODE\)$/\1 *\//g' UserController.java
  
-# Run
+## Run
 
 Deploy to Tomcat
 
