@@ -34,7 +34,7 @@ The simplest way to aquire these on MacOS is via [Homebrew](http://brew.sh/). In
 
 ### Dependencies
 
-Download the Veracode custom cleanser library from `https://tools.veracode.com/customcleanser/VeracodeAnnotations.jar` then install into a local Maven repository (~/.m2/ will be created for you):
+Download the Veracode custom cleanser library from `https://tools.veracode.com/customcleanser/VeracodeAnnotations.jar` then install into a local Maven repository (`~/.m2/` will be created for you):
 
     mvn install:install-file -Dfile=VeracodeAnnotations.jar -DgroupId=com.veracode -DartifactId=annotations -Dversion=1.0 -Dpackaging=jar
 
@@ -44,19 +44,14 @@ Set up a database in MySQL called `blab` with a user of `blab` and password `z2^
  
 ### Switching between good/bad code
 
-    # Bad to good
-    sed -i -e 's/\(START BAD CODE\) \*\/$/\1/g' UserController.java
-    sed -i -e 's/\(START GOOD CODE\)$/\1 *\//g' UserController.java
-    
-    # Good to bad
-    sed -i -e 's/\(START GOOD CODE\) \*\/$/\1/g' UserController.java
-    sed -i -e 's/\(START BAD CODE\)$/\1 *\//g' UserController.java
+There are two git branches `good-code` and `bad-code`. Use the `git checkout <branch-name>` command to checkout the required code.
  
 ## Run
 
-Deploy to Tomcat
+`mvn package` will build the web application and output a war file to `target/verademo.war'
+
+Deploy the resulting war file to Tomcat.
 
 Open `/reset` in your browser and follow the instructions to prep the database
 
 Login with your username/password as defined in `Utils.java`
-
