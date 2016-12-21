@@ -48,7 +48,7 @@ There are two git branches `good-code` and `bad-code`. Use the `git checkout <br
  
 ## Run
 
-`mvn package` will build the web application and output a war file to `target/verademo.war'
+`mvn package` will build the web application and output a war file to `target/verademo.war`
 
 Deploy the resulting war file to Tomcat.
 
