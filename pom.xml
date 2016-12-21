@@ -22,7 +22,7 @@
       <artifactId>Annotations</artifactId>
       <version>1.0</version>
 	  <scope>system</scope>
-      <systemPath>/Users/Shared/VeracodeAnnotations.jar</systemPath>
+      <systemPath>${basedir}/VeracodeAnnotations.jar</systemPath>
     </dependency>
  
     <!-- Spring dependencies -->
