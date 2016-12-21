@@ -20,7 +20,13 @@ The profile url (veracode/profile) allows the current user to modify their profi
 
 There is a login/registration system for users on verademo/login and verademo/register.
  
-## Configure
+# Configure
+
+### Dependencies
+
+Download the Veracode custom cleanser library from `https://tools.veracode.com/customcleanser/VeracodeAnnotations.jar` then run:
+
+    mvn install:install-file -Dfile=VeracodeAnnotations.jar -DgroupId=com.veracode -DartifactId=annotations -Dversion=1.0 -Dpackaging=jar
 
 ### Database
 
