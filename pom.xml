@@ -19,10 +19,8 @@
  
     <dependency>
       <groupId>com.veracode</groupId>
-      <artifactId>Annotations</artifactId>
+      <artifactId>annotations</artifactId>
       <version>1.0</version>
-	  <scope>system</scope>
-      <systemPath>/Users/Shared/VeracodeAnnotations.jar</systemPath>
     </dependency>
  
     <!-- Spring dependencies -->
@@ -89,7 +87,6 @@
 
   <build>
     <finalName>verademo</finalName>
-    
     <plugins>
       <plugin>
         <groupId>org.apache.tomcat.maven</groupId>
