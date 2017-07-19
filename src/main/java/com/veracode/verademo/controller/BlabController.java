@@ -184,7 +184,7 @@ public class BlabController {
 				
 				// If there is a record...
 				if (addBlabResult) {
-					//failre
+					//failure
 					model.addAttribute("error", "Failed to add comment");
 				}
 				nextView = "redirect:feed";
