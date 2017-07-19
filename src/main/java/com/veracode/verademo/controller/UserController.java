@@ -70,11 +70,7 @@ public class UserController {
 		logger.info("Entering processLogin");
 
 		Connection connect = null;
-		/* START BAD CODE */
 		Statement sqlStatement = null;
-		/* END BAD CODE */
-
-		int yy = 0;
 
 		try {
 			// Get the Database Connection
@@ -82,12 +78,14 @@ public class UserController {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager.getConnection(dbConnStr);
 
+			/* START BAD CODE */
 			// Execute the query
 			logger.info("Creating the Statement");
 			String sqlQuery = "select * from users where username='" + username + "' and password='" + password + "';";
 			sqlStatement = connect.createStatement();
 			logger.info("Execute the Statement");
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
+			/* END BAD CODE */
 
 			// Did we find exactly 1 user that matched?
 			if (result.first()) {
@@ -195,6 +193,7 @@ public class UserController {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager.getConnection(dbConnStr);
 
+			/* START BAD CODE */
 			// Execute the query
 			String mysqlCurrentDateTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(Calendar.getInstance().getTime());
 			StringBuilder query = new StringBuilder();
@@ -208,6 +207,7 @@ public class UserController {
 			
 			sqlStatement = connect.createStatement();
 			sqlStatement.execute(query.toString());
+			/* END BAD CODE */
 		} catch (SQLException exceptSql) {
 			logger.error(exceptSql);
 		} catch (ClassNotFoundException cnfe) {

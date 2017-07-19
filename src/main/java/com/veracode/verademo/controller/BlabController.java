@@ -395,6 +395,8 @@ public class BlabController {
 			logger.info("User is Logged In - continuing...");
 			Connection connect = null;
 			PreparedStatement blabbers = null;
+			
+			/* START BAD CODE */
 			String blabbersSql = "SELECT users.userid,"
 									  + " users.blab_name,"
 									  + " users.date_created,"
@@ -416,8 +418,8 @@ public class BlabController {
 				blabbers = connect.prepareStatement(blabbersSql);
 				blabbers.setInt(1,  theUser.getUserID());
 				blabbers.setInt(2,  theUser.getUserID());
-				logger.info("Executing the blabbers Prepared Statement");
 				ResultSet blabbersResults = blabbers.executeQuery();
+				/* END BAD CODE */
 				
 				SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
 				ArrayList<Integer> blabberId = new ArrayList<Integer>();
@@ -505,12 +507,14 @@ public class BlabController {
 				ResultSet result = sqlStatement.executeQuery(sqlQuery);
 				result.next();
 				
+				/* START BAD CODE */
 				String listenEvent = theUser.getBlabName() + " started listening to " + result.getString(1);
 				String ignoreEvent = theUser.getBlabName() + " stopped listening to " + result.getString(1);
 				String event = (0 == command.compareTo("ignore") ? ignoreEvent : listenEvent);
 				sqlQuery = "INSERT INTO users_history (blabber, event) VALUES ('" + theUser.getUserID() + "', '" + event + "')";
 				logger.info(sqlQuery);
 				sqlStatement.execute(sqlQuery);
+				/* END BAD CODE */
 				
 				nextView = "redirect:blabbers";
 				
