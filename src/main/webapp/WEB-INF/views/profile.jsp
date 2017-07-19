@@ -38,6 +38,7 @@
             <li role="presentation"><a href="feed">Feed</a></li>
             <li role="presentation"><a href="blabbers">Blabbers</a></li>
             <li role="presentation" class="active"><a href="profile">Profile</a></li>
+            <li role="presentation"><a href="tools">Tools</a></li>
             <li role="presentation"><a href="logout">Logout</a></li>
           </ul>
         </nav>
@@ -117,6 +118,32 @@
              <p class=""><%= hecklerName.get(i) %></p> 
              <span class="date sub-text">member since <%= created.get(i) %></span><br>
             </div>
+           </li>
+               <%
+            	}
+              %>
+              
+                
+          </ul>
+         </div>
+        </div>
+       </div>
+       
+       <div class="col-md-6">
+        <div class="detailBox">
+         <div class="titleBox">
+          <label>Your History</label>
+         </div>
+         <div class="actionBox">
+          <ul class="commentList">
+              <% 
+                ArrayList<String> events = (ArrayList<String>) request.getAttribute("events");
+            	for (int i=0; i<events.size(); i++) {
+            		
+              %>
+           
+           <li>
+             <p class=""><%= events.get(i) %></p>
            </li>
                <%
             	}
