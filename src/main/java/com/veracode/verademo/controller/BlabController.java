@@ -34,11 +34,9 @@ public class BlabController {
 		return msg.replaceAll("\n", "[newline]");
 	}
 
-	
 	@Autowired
 	private UserSession theUser;
 
-	
 	@RequestMapping(value="/feed", method=RequestMethod.GET)
 	public String showFeed(@RequestParam(value="type", required=false) String type, Model model) {
 		String nextView = "feed";
@@ -53,12 +51,12 @@ public class BlabController {
 			PreparedStatement blabsByMe = null;
 			PreparedStatement blabsForMe = null;
 			String sqlBlabsByMe = "SELECT blabs.content, blabs.timestamp, COUNT(comments.blabber), blabs.blabid "
-					            + "FROM blabs LEFT JOIN comments ON blabs.blabid = comments.blabid "
-					            + "WHERE blabs.blabber = ? GROUP BY blabs.blabid ORDER BY blabs.timestamp DESC;";
+								+ "FROM blabs LEFT JOIN comments ON blabs.blabid = comments.blabid "
+								+ "WHERE blabs.blabber = ? GROUP BY blabs.blabid ORDER BY blabs.timestamp DESC;";
 			
 			String sqlBlabsForMe = "SELECT users.userid, users.blab_name, blabs.content, blabs.timestamp, COUNT(comments.blabber), blabs.blabid "
-					             + "FROM blabs INNER JOIN users ON blabs.blabber = users.userid INNER JOIN listeners ON blabs.blabber = listeners.blabber LEFT JOIN comments ON blabs.blabid = comments.blabid "
-					             + "WHERE listeners.listener = ? GROUP BY blabs.blabid ORDER BY blabs.timestamp DESC;";
+								 + "FROM blabs INNER JOIN users ON blabs.blabber = users.userid INNER JOIN listeners ON blabs.blabber = listeners.blabber LEFT JOIN comments ON blabs.blabid = comments.blabid "
+								 + "WHERE listeners.listener = ? GROUP BY blabs.blabid ORDER BY blabs.timestamp DESC;";
 			
 			try {
 				logger.info("Getting Database connection");
@@ -121,32 +119,32 @@ public class BlabController {
 				
 			}catch (SQLException exceptSql) {
 				logger.error(exceptSql);
-	        } catch (ClassNotFoundException cnfe) {
+			} catch (ClassNotFoundException cnfe) {
 				logger.error(cnfe);
-	        	
-	        } finally {
-	        	try {
-	                if (blabsByMe != null) {
-	                	blabsByMe.close();
-	                }
-	        	} catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        	try {
-	                if (blabsForMe != null) {
-	                	blabsForMe.close();
-	                }
-	        	} catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        	try {
-	                if (connect != null){
-	                    connect.close();
-	                }
-	            } catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        }
+				
+			} finally {
+				try {
+					if (blabsByMe != null) {
+						blabsByMe.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+				try {
+					if (blabsForMe != null) {
+						blabsForMe.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+				try {
+					if (connect != null){
+						connect.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+			}
 			
 		}
 		return nextView;
@@ -191,25 +189,25 @@ public class BlabController {
 				
 			}catch (SQLException exceptSql) {
 				logger.error(exceptSql);
-	        } catch (ClassNotFoundException cnfe) {
+			} catch (ClassNotFoundException cnfe) {
 				logger.error(cnfe);
-	        	
-	        } finally {
-	        	try {
-	                if (addBlab != null) {
-	                	addBlab.close();
-	                }
-	        	} catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        	try {
-	                if (connect != null){
-	                    connect.close();
-	                }
-	            } catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        }
+				
+			} finally {
+				try {
+					if (addBlab != null) {
+						addBlab.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+				try {
+					if (connect != null){
+						connect.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+			}
 		}
 		return nextView;
 	}
@@ -227,12 +225,12 @@ public class BlabController {
 			PreparedStatement blabDetails = null;
 			PreparedStatement blabComments = null;
 			String blabDetailsSql = "SELECT blabs.content, users.blab_name "
-		              + "FROM blabs INNER JOIN users ON blabs.blabber = users.userid "
-		              + "WHERE blabs.blabid = ?;";
+					  + "FROM blabs INNER JOIN users ON blabs.blabber = users.userid "
+					  + "WHERE blabs.blabid = ?;";
 
 			String blabCommentsSql = "SELECT comments.blabber, users.blab_name, comments.content, comments.timestamp "
-		              + "FROM comments INNER JOIN users ON comments.blabber = users.userid "
-		              + "WHERE comments.blabid = ? ORDER BY comments.timestamp DESC;";
+					  + "FROM comments INNER JOIN users ON comments.blabber = users.userid "
+					  + "WHERE comments.blabid = ? ORDER BY comments.timestamp DESC;";
 
 			try {
 				logger.info("Getting Database connection");
@@ -280,32 +278,32 @@ public class BlabController {
 				
 			}catch (SQLException exceptSql) {
 				logger.error(exceptSql);
-	        } catch (ClassNotFoundException cnfe) {
+			} catch (ClassNotFoundException cnfe) {
 				logger.error(cnfe);
-	        	
-	        } finally {
-	        	try {
-	                if (blabDetails != null) {
-	                	blabDetails.close();
-	                }
-	        	} catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        	try {
-	                if (connect != null){
-	                    connect.close();
-	                }
-	            } catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        }
+				
+			} finally {
+				try {
+					if (blabDetails != null) {
+						blabDetails.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+				try {
+					if (connect != null){
+						connect.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+			}
 		}
 		return nextView;
 	}
 
 	@RequestMapping(value="/blab", method=RequestMethod.POST)
 	public String processBlab(@RequestParam(value="comment", required=true) String comment, 
-			                  @RequestParam(value="blabid", required=true) Integer blabid, Model model) {
+							  @RequestParam(value="blabid", required=true) Integer blabid, Model model) {
 		String nextView = "redirect:feed";
 		logger.info("Entering processBlab");
 		if (!theUser.getLoggedIn()) {
@@ -344,35 +342,25 @@ public class BlabController {
 				
 			}catch (SQLException exceptSql) {
 				logger.error(exceptSql);
-	        } catch (ClassNotFoundException cnfe) {
+			} catch (ClassNotFoundException cnfe) {
 				logger.error(cnfe);
-	        	
-	        } finally {
-	        	try {
-	                if (addComment != null) {
-	                	addComment.close();
-	                }
-	        	} catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        	try {
-	                if (connect != null){
-	                    connect.close();
-	                }
-	            } catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        }
-
-			
-			
-			
-			
-			
-			
-			
-			
-			
+				
+			} finally {
+				try {
+					if (addComment != null) {
+						addComment.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+				try {
+					if (connect != null){
+						connect.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+			}
 		}
 		return nextView;
 	}
@@ -401,11 +389,11 @@ public class BlabController {
 			Connection connect = null;
 			PreparedStatement blabbers = null;
 			String blabbersSql = "SELECT users.userid, users.blab_name, users.date_created, "
-					                  + "SUM(if(listeners.listener=?, 1, 0)), "
-					                  + "SUM(if(listeners.status='Active',1,0)) "
-					           + "FROM users LEFT JOIN listeners ON users.userid = listeners.blabber "
-					           + "WHERE users.userid NOT IN (1,?)"
-					           + "GROUP BY users.userid;";
+									  + "SUM(if(listeners.listener=?, 1, 0)), "
+									  + "SUM(if(listeners.status='Active',1,0)) "
+							   + "FROM users LEFT JOIN listeners ON users.userid = listeners.blabber "
+							   + "WHERE users.userid NOT IN (1,?)"
+							   + "GROUP BY users.userid;";
 
 			try {
 				logger.info("Getting Database connection");
@@ -445,33 +433,32 @@ public class BlabController {
 				
 			}catch (SQLException exceptSql) {
 				logger.error(exceptSql);
-	        } catch (ClassNotFoundException cnfe) {
+			} catch (ClassNotFoundException cnfe) {
 				logger.error(cnfe);
-	        	
-	        } finally {
-	        	try {
-	                if (blabbers != null) {
-	                	blabbers.close();
-	                }
-	        	} catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        	try {
-	                if (connect != null){
-	                    connect.close();
-	                }
-	            } catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        }
+				
+			} finally {
+				try {
+					if (blabbers != null) {
+						blabbers.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+				try {
+					if (connect != null){
+						connect.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+			}
 		}
 		return nextView;
 	}
-	
 
 	@RequestMapping(value="/blabbers", method=RequestMethod.POST)
 	public String processBlabbers(@RequestParam(value="blabberId", required=true) Integer blabberId, 
-			                      @RequestParam(value="command", required=true) String command, Model model) {
+								  @RequestParam(value="command", required=true) String command, Model model) {
 		String nextView = "redirect:feed";
 		logger.info("Entering processBlabbers");
 		if (!theUser.getLoggedIn()) {
@@ -512,33 +499,26 @@ public class BlabController {
 				
 			}catch (SQLException exceptSql) {
 				logger.error(exceptSql);
-	        } catch (ClassNotFoundException cnfe) {
+			} catch (ClassNotFoundException cnfe) {
 				logger.error(cnfe);
-	        	
-	        } finally {
-	        	try {
-	                if (action != null) {
-	                	action.close();
-	                }
-	        	} catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        	try {
-	                if (connect != null){
-	                    connect.close();
-	                }
-	            } catch (SQLException exceptSql) {
-	    			logger.error(exceptSql);
-	            }
-	        }
-			
-			
+				
+			} finally {
+				try {
+					if (action != null) {
+						action.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+				try {
+					if (connect != null){
+						connect.close();
+					}
+				} catch (SQLException exceptSql) {
+					logger.error(exceptSql);
+				}
+			}
 		}
-		
-		
 		return nextView;
 	}
-	
-
-
 }
