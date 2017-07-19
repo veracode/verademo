@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -481,20 +482,27 @@ public class BlabController {
 				connect = DriverManager.getConnection(dbConnStr);
 				
 				java.util.Date now = new java.util.Date();
-				// 
-				logger.info("Preparing the action Prepared Statement");
-				action = connect.prepareStatement((0 == command.compareTo("ignore") ? ignoreSql : listenSql));
+				
+				String sqlQuery = (0 == command.compareTo("ignore") ? ignoreSql : listenSql);
+				logger.info(sqlQuery);
+				action = connect.prepareStatement(sqlQuery);
 				action.setInt(1, blabberId);
 				action.setInt(2, theUser.getUserID());
+				action.execute();
 							
-				logger.info("Executing the action Prepared Statement");
-				boolean addCommentResult = action.execute();
+				sqlQuery = "SELECT blab_name FROM users WHERE userid = " + blabberId;
+				Statement sqlStatement = connect.createStatement();
+				logger.info(sqlQuery);
+				ResultSet result = sqlStatement.executeQuery(sqlQuery);
+				result.next();
 				
-				// If there is a record...
-				if (addCommentResult) {
-					//failre
-					model.addAttribute("error", "Failed to modify your preferences. Please try again");
-				}
+				String listenEvent = theUser.getBlabName() + " started listening to " + result.getString(1);
+				String ignoreEvent = theUser.getBlabName() + " stopped listening to " + result.getString(1);
+				String event = (0 == command.compareTo("ignore") ? ignoreEvent : listenEvent);
+				sqlQuery = "INSERT INTO users_history (blabber, event) VALUES ('" + theUser.getUserID() + "', '" + event + "')";
+				logger.info(sqlQuery);
+				sqlStatement.execute(sqlQuery);
+				
 				nextView = "redirect:blabbers";
 				
 			}catch (SQLException exceptSql) {
