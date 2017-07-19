@@ -89,17 +89,8 @@ body {
 .taskDescription {
     margin-top:10px 0;
 }
-.commentList {
-    padding:0;
-    list-style:none;
-    overflow:auto;
-}
-.commentList li {
-    margin:0;
-    margin-top:10px;
-}
-.commentList li > div {
-    display:table-cell;
+.blabbers {
+	padding: 50px;
 }
 .commenterImage {
     width:30px;

@@ -379,7 +379,13 @@ public class BlabController {
 	}
 
 	@RequestMapping(value="/blabbers", method=RequestMethod.GET)
-	public String showBlabbers(@RequestParam(value="type", required=false) String type, Model model) {
+	public String showBlabbers(
+			@RequestParam(value="sort", required=false) String sort,
+			Model model
+		) {
+		if (sort == null || sort.isEmpty()) {
+			sort = "blab_name ASC";
+		}
 		String nextView = "redirect:feed";
 		logger.info("Entering showBlabbers");
 		if (!theUser.getLoggedIn()) {
@@ -389,12 +395,15 @@ public class BlabController {
 			logger.info("User is Logged In - continuing...");
 			Connection connect = null;
 			PreparedStatement blabbers = null;
-			String blabbersSql = "SELECT users.userid, users.blab_name, users.date_created, "
-									  + "SUM(if(listeners.listener=?, 1, 0)), "
-									  + "SUM(if(listeners.status='Active',1,0)) "
-							   + "FROM users LEFT JOIN listeners ON users.userid = listeners.blabber "
-							   + "WHERE users.userid NOT IN (1,?)"
-							   + "GROUP BY users.userid;";
+			String blabbersSql = "SELECT users.userid,"
+									  + " users.blab_name,"
+									  + " users.date_created,"
+									  + " SUM(if(listeners.listener=?, 1, 0)) as listeners,"
+									  + " SUM(if(listeners.status='Active',1,0)) as listening"
+							   + " FROM users LEFT JOIN listeners ON users.userid = listeners.blabber"
+							   + " WHERE users.userid NOT IN (1,?)"
+							   + " GROUP BY users.userid"
+							   + " ORDER BY " + sort + ";";
 
 			try {
 				logger.info("Getting Database connection");
@@ -403,7 +412,7 @@ public class BlabController {
 				connect = DriverManager.getConnection(dbConnStr);
 				
 				// Find the Blabbers
-				logger.info("Preparing the blabbers Prepared Statement");
+				logger.info(blabbersSql);
 				blabbers = connect.prepareStatement(blabbersSql);
 				blabbers.setInt(1,  theUser.getUserID());
 				blabbers.setInt(2,  theUser.getUserID());
