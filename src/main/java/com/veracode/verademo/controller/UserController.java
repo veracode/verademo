@@ -8,6 +8,11 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
@@ -17,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,8 +51,15 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
-	public String showLogin(@RequestParam(value = "target", required = false) String target, Model model) {
-		logger.info("Entering showLogin");
+	public String showLogin(@RequestParam(value = "target", required = false) String target,
+							@CookieValue("username") String username,
+							Model model) {
+		if (username == null) {
+			username = "";
+		}
+		
+		logger.info("Entering showLogin with username " + username + " and target " + target);
+		model.addAttribute("username", username);
 		if (null != target)
 			model.addAttribute("target", target);
 		else
@@ -64,8 +77,14 @@ public class UserController {
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String processLogin(@RequestParam(value = "user", required = true) String username,
 							   @RequestParam(value = "password", required = true) String password,
-							   @RequestParam(value = "target", required = false) String target, Model model) {
+							   @RequestParam(value = "target", required = false) String target, 
+							   Model model,
+							   HttpServletResponse response) {
 		String nextView = "login";
+		
+		/* START BAD CODE */
+		response.addCookie(new Cookie("username", username));
+		/* END BAD CODE */
 
 		logger.info("Entering processLogin");
 
