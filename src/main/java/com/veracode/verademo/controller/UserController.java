@@ -8,7 +8,14 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Properties;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,7 +59,7 @@ public class UserController {
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String showLogin(@RequestParam(value = "target", required = false) String target,
-							@CookieValue("username") String username,
+							@CookieValue(value="username", required=false) String username,
 							Model model) {
 		if (username == null) {
 			username = "";
@@ -226,7 +233,11 @@ public class UserController {
 			
 			sqlStatement = connect.createStatement();
 			sqlStatement.execute(query.toString());
+			
+			
 			/* END BAD CODE */
+			
+			emailUser(username);
 		} catch (SQLException exceptSql) {
 			logger.error(exceptSql);
 		} catch (ClassNotFoundException cnfe) {
@@ -249,6 +260,32 @@ public class UserController {
 			}
 		}
 		return nextView;
+	}
+
+	private void emailUser(String username) {
+	      String to = "admin@example.com";
+	      String from = "verademo@veracode.com";
+	      String host = "localhost";
+	      String port = "5555";
+
+	      Properties properties = System.getProperties();
+	      properties.setProperty("mail.smtp.host", host);
+	      properties.put("mail.smtp.port", port);
+
+	      Session session = Session.getDefaultInstance(properties);
+
+	      try {
+	         MimeMessage message = new MimeMessage(session);
+	         message.setFrom(new InternetAddress(to));
+	         message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+	         message.setSubject("New user registered: z\r\nX-TEST: " + username);
+	         message.setText("A new VeraDemo user registered: " + username);
+
+	         logger.info("Sending email to admin");
+	         Transport.send(message);
+	      }catch (MessagingException mex) {
+	         mex.printStackTrace();
+	      }
 	}
 
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
