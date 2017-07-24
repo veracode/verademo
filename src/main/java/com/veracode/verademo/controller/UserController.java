@@ -278,7 +278,9 @@ public class UserController {
 	         MimeMessage message = new MimeMessage(session);
 	         message.setFrom(new InternetAddress(to));
 	         message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-	         message.setSubject("New user registered: z\r\nX-TEST: " + username);
+	         /* START BAD CODE */
+	         message.setSubject("New user registered: " + username);
+	         /* END BAD CODE */
 	         message.setText("A new VeraDemo user registered: " + username);
 
 	         logger.info("Sending email to admin");
