@@ -1,11 +1,14 @@
 package com.veracode.verademo.controller;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +19,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Properties;
 
@@ -67,11 +71,9 @@ public class UserController {
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String showLogin(@RequestParam(value = "target", required = false) String target,
-							@CookieValue(value="username", required=false) String username,
+							@CookieValue(value="user", required=false) String serializedUserSession,
 							Model model) {
-		if (username == null) {
-			username = "";
-		}
+		String username = getUsernameFromPrevSession(serializedUserSession);
 		
 		logger.info("Entering showLogin with username " + username + " and target " + target);
 		
@@ -81,6 +83,35 @@ public class UserController {
 		else
 			model.addAttribute("target", "");
 		return "login";
+	}
+
+	private String getUsernameFromPrevSession(String serializedUserSession) {
+		if (serializedUserSession == null) {
+			return "";
+		}
+		
+		if (serializedUserSession.isEmpty()) {
+			return "";
+		}
+		
+		InputStream stream = new ByteArrayInputStream(serializedUserSession.getBytes(StandardCharsets.UTF_8));
+		stream = Base64.getDecoder().wrap(stream);
+		ObjectInputStream in;
+		try {
+			/* START BAD CODE */
+			in = new ObjectInputStream(stream);
+			UserSession previousSession = (UserSession) in.readObject();
+			in.close();
+			/* END BAD CODE */
+			return previousSession.getUsername();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "";
 	}
 
 	/**
@@ -97,10 +128,6 @@ public class UserController {
 							   Model model,
 							   HttpServletResponse response) {
 		String nextView = "login";
-		
-		/* START BAD CODE */
-		response.addCookie(new Cookie("username", username));
-		/* END BAD CODE */
 
 		logger.info("Entering processLogin");
 
@@ -135,6 +162,8 @@ public class UserController {
 				logger.info("BlabName: " + result.getString(7));
 				theUser.setBlabName(result.getString(7));
 				theUser.setLoggedIn(true);
+				
+				storeSerializedUserInCookie(theUser, response);
 
 				logger.info("Login complete. Redirecting (target=" + (null == target ? "null" : Cleansers.cleanLog(target)) + ")");
 				if (0 != target.length()) {
@@ -183,6 +212,21 @@ public class UserController {
 		}
 		logger.info("returning the nextView: " + Cleansers.cleanLog(nextView));
 		return nextView;
+	}
+
+	private void storeSerializedUserInCookie(UserSession user, HttpServletResponse response) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ObjectOutputStream stream;
+		try {
+			stream = new ObjectOutputStream(out);
+			stream.writeObject(user);
+			stream.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		response.addCookie(new Cookie("user", new String(Base64.getEncoder().encode(out.toByteArray()))));
 	}
 
 	@RequestMapping(value = "/logout", method = {RequestMethod.GET, RequestMethod.POST})
