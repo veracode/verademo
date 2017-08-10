@@ -10,16 +10,16 @@ import java.sql.Statement;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.veracode.verademo.utils.UserSession;
+import com.veracode.verademo.utils.User;
 
 public class IgnoreCommand implements BlabberCommand {	
 	private static final Logger logger = LogManager.getLogger("VeraDemo:IgnoreCommand");
 	
 	private Connection connect;
 	
-	private UserSession theUser;
+	private User theUser;
 
-	public IgnoreCommand(Connection connect, UserSession theUser) {
+	public IgnoreCommand(Connection connect, User theUser) {
 		super();
 		this.connect = connect;
 		this.theUser = theUser;

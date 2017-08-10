@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.veracode.verademo.utils.UserSession;
+import com.veracode.verademo.utils.User;
 import java.security.SecureRandom;
 import java.security.NoSuchAlgorithmException ;
 import java.security.NoSuchProviderException ;
@@ -167,7 +167,7 @@ public class Utils {
 
 	
 	@Autowired
-	private UserSession theUser;
+	private User theUser;
 	
 	private String dbConnStr = "jdbc:mysql://localhost/blab?user=blab&password=z2^E6J4$;u;d";
 

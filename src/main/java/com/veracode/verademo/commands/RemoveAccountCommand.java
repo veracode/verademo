@@ -9,16 +9,16 @@ import java.sql.Statement;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.veracode.verademo.utils.UserSession;
+import com.veracode.verademo.utils.User;
 
 public class RemoveAccountCommand implements BlabberCommand {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:RemoveAccountCommand");
 	
 	private Connection connect;
 	
-	private UserSession theUser;
+	private User theUser;
 	
-	public RemoveAccountCommand(Connection connect, UserSession theUser) {
+	public RemoveAccountCommand(Connection connect, User theUser) {
 		super();
 		this.connect = connect;
 		this.theUser = theUser;

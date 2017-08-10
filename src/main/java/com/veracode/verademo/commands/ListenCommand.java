@@ -9,16 +9,16 @@ import java.sql.Statement;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import com.veracode.verademo.utils.UserSession;
+import com.veracode.verademo.utils.User;
 
 public class ListenCommand implements BlabberCommand {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:ListenCommand");
 	
 	private Connection connect;
 	
-	private UserSession theUser;
+	private User theUser;
 	
-	public ListenCommand(Connection connect, UserSession theUser) {
+	public ListenCommand(Connection connect, User theUser) {
 		super();
 		this.connect = connect;
 		this.theUser = theUser;

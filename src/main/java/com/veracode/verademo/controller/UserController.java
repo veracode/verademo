@@ -48,7 +48,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.veracode.verademo.utils.Cleansers;
-import com.veracode.verademo.utils.UserSession;
+import com.veracode.verademo.utils.User;
+import com.veracode.verademo.utils.UserFactory;
+
 import java.beans.XMLDecoder;
 
 /**
@@ -59,9 +61,6 @@ import java.beans.XMLDecoder;
 public class UserController {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:UserController");
 
-	@Autowired
-	private UserSession theUser;
-
 	private String dbConnStr = "jdbc:mysql://localhost/blab?user=blab&password=z2^E6J4$;u;d";
 
 	/**
@@ -71,9 +70,11 @@ public class UserController {
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String showLogin(@RequestParam(value = "target", required = false) String target,
-							@CookieValue(value="user", required=false) String serializedUserSession,
+							@CookieValue(value="username", required=false) String username,
 							Model model) {
-		String username = getUsernameFromPrevSession(serializedUserSession);
+		if (username == null) {
+			username = "";
+		}
 		
 		logger.info("Entering showLogin with username " + username + " and target " + target);
 		
@@ -83,35 +84,6 @@ public class UserController {
 		else
 			model.addAttribute("target", "");
 		return "login";
-	}
-
-	private String getUsernameFromPrevSession(String serializedUserSession) {
-		if (serializedUserSession == null) {
-			return "";
-		}
-		
-		if (serializedUserSession.isEmpty()) {
-			return "";
-		}
-		
-		InputStream stream = new ByteArrayInputStream(serializedUserSession.getBytes(StandardCharsets.UTF_8));
-		stream = Base64.getDecoder().wrap(stream);
-		ObjectInputStream in;
-		try {
-			/* START BAD CODE */
-			in = new ObjectInputStream(stream);
-			UserSession previousSession = (UserSession) in.readObject();
-			in.close();
-			/* END BAD CODE */
-			return previousSession.getUsername();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return "";
 	}
 
 	/**
@@ -151,19 +123,20 @@ public class UserController {
 
 			// Did we find exactly 1 user that matched?
 			if (result.first()) {
+				User currentUser = new User();
 				// OK we have found the user, lets setup their Session object
 				logger.info("User Found. Setting up UserSession object");
 				logger.info("UserID: " + result.getInt(1));
-				theUser.setUserID(result.getInt(1));
+				currentUser.setUserID(result.getInt(1));
 				logger.info("Username: " + result.getString(2));
-				theUser.setUsername(result.getString(2));
+				currentUser.setUsername(result.getString(2));
 				logger.info("RealName: " + result.getString(6));
-				theUser.setRealName(result.getString(6));
+				currentUser.setRealName(result.getString(6));
 				logger.info("BlabName: " + result.getString(7));
-				theUser.setBlabName(result.getString(7));
-				theUser.setLoggedIn(true);
+				currentUser.setBlabName(result.getString(7));
+				currentUser.setLoggedIn(true);
 				
-				storeSerializedUserInCookie(theUser, response);
+				UserFactory.updateInResponse(currentUser, response);
 
 				logger.info("Login complete. Redirecting (target=" + (null == target ? "null" : Cleansers.cleanLog(target)) + ")");
 				if (0 != target.length()) {
@@ -214,29 +187,21 @@ public class UserController {
 		return nextView;
 	}
 
-	private void storeSerializedUserInCookie(UserSession user, HttpServletResponse response) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ObjectOutputStream stream;
-		try {
-			stream = new ObjectOutputStream(out);
-			stream.writeObject(user);
-			stream.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		response.addCookie(new Cookie("user", new String(Base64.getEncoder().encode(out.toByteArray()))));
-	}
-
 	@RequestMapping(value = "/logout", method = {RequestMethod.GET, RequestMethod.POST})
-	public String processLogout(@RequestParam(value = "type", required = false) String type, Model model) {
+	public String processLogout(
+			@RequestParam(value = "type", required = false) String type, 
+			Model model,
+			HttpServletRequest req,
+			HttpServletResponse response
+		) {
 		logger.info("Entering processLogout");
 		logger.info("Clearing UserSession");
-		theUser.setBlabName("");
-		theUser.setUserID(0);
-		theUser.setUsername("");
-		theUser.setLoggedIn(false);
+		User currentUser = UserFactory.createFromRequest(req);
+		currentUser.setBlabName("");
+		currentUser.setUserID(0);
+		currentUser.setUsername("");
+		currentUser.setLoggedIn(false);
+		UserFactory.updateInResponse(currentUser, response);
 		logger.info("Redirecting to Login...");
 		return "redirect:login";
 	}
@@ -344,13 +309,19 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
-	public String showProfile(@RequestParam(value = "type", required = false) String type, Model model) {
+	public String showProfile(
+			@RequestParam(value = "type", required = false) String type, 
+			Model model,
+			HttpServletRequest req
+		) {
 		logger.info("Entering showProfile");
 		Connection connect = null;
 		PreparedStatement myHecklers = null;
 		String sqlMyHecklers = "SELECT users.userid, users.blab_name, users.date_created "
 				+ "FROM users LEFT JOIN listeners ON users.userid = listeners.listener "
 				+ "WHERE listeners.blabber=? AND listeners.status='Active';";
+		
+		User currentUser = UserFactory.createFromRequest(req);
 
 		try {
 			logger.info("Getting Database connection");
@@ -361,7 +332,7 @@ public class UserController {
 			// Find the Blabs that this user listens to
 			logger.info(sqlMyHecklers);
 			myHecklers = connect.prepareStatement(sqlMyHecklers);
-			myHecklers.setInt(1, theUser.getUserID());
+			myHecklers.setInt(1, currentUser.getUserID());
 			ResultSet myHecklersResults = myHecklers.executeQuery();
 			
 			// Store them in the Model
@@ -378,7 +349,7 @@ public class UserController {
 			
 			ArrayList<String> events = new ArrayList<String>();
 			
-			String sqlQuery = "select event from users_history where blabber=" + theUser.getUserID() + "; ";
+			String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + "; ";
 			logger.info(sqlQuery);
 			Statement sqlStatement = connect.createStatement();
 			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
@@ -390,8 +361,8 @@ public class UserController {
 			model.addAttribute("hecklerId", hecklerId);
 			model.addAttribute("hecklerName", hecklerName);
 			model.addAttribute("created", created);
-			model.addAttribute("realName", theUser.getRealName());
-			model.addAttribute("blabName", theUser.getBlabName());
+			model.addAttribute("realName", currentUser.getRealName());
+			model.addAttribute("blabName", currentUser.getBlabName());
 			model.addAttribute("events", events);
 
 		} catch (SQLException exceptSql) {
@@ -421,10 +392,15 @@ public class UserController {
 
 	@RequestMapping(value = "/profile", method = RequestMethod.POST)
 	public String processProfile(@RequestParam(value = "realName", required = true) String realName,
-								 @RequestParam(value = "blabName", required = true) String blabName, Model model) {
+								 @RequestParam(value = "blabName", required = true) String blabName, 
+								 Model model,
+								 HttpServletRequest req
+	) {
 		String nextView = "redirect:feed";
 		logger.info("Entering processProfile");
-		if (!theUser.getLoggedIn()) {
+
+		User currentUser = UserFactory.createFromRequest(req);
+		if (!currentUser.getLoggedIn()) {
 			logger.info("User is not Logged In - redirecting...");
 			nextView = "redirect:login?target=feed";
 		} else {
@@ -445,7 +421,7 @@ public class UserController {
 				update = connect.prepareStatement(updateSql);
 				update.setString(1, realName);
 				update.setString(2, blabName);
-				update.setInt(3, theUser.getUserID());
+				update.setInt(3, currentUser.getUserID());
 
 				logger.info("Executing the update Prepared Statement");
 				boolean updateResult = update.execute();
@@ -455,8 +431,8 @@ public class UserController {
 					//failure
 					model.addAttribute("error", "Failed to modify your preferences. Please try again");
 				} else {
-					theUser.setRealName(realName);
-					theUser.setBlabName(blabName);
+					currentUser.setRealName(realName);
+					currentUser.setBlabName(blabName);
 				}
 				nextView = "redirect:blabbers";
 

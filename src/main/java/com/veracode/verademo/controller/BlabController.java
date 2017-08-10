@@ -11,6 +11,8 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +39,18 @@ public class BlabController {
 		return msg.replaceAll("\n", "[newline]");
 	}
 
-	@Autowired
-	private UserSession theUser;
-
 	@RequestMapping(value="/feed", method=RequestMethod.GET)
-	public String showFeed(@RequestParam(value="type", required=false) String type, Model model) {
+	public String showFeed(
+			@RequestParam(value="type", required=false) String type, 
+			Model model,
+			HttpServletRequest req
+		) {
 		String nextView = "feed";
 		logger.info("Entering showFeed");
-		if (!theUser.getLoggedIn()) {
+		
+		User currentUser = UserFactory.createFromRequest(req);
+		
+		if (!currentUser.getLoggedIn()) {
 			logger.info("User is not Logged In - redirecting...");
 			return "redirect:login?target=feed";
 		}
@@ -71,7 +77,7 @@ public class BlabController {
 			// Find the Blabs that this user listens to
 			logger.info("Preparing the BlabsForMe Prepared Statement");
 			blabsForMe = connect.prepareStatement(sqlBlabsForMe);
-			blabsForMe.setInt(1,  theUser.getUserID());
+			blabsForMe.setInt(1,  currentUser.getUserID());
 			logger.info("Executing the BlabsForMe Prepared Statement");
 			ResultSet blabsForMeResults = blabsForMe.executeQuery();
 			// Store them in the Model
@@ -97,12 +103,12 @@ public class BlabController {
 			model.addAttribute("countForMe", countForMe);
 			model.addAttribute("blabIdForMe", blabIdForMe);
 			
-			model.addAttribute("currentUser", theUser.getBlabName());
+			model.addAttribute("currentUser", currentUser.getBlabName());
 			
 			// Find the Blabs by this user
 			logger.info("Preparing the BlabsByMe Prepared Statement");
 			blabsByMe = connect.prepareStatement(sqlBlabsByMe);
-			blabsByMe.setInt(1,  theUser.getUserID());
+			blabsByMe.setInt(1,  currentUser.getUserID());
 			logger.info("Executing the BlabsByMe Prepared Statement");
 			ResultSet blabsByMeResults = blabsByMe.executeQuery();
 			// Store them in the model
@@ -154,10 +160,11 @@ public class BlabController {
 	}
 
 	@RequestMapping(value="/feed", method=RequestMethod.POST)
-	public String processFeed(@RequestParam(value="blab", required=true) String blab, Model model) {
+	public String processFeed(@RequestParam(value="blab", required=true) String blab, Model model, HttpServletRequest req) {
 		String nextView = "redirect:feed";
 		logger.info("Entering processBlab");
-		if (!theUser.getLoggedIn()) {
+		User currentUser = UserFactory.createFromRequest(req);
+		if (!currentUser.getLoggedIn()) {
 			logger.info("User is not Logged In - redirecting...");
 			nextView = "redirect:login?target=feed";
 		} else {
@@ -176,7 +183,7 @@ public class BlabController {
 				// 
 				logger.info("Preparing the addBlab Prepared Statement");
 				addBlab = connect.prepareStatement(addBlabSql);
-				addBlab.setInt(1,  theUser.getUserID());
+				addBlab.setInt(1,  currentUser.getUserID());
 				addBlab.setString(2,  blab);
 				addBlab.setTimestamp(3,  new Timestamp(now.getTime()));
 				
@@ -216,10 +223,13 @@ public class BlabController {
 	}
 	
 	@RequestMapping(value="/blab", method=RequestMethod.GET)
-	public String showBlab(@RequestParam(value="blabid", required=true) Integer blabid, Model model) {
+	public String showBlab(@RequestParam(value="blabid", required=true) Integer blabid, Model model, HttpServletRequest req) {
 		String nextView = "redirect:feed";
 		logger.info("Entering showBlab");
-		if (!theUser.getLoggedIn()) {
+		
+		User currentUser = UserFactory.createFromRequest(req);
+		
+		if (!currentUser.getLoggedIn()) {
 			logger.info("User is not Logged In - redirecting...");
 			nextView = "redirect:login?target=blab";
 		} else {
@@ -306,10 +316,16 @@ public class BlabController {
 
 	@RequestMapping(value="/blab", method=RequestMethod.POST)
 	public String processBlab(@RequestParam(value="comment", required=true) String comment, 
-							  @RequestParam(value="blabid", required=true) Integer blabid, Model model) {
+							  @RequestParam(value="blabid", required=true) Integer blabid, 
+							  Model model,
+							  HttpServletRequest req
+		) {
 		String nextView = "redirect:feed";
 		logger.info("Entering processBlab");
-		if (!theUser.getLoggedIn()) {
+		
+		User currentUser = UserFactory.createFromRequest(req);
+		
+		if (!currentUser.getLoggedIn()) {
 			logger.info("User is not Logged In - redirecting...");
 			nextView = "redirect:login?target=feed";
 		} else {
@@ -329,7 +345,7 @@ public class BlabController {
 				logger.info("Preparing the addComment Prepared Statement");
 				addComment = connect.prepareStatement(addCommentSql);
 				addComment.setInt(1,  blabid);
-				addComment.setInt(2,  theUser.getUserID());
+				addComment.setInt(2,  currentUser.getUserID());
 				addComment.setString(3,  comment);
 				addComment.setTimestamp(4,  new Timestamp(now.getTime()));
 				
@@ -383,14 +399,18 @@ public class BlabController {
 	@RequestMapping(value="/blabbers", method=RequestMethod.GET)
 	public String showBlabbers(
 			@RequestParam(value="sort", required=false) String sort,
-			Model model
+			Model model,
+			HttpServletRequest req
 		) {
 		if (sort == null || sort.isEmpty()) {
 			sort = "blab_name ASC";
 		}
 		String nextView = "redirect:feed";
 		logger.info("Entering showBlabbers");
-		if (!theUser.getLoggedIn()) {
+		
+		User currentUser = UserFactory.createFromRequest(req);
+		
+		if (!currentUser.getLoggedIn()) {
 			logger.info("User is not Logged In - redirecting...");
 			nextView = "redirect:login?target=blabbers";
 		} else {
@@ -418,8 +438,8 @@ public class BlabController {
 				// Find the Blabbers
 				logger.info(blabbersSql);
 				blabbers = connect.prepareStatement(blabbersSql);
-				blabbers.setInt(1,  theUser.getUserID());
-				blabbers.setInt(2,  theUser.getUserID());
+				blabbers.setInt(1,  currentUser.getUserID());
+				blabbers.setInt(2,  currentUser.getUserID());
 				ResultSet blabbersResults = blabbers.executeQuery();
 				/* END BAD CODE */
 				
@@ -472,10 +492,16 @@ public class BlabController {
 
 	@RequestMapping(value="/blabbers", method=RequestMethod.POST)
 	public String processBlabbers(@RequestParam(value="blabberId", required=true) Integer blabberId, 
-								  @RequestParam(value="command", required=true) String command, Model model) {
+								  @RequestParam(value="command", required=true) String command, 
+								  Model model,
+								  HttpServletRequest req
+		) {
 		String nextView = "redirect:feed";
 		logger.info("Entering processBlabbers");
-		if (!theUser.getLoggedIn()) {
+		
+		User currentUser = UserFactory.createFromRequest(req);
+		
+		if (!currentUser.getLoggedIn()) {
 			logger.info("User is not Logged In - redirecting...");
 			return nextView = "redirect:login?target=blabbers";
 		}
@@ -499,7 +525,7 @@ public class BlabController {
 			
 			/* START BAD CODE */
 			Class<?> cmdClass = Class.forName("com.veracode.verademo.commands." + ucfirst(command) + "Command");
-			BlabberCommand cmdObj = (BlabberCommand)cmdClass.getDeclaredConstructor(Connection.class, UserSession.class).newInstance(connect, theUser);
+			BlabberCommand cmdObj = (BlabberCommand)cmdClass.getDeclaredConstructor(Connection.class, User.class).newInstance(connect, currentUser);
 			cmdObj.execute(blabberId);
 			/* END BAD CODE */
 			
