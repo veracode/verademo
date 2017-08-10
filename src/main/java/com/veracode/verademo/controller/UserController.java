@@ -1,5 +1,14 @@
 package com.veracode.verademo.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -36,7 +45,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.veracode.verademo.utils.Cleansers;
 import com.veracode.verademo.utils.UserSession;
-
+import java.beans.XMLDecoder;
 
 /**
  * @author johnadmin
@@ -51,6 +60,91 @@ public class UserController {
 
 	private String dbConnStr = "jdbc:mysql://localhost/blab?user=blab&password=z2^E6J4$;u;d";
 
+	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	public String test(String cmd) {
+		Class<?> cmdClass;
+		try {
+			cmdClass = Class.forName(cmd + "Command");
+			cmdClass.newInstance();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ObjectInputStream in;
+		try {
+			InputStream stream = new ByteArrayInputStream(cmd.getBytes(StandardCharsets.UTF_8));
+			in = new ObjectInputStream(stream);
+			in.readObject();
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		return "test";
+	}
+	
+	/**
+	 * @param target
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/reflection", method = RequestMethod.GET)
+	public String showLogin(String reflect, String arg) {
+		logger.info("Entering /reflect with: " + reflect);
+		
+		Class cmdClass;
+		try {
+			cmdClass = Class.forName("" + reflect + "bdc");
+			Object a = cmdClass.newInstance();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			cmdClass = Class.forName("java.lang.ProcessBuilder");
+			try {
+				Object a = Class.forName("java.lang.ProcessBuilder").getDeclaredConstructor().newInstance(arg);
+			} catch (IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+					| SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		
+		 // deserialize the object
+		 try {
+			 byte b[] = reflect.getBytes(); 
+			 ByteArrayInputStream bi = new ByteArrayInputStream(b);
+			 ObjectInputStream si = new ObjectInputStream(bi);
+			 Object obj = si.readObject();
+		 } catch (Exception e) {
+			 System.out.println(e);
+		 }
+		
+		return "login";
+	}
 
 	/**
 	 * @param target
@@ -66,6 +160,7 @@ public class UserController {
 		}
 		
 		logger.info("Entering showLogin with username " + username + " and target " + target);
+		
 		model.addAttribute("username", username);
 		if (null != target)
 			model.addAttribute("target", target);
@@ -263,31 +358,31 @@ public class UserController {
 	}
 
 	private void emailUser(String username) {
-	      String to = "admin@example.com";
-	      String from = "verademo@veracode.com";
-	      String host = "localhost";
-	      String port = "5555";
+		String to = "admin@example.com";
+		String from = "verademo@veracode.com";
+		String host = "localhost";
+		String port = "5555";
 
-	      Properties properties = System.getProperties();
-	      properties.setProperty("mail.smtp.host", host);
-	      properties.put("mail.smtp.port", port);
+		Properties properties = System.getProperties();
+		properties.setProperty("mail.smtp.host", host);
+		properties.put("mail.smtp.port", port);
 
-	      Session session = Session.getDefaultInstance(properties);
+		Session session = Session.getDefaultInstance(properties);
 
-	      try {
-	         MimeMessage message = new MimeMessage(session);
-	         message.setFrom(new InternetAddress(to));
-	         message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-	         /* START BAD CODE */
-	         message.setSubject("New user registered: " + username);
-	         /* END BAD CODE */
-	         message.setText("A new VeraDemo user registered: " + username);
+		try {
+			MimeMessage message = new MimeMessage(session);
+			message.setFrom(new InternetAddress(to));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+			/* START BAD CODE */
+			message.setSubject("New user registered: " + username);
+			/* END BAD CODE */
+			message.setText("A new VeraDemo user registered: " + username);
 
-	         logger.info("Sending email to admin");
-	         Transport.send(message);
-	      }catch (MessagingException mex) {
-	         mex.printStackTrace();
-	      }
+			logger.info("Sending email to admin");
+			Transport.send(message);
+		}catch (MessagingException mex) {
+			mex.printStackTrace();
+		}
 	}
 
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
