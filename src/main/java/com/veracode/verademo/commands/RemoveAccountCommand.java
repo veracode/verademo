@@ -52,6 +52,10 @@ public class RemoveAccountCommand implements BlabberCommand {
 			sqlQuery = "INSERT INTO users_history (blabber, event) VALUES ('" + blabberId + "', '" + event + "')";
 			logger.info(sqlQuery);
 			sqlStatement.execute(sqlQuery);
+			
+			sqlQuery = "DELETE FROM users WHERE userid = " + blabberId;
+			logger.info(sqlQuery);
+			sqlStatement.execute(sqlQuery);
 			/* END BAD CODE */
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
