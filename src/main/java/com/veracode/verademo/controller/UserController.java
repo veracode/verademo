@@ -1,29 +1,19 @@
 package com.veracode.verademo.controller;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Calendar;
 import java.util.Properties;
+import java.util.Collections;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -31,29 +21,24 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.veracode.verademo.utils.Cleansers;
 import com.veracode.verademo.utils.User;
 import com.veracode.verademo.utils.UserFactory;
-
-import java.beans.XMLDecoder;
 
 /**
  * @author johnadmin
@@ -357,14 +342,14 @@ public class UserController {
 			
 			ArrayList<String> events = new ArrayList<String>();
 			
-			String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + "; ";
-			logger.info(sqlQuery);
-			Statement sqlStatement = connect.createStatement();
-			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
+			//String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + "; ";
+			//logger.info(sqlQuery);
+			//Statement sqlStatement = connect.createStatement();
+			//ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
 			
-			while (userHistoryResult.next()) {
-				events.add(userHistoryResult.getString(1));
-			}
+			//while (userHistoryResult.next()) {
+			//	events.add(userHistoryResult.getString(1));
+			//}
 			
 			model.addAttribute("hecklerId", hecklerId);
 			model.addAttribute("hecklerName", hecklerName);
@@ -398,19 +383,19 @@ public class UserController {
 		return "profile";
 	}
 
-	@RequestMapping(value = "/profile", method = RequestMethod.POST)
+	@RequestMapping(value = "/profile", method = RequestMethod.POST, produces = "application/json")
+	@ResponseBody
 	public String processProfile(@RequestParam(value = "realName", required = true) String realName,
 								 @RequestParam(value = "blabName", required = true) String blabName, 
-								 Model model,
-								 HttpServletRequest req
+								 HttpServletRequest request, HttpServletResponse response
 	) {
-		String nextView = "redirect:feed";
 		logger.info("Entering processProfile");
 
-		User currentUser = UserFactory.createFromRequest(req);
+		User currentUser = UserFactory.createFromRequest(request);
 		if (!currentUser.getLoggedIn()) {
 			logger.info("User is not Logged In - redirecting...");
-			nextView = "redirect:login?target=feed";
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return "{\"message\": \"<script>alert('Error - please login');</script>\"}";
 		} else {
 			logger.info("User is Logged In - continuing...");
 
@@ -437,12 +422,12 @@ public class UserController {
 				// If there is a record...
 				if (updateResult) {
 					//failure
-					model.addAttribute("error", "Failed to modify your preferences. Please try again");
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+					return "{\"message\": \"<script>alert('An error occurred, please try again.');</script>\"}";
 				} else {
 					currentUser.setRealName(realName);
 					currentUser.setBlabName(blabName);
 				}
-				nextView = "redirect:blabbers";
 
 			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
@@ -466,7 +451,10 @@ public class UserController {
 				}
 			}
 		}
-		return nextView;
+		
+		response.setStatus(HttpServletResponse.SC_OK);
+		String respTemplate = "{\"values\": {\"realName\": \"%s\", \"blabName\": \"%s\"}, \"message\": \"<script>alert('Blab Name changed to %s');</script>\"}";
+		return String.format(respTemplate, realName, blabName, blabName);
 	}
 	
 	public String displayErrorForWeb(Throwable t) {

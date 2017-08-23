@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.veracode.verademo.commands.BlabberCommand;
 import com.veracode.verademo.utils.*;
@@ -32,8 +33,20 @@ import com.veracode.annotation.CRLFCleanser;
 public class BlabController {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:BlabController");
 
-	private String dbConnStr = "jdbc:mysql://localhost/blab?user=blab&password=z2^E6J4$;u;d";
+	private final String dbConnStr = "jdbc:mysql://localhost/blab?user=blab&password=z2^E6J4$;u;d";
 
+	private final String sqlBlabsByMe = 
+			"SELECT blabs.content, blabs.timestamp, COUNT(comments.blabber), blabs.blabid "
+			+ "FROM blabs LEFT JOIN comments ON blabs.blabid = comments.blabid "
+			+ "WHERE blabs.blabber = ? GROUP BY blabs.blabid ORDER BY blabs.timestamp DESC;";
+	
+	private final String sqlBlabsForMe = 
+			"SELECT users.userid, users.blab_name, blabs.content, blabs.timestamp, COUNT(comments.blabber), blabs.blabid "
+			 + "FROM blabs INNER JOIN users ON blabs.blabber = users.userid INNER JOIN listeners ON blabs.blabber = listeners.blabber "
+			 + "LEFT JOIN comments ON blabs.blabid = comments.blabid WHERE listeners.listener = ? "
+			 + "GROUP BY blabs.blabid ORDER BY blabs.timestamp DESC LIMIT %d OFFSET %d;";
+
+	
 	@CRLFCleanser
 	private String safeLog(String msg) {
 		return msg.replaceAll("\n", "[newline]");
@@ -45,7 +58,6 @@ public class BlabController {
 			Model model,
 			HttpServletRequest req
 		) {
-		String nextView = "feed";
 		logger.info("Entering showFeed");
 		
 		User currentUser = UserFactory.createFromRequest(req);
@@ -60,13 +72,6 @@ public class BlabController {
 		Connection connect = null;
 		PreparedStatement blabsByMe = null;
 		PreparedStatement blabsForMe = null;
-		String sqlBlabsByMe = "SELECT blabs.content, blabs.timestamp, COUNT(comments.blabber), blabs.blabid "
-							+ "FROM blabs LEFT JOIN comments ON blabs.blabid = comments.blabid "
-							+ "WHERE blabs.blabber = ? GROUP BY blabs.blabid ORDER BY blabs.timestamp DESC;";
-		
-		String sqlBlabsForMe = "SELECT users.userid, users.blab_name, blabs.content, blabs.timestamp, COUNT(comments.blabber), blabs.blabid "
-							 + "FROM blabs INNER JOIN users ON blabs.blabber = users.userid INNER JOIN listeners ON blabs.blabber = listeners.blabber LEFT JOIN comments ON blabs.blabid = comments.blabid "
-							 + "WHERE listeners.listener = ? GROUP BY blabs.blabid ORDER BY blabs.timestamp DESC;";
 		
 		try {
 			logger.info("Getting Database connection");
@@ -76,7 +81,7 @@ public class BlabController {
 			
 			// Find the Blabs that this user listens to
 			logger.info("Preparing the BlabsForMe Prepared Statement");
-			blabsForMe = connect.prepareStatement(sqlBlabsForMe);
+			blabsForMe = connect.prepareStatement(String.format(sqlBlabsForMe, 10, 0));
 			blabsForMe.setInt(1,  currentUser.getUserID());
 			logger.info("Executing the BlabsForMe Prepared Statement");
 			ResultSet blabsForMeResults = blabsForMe.executeQuery();
@@ -158,6 +163,68 @@ public class BlabController {
 	
 	return "feed";
 	}
+	
+	@RequestMapping(value="/morefeed", method=RequestMethod.GET, produces="text/html;charset=UTF-8")
+	@ResponseBody
+	public String getMoreFeed(@RequestParam(value="count", required=true)String count,
+			@RequestParam(value="len", required=true)String length, Model model, HttpServletRequest req) {
+		
+		String template = "<li>"
+				+ "\t<div class=\"commenterImage\">"
+				+ "\t\t<img src=\"resources/images/%d.png\">"
+				+ "\t</div>"
+				+ "\t<div class=\"commentText\">"
+				+ "\t\t<p>%s</p>"
+				+ "\t\t<span class=\"date sub-text\">by %s on %s</span><br>"
+				+ "\t\t<span class=\"date sub-text\"><a href=\"blab?blabid=%d\">%d Comments</a></span>"
+				+ "\t</div>"
+                + "</li>";
+		
+		int cnt, len;
+		try {
+			// Convert input to integers
+			cnt = Integer.parseInt(count);
+			len = Integer.parseInt(length);
+		}
+		catch (NumberFormatException e) {
+			return "";
+		}
+		
+		User currentUser = UserFactory.createFromRequest(req);
+		
+		// Get the Database Connection
+		Connection connect;
+		PreparedStatement feedSql;
+		StringBuilder ret = new StringBuilder();
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			connect = DriverManager.getConnection(dbConnStr);
+			feedSql = connect.prepareStatement(String.format(sqlBlabsForMe, len, cnt));
+			feedSql.setInt(1, currentUser.getUserID());
+			
+			ResultSet results = feedSql.executeQuery();
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
+			while (results.next()) {
+				ret.append(String.format(template, 
+						results.getInt(1),				// userID
+						results.getString(3),			// blab content
+						results.getString(2),			// user name
+						sdf.format(results.getDate(4)),	// timestamp
+						results.getInt(6),				// blabID
+						results.getInt(5)				// comment count
+					));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		return ret.toString();
+	}
+
 
 	@RequestMapping(value="/feed", method=RequestMethod.POST)
 	public String processFeed(@RequestParam(value="blab", required=true) String blab, Model model, HttpServletRequest req) {
