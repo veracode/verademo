@@ -75,7 +75,7 @@
                 <tbody>
                   <tr>
                     <td>Username</td>
-                    <td><div class="form-group"><input type="text" class="form-control" name="user" value=""></div></td>
+                    <td><div class="form-group"><input type="text" class="form-control" name="user" value="<%= (String) request.getAttribute("username") %>"></div></td>
                   </tr>
                   <tr>
                     <td>Password</td>
