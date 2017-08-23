@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("session")
-public class UserSession implements Serializable{
+public class User implements Serializable{
 
 	private int userID = 0;
 	private String userName = null;
