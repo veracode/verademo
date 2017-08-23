@@ -9,7 +9,9 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -156,8 +158,14 @@ public class UserController {
 
 		} catch (SQLException exceptSql) {
 			logger.error(exceptSql);
-			model.addAttribute("error", exceptSql.getMessage());
+			model.addAttribute("error", exceptSql.getMessage() + "<br>" + displayErrorForWeb(exceptSql));
 			model.addAttribute("target", target);
+			try {
+				response.getOutputStream().print(exceptSql.getMessage());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} catch (ClassNotFoundException cnfe) {
 			logger.error(cnfe);
 			model.addAttribute("error", cnfe.getMessage());
@@ -459,5 +467,41 @@ public class UserController {
 			}
 		}
 		return nextView;
+	}
+	
+	public String displayErrorForWeb(Throwable t) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		t.printStackTrace(pw);
+		String stackTrace = sw.toString();
+		return stackTrace.replace(System.getProperty("line.separator"), "<br/>\n");
+	}
+	
+	public void emailExceptionsToAdmin(Throwable t) {
+		String to = "admin@example.com";
+		String from = "verademo@veracode.com";
+		String host = "localhost";
+		String port = "5555";
+
+		Properties properties = System.getProperties();
+		properties.setProperty("mail.smtp.host", host);
+		properties.put("mail.smtp.port", port);
+
+		Session session = Session.getDefaultInstance(properties);
+
+		try {
+			MimeMessage message = new MimeMessage(session);
+			message.setFrom(new InternetAddress(to));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+			/* START BAD CODE */
+			message.setSubject("Error detected: " + t.getMessage());
+			/* END BAD CODE */
+			message.setText(t.getMessage() + "<br>" + properties.getProperty("test") +  displayErrorForWeb(t));
+
+			logger.info("Sending email to admin");
+			Transport.send(message);
+		}catch (MessagingException mex) {
+			mex.printStackTrace();
+		}
 	}
 }
