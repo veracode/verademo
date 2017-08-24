@@ -73,7 +73,7 @@
           <label>Your Profile</label>
          </div>
          <div class="actionBox">
-          <form method="POST" action="profile"><input type="hidden" name="returnPath" value="">
+          <form method="POST" action="profile" id="updateprofile"><input type="hidden" name="returnPath" value="">
            <table class="table table-condensed">
             <tbody>
              <tr>
@@ -174,5 +174,40 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="resources/js/jquery-1.11.2.min.js"></script>
     <script src="resources/js/bootstrap.min.js"></script>
+    
+    <!-- Form submission -->
+    <script type="text/javascript">
+    	$('#updateprofile').submit(function(e) {
+    		e.preventDefault();
+    		
+    		console.log(e);
+    		console.log(e.target.action);
+    		
+    		$.ajax({
+    			type: e.target.method,
+    			url: e.target.action,
+    			data: $(e.target).serialize(),
+    			success: function(data) {
+    				console.log("Profile updated");
+    				if (data) {
+    					if ('values' in data) {
+    						$.each(data.values, function(key, val) {
+    							$('input[name="' + key + '"]').val(val);
+    						});
+    					}
+	    				if ('message' in data) {
+	    					$('body').append(data.message);
+	    				}
+    				}
+    			},
+    			error: function(data) {
+    				console.log("Form submission error", data);
+    				if (data && 'message' in data) {
+    					$('body').append(data.message);
+    				}
+    			},
+    		});
+    	});
+    </script>
   </body>
 </html>

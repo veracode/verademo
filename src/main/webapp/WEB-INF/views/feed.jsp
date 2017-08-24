@@ -73,7 +73,7 @@
             <div class="titleBox">
               <label>Blabs for You</label>
             </div>
-            <div class="actionBox">
+            <div id="feed" class="actionBox">
               <ul class="commentList">
               <% 
               ArrayList<Integer> userID = (ArrayList<Integer>) request.getAttribute("userID");
@@ -98,6 +98,7 @@
             	}
               %>
               </ul>
+              <a href="#" onclick="getmore(this); return false;">more...</a>
             </div>
           </div>
         </div>
@@ -149,5 +150,20 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="resources/js/jquery-1.11.2.min.js"></script>
     <script src="resources/js/bootstrap.min.js"></script>
+    
+    <!-- Fetch additional feed items -->
+    <script type="text/javascript">
+    	function getmore(obj) {
+    		var count = $("#feed li").length;
+    		$.get("morefeed", { count: count, len: 10 }, function(data) {
+    			if (data) {
+    				$("#feed ul").append(data);
+    			}
+    			else {
+    				$(obj).remove();
+    			}
+    		});
+    	}
+    </script>
   </body>
 </html> 
