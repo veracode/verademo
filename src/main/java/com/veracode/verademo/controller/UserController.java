@@ -146,12 +146,6 @@ public class UserController {
 			logger.error(exceptSql);
 			model.addAttribute("error", exceptSql.getMessage() + "<br>" + displayErrorForWeb(exceptSql));
 			model.addAttribute("target", target);
-			try {
-				response.getOutputStream().print(exceptSql.getMessage());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		} catch (ClassNotFoundException cnfe) {
 			logger.error(cnfe);
 			model.addAttribute("error", cnfe.getMessage());
@@ -466,6 +460,8 @@ public class UserController {
 		PrintWriter pw = new PrintWriter(sw);
 		t.printStackTrace(pw);
 		String stackTrace = sw.toString();
+		pw.flush();
+		pw.close();
 		return stackTrace.replace(System.getProperty("line.separator"), "<br/>\n");
 	}
 	
