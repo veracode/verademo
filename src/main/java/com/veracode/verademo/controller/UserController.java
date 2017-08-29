@@ -342,14 +342,14 @@ public class UserController {
 			
 			ArrayList<String> events = new ArrayList<String>();
 			
-			//String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + "; ";
-			//logger.info(sqlQuery);
-			//Statement sqlStatement = connect.createStatement();
-			//ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
+			String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + "; ";
+			logger.info(sqlQuery);
+			Statement sqlStatement = connect.createStatement();
+			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
 			
-			//while (userHistoryResult.next()) {
-			//	events.add(userHistoryResult.getString(1));
-			//}
+			while (userHistoryResult.next()) {
+				events.add(userHistoryResult.getString(1));
+			}
 			
 			model.addAttribute("hecklerId", hecklerId);
 			model.addAttribute("hecklerName", hecklerName);

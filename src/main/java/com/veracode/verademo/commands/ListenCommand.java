@@ -38,7 +38,7 @@ public class ListenCommand implements BlabberCommand {
 			action.setInt(2, theUser.getUserID());
 			action.execute();
 						
-			sqlQuery = "SELECT blab_name FROM users WHERE userid = " + blabberId;
+			sqlQuery = "SELECT username FROM users WHERE userid = " + blabberId;
 			Statement sqlStatement = connect.createStatement();
 			logger.info(sqlQuery);
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
@@ -46,7 +46,7 @@ public class ListenCommand implements BlabberCommand {
 			
 			/* START BAD CODE */
 			String event = theUser.getBlabName() + " started listening to " + result.getString(1);
-			sqlQuery = "INSERT INTO users_history (blabber, event) VALUES ('" + theUser.getUserID() + "', '" + event + "')";
+			sqlQuery = "INSERT INTO users_history (blabber, event) VALUES (\"" + theUser.getUserID() + "\", \"" + event + "\")";
 			logger.info(sqlQuery);
 			sqlStatement.execute(sqlQuery);
 			/* END BAD CODE */
