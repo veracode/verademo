@@ -21,6 +21,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -126,7 +127,7 @@ public class UserController {
 				UserFactory.updateInResponse(currentUser, response);
 
 				logger.info("Login complete. Redirecting (target=" + (null == target ? "null" : Cleansers.cleanLog(target)) + ")");
-				if (0 != target.length()) {
+				if (null != target && !target.isEmpty() && target.equals("null")) {
 					logger.info("redirecting to target");
 					nextView = "redirect:" + target;
 
@@ -145,12 +146,6 @@ public class UserController {
 			logger.error(exceptSql);
 			model.addAttribute("error", exceptSql.getMessage() + "<br>" + displayErrorForWeb(exceptSql));
 			model.addAttribute("target", target);
-			try {
-				response.getOutputStream().print(exceptSql.getMessage());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		} catch (ClassNotFoundException cnfe) {
 			logger.error(cnfe);
 			model.addAttribute("error", cnfe.getMessage());
@@ -211,10 +206,12 @@ public class UserController {
 								  @RequestParam(value = "password", required = true) String password,
 								  @RequestParam(value = "cpassword", required = true) String cpassword,
 								  @RequestParam(value = "realName", required = true) String realName,
-								  @RequestParam(value = "blabName", required = true) String blabName, Model model) {
+								  @RequestParam(value = "blabName", required = true) String blabName,
+								  HttpServletResponse response,
+								  Model model
+		) {
 		logger.info("Entering processRegister");
 
-		String nextView = "register";
 		// Do the password and cpassword parameters match ?
 		if (0 != password.compareTo(cpassword)) {
 			logger.info("Password and Confirm Password do not match");
@@ -248,6 +245,7 @@ public class UserController {
 			
 			/* END BAD CODE */
 			
+			response.addCookie(new Cookie("username", username));
 			emailUser(username);
 		} catch (SQLException exceptSql) {
 			logger.error(exceptSql);
@@ -270,7 +268,7 @@ public class UserController {
 				logger.error(exceptSql);
 			}
 		}
-		return nextView;
+		return "redirect:login";
 	}
 
 	private void emailUser(String username) {
@@ -342,14 +340,14 @@ public class UserController {
 			
 			ArrayList<String> events = new ArrayList<String>();
 			
-			//String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + "; ";
-			//logger.info(sqlQuery);
-			//Statement sqlStatement = connect.createStatement();
-			//ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
+			String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + "; ";
+			logger.info(sqlQuery);
+			Statement sqlStatement = connect.createStatement();
+			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
 			
-			//while (userHistoryResult.next()) {
-			//	events.add(userHistoryResult.getString(1));
-			//}
+			while (userHistoryResult.next()) {
+				events.add(userHistoryResult.getString(1));
+			}
 			
 			model.addAttribute("hecklerId", hecklerId);
 			model.addAttribute("hecklerName", hecklerName);
@@ -462,6 +460,8 @@ public class UserController {
 		PrintWriter pw = new PrintWriter(sw);
 		t.printStackTrace(pw);
 		String stackTrace = sw.toString();
+		pw.flush();
+		pw.close();
 		return stackTrace.replace(System.getProperty("line.separator"), "<br/>\n");
 	}
 	

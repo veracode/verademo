@@ -178,7 +178,7 @@ public class BlabController {
 				+ "\t\t<span class=\"date sub-text\">by %s on %s</span><br>"
 				+ "\t\t<span class=\"date sub-text\"><a href=\"blab?blabid=%d\">%d Comments</a></span>"
 				+ "\t</div>"
-                + "</li>";
+				+ "</li>";
 		
 		int cnt, len;
 		try {
@@ -213,7 +213,7 @@ public class BlabController {
 						sdf.format(results.getDate(4)),	// timestamp
 						results.getInt(6),				// blabID
 						results.getInt(5)				// comment count
-					));
+				));
 			}
 			
 		} catch (SQLException e) {
