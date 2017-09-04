@@ -46,12 +46,6 @@ public class BlabController {
 			 + "LEFT JOIN comments ON blabs.blabid = comments.blabid WHERE listeners.listener = ? "
 			 + "GROUP BY blabs.blabid ORDER BY blabs.timestamp DESC LIMIT %d OFFSET %d;";
 
-	
-	@CRLFCleanser
-	private String safeLog(String msg) {
-		return msg.replaceAll("\n", "[newline]");
-	}
-
 	@RequestMapping(value="/feed", method=RequestMethod.GET)
 	public String showFeed(
 			@RequestParam(value="type", required=false) String type, 
@@ -579,7 +573,7 @@ public class BlabController {
 		}
 		logger.info("User is Logged In - continuing...");
 		logger.info("blabberId = " + blabberId);
-		logger.info("command = " + Cleansers.cleanLog(command));
+		logger.info("command = " + command);
 		
  		Connection connect = null;
 		PreparedStatement action = null;
