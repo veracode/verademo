@@ -19,7 +19,7 @@ We can exploit this like so:
 
 1. Log in to the application, note that you now have a "user" cookie.
 2. Download the latest [frohoff/ysoserial](https://github.com/frohoff/ysoserial) JAR.
-3. Run the following: ```java -jar ysoserial-master-v0.0.4-g35bce8f-67.jar CommonsCollections2 calc.exe | base64 -w 0 | clip```
+3. Run the following: ```java -jar ysoserial-master-v0.0.5-g80b0d2f-5.jar CommonsCollections2 calc.exe | base64 -w 0 | clip```
 4. Use the Chrome Developer Tools to alter the cookie value and paste the value from ysoserial
 5. Refresh the page. This should give a Tomcat error but should also start the Windows Calculator.
 
