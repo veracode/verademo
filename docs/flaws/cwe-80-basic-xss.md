@@ -10,16 +10,16 @@ Exploit
    Username: hacker
    Password: hacker
    Confirm Password: hacker
-   Real Name: Mr Hacker
+   Real Name: Ms Hacker
    Blab Name: Hacker
 2. Login with hacker/hacker
-3. Add the following Blab: There's no scripting like cross site scripting.<script>alert("Hacked by Mr Hacker")</script>
+3. Add the following Blab: There's no scripting like cross site scripting.<script>alert("Hacked by Ms Hacker")</script>
 4. Log out
 5. Log in as admin/admin
 6. Go to Blabbers
-7. Follow Mr Hacker.
+7. Follow Hacker.
 8. Go to Feed.
-9. Observe an alert box "Hacked by Mr Hacker".
+9. Observe an alert box "Hacked by Ms Hacker".
 
 Mitigate
 --------

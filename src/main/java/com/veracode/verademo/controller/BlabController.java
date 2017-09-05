@@ -6,7 +6,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,12 +43,6 @@ public class BlabController {
 			 + "FROM blabs INNER JOIN users ON blabs.blabber = users.userid INNER JOIN listeners ON blabs.blabber = listeners.blabber "
 			 + "LEFT JOIN comments ON blabs.blabid = comments.blabid WHERE listeners.listener = ? "
 			 + "GROUP BY blabs.blabid ORDER BY blabs.timestamp DESC LIMIT %d OFFSET %d;";
-
-	
-	@CRLFCleanser
-	private String safeLog(String msg) {
-		return msg.replaceAll("\n", "[newline]");
-	}
 
 	@RequestMapping(value="/feed", method=RequestMethod.GET)
 	public String showFeed(
@@ -579,7 +571,7 @@ public class BlabController {
 		}
 		logger.info("User is Logged In - continuing...");
 		logger.info("blabberId = " + blabberId);
-		logger.info("command = " + Cleansers.cleanLog(command));
+		logger.info("command = " + command);
 		
  		Connection connect = null;
 		PreparedStatement action = null;
