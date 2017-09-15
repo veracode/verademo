@@ -80,37 +80,48 @@
 							<thead>
 								<th></th>
 								<th class="commenterName"><a href="?sort=blab_name ASC">Name</a></th>
-								<th class="commenterJoinDate"><a href="?sort=date_created DESC">Join date</a></th>
-								<th class="commenterListening"><a href="?sort=listening DESC">Listening</a></th>
-								<th class="commenterListeners"><a href="?sort=listeners DESC">Listeners</a></th>
+								<th class="commenterJoinDate"><a
+									href="?sort=date_created DESC">Join date</a></th>
+								<th class="commenterListening"><a
+									href="?sort=listening DESC">Listening</a></th>
+								<th class="commenterListeners"><a
+									href="?sort=listeners DESC">Listeners</a></th>
 								<th></th>
 							</thead>
 							<tbody>
-							<%
-								ArrayList<Integer> blabberId = (ArrayList<Integer>) request.getAttribute("blabberId");
-								ArrayList<String> blabberName = (ArrayList<String>) request.getAttribute("blabberName");
-								ArrayList<String> created = (ArrayList<String>) request.getAttribute("created");
-								ArrayList<Integer> listening = (ArrayList<Integer>) request.getAttribute("listening");
-								ArrayList<Integer> listeners = (ArrayList<Integer>) request.getAttribute("listeners");
-								for (int i = 0; i < blabberId.size(); i++) {
-							%>
-							<tr>
-								<td class="commenterImage"><img src="resources/images/<%=blabberId.get(i)%>.png" /></td>
-								<td class="commenterName"><%=blabberName.get(i)%></td>
-								<td class="commenterJoinDate"><%=created.get(i)%></td>
-								<td class="commenterListeners">&nbsp;<%=listeners.get(i)%>&nbsp;</td>
-								<td class="commenterListening">&nbsp;<%=listening.get(i)%>&nbsp;</td>
-								<td>
-									<form class="form-inline" role="form" method="POST" action="blabbers">
-										<input type="hidden" name="blabberId" value="<%=blabberId.get(i)%>">
-										<input type="hidden" name="command" value="<%=(listening.get(i).intValue() == 1 ? "ignore" : "listen")%>">
-										<input type="submit" class="btn btn-default pull-right" name="button" value="<%=(listening.get(i).intValue() == 1 ? "Ignore" : "Listen")%>" />
-									</form>
-								</td>
-							</tr>
-							<%
-								}
-							%>
+								<%
+									ArrayList<Integer> blabberId = (ArrayList<Integer>) request.getAttribute("blabberId");
+									ArrayList<String> blabberName = (ArrayList<String>) request.getAttribute("blabberName");
+									ArrayList<String> created = (ArrayList<String>) request.getAttribute("created");
+									ArrayList<Integer> listening = (ArrayList<Integer>) request.getAttribute("listening");
+									ArrayList<Integer> listeners = (ArrayList<Integer>) request.getAttribute("listeners");
+									for (int i = 0; i < blabberId.size(); i++) {
+								%>
+								<tr>
+									<td class="commenterImage"><img
+										src="resources/images/<%=blabberId.get(i)%>.png" /></td>
+									<td class="commenterName"><%=blabberName.get(i)%></td>
+									<td class="commenterJoinDate"><%=created.get(i)%></td>
+									<td class="commenterListeners">&nbsp;<%=listeners.get(i)%>&nbsp;
+									</td>
+									<td class="commenterListening">&nbsp;<%=listening.get(i)%>&nbsp;
+									</td>
+									<td>
+										<form class="form-inline" role="form" method="POST"
+											action="blabbers">
+											<input type="hidden" name="blabberId"
+												value="<%=blabberId.get(i)%>"> <input type="hidden"
+												name="command"
+												value="<%=(listening.get(i).intValue() == 1 ? "ignore" : "listen")%>">
+											<input type="submit" class="btn btn-default pull-right"
+												name="button"
+												value="<%=(listening.get(i).intValue() == 1 ? "Ignore" : "Listen")%>" />
+										</form>
+									</td>
+								</tr>
+								<%
+									}
+								%>
 							</tbody>
 						</table>
 					</div>
