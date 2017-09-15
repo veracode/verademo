@@ -7,10 +7,11 @@ The UI is then allowed to specify the command but it is not filtered for the all
 
 Exploit
 -------
+** Warning, use FireFox, do not use Chrome on Windows Server for this demo! **
 We can exploit this like so:
 1. Log in to VeraDemo.
 2. Click **Blabbers** in the menu.
-3. Open the browser Developer Tools to the Network tab and select Other and Preserve Log.
+3. Open the FireFox Developer Tools (note do not use Chrome!<sup>1</sup>) to the Network tab and select HTML.
 4. Click **Listen** for a blabber.
 5. Click **Ignore** for this blabber.
 6. Note 2 new POST requests, note the command in the post data for both requests.
@@ -34,3 +35,7 @@ Use a whitelist with allowed command values for that controller action and use t
 Resources
 ---------
 * [CWE 470](https://cwe.mitre.org/data/definitions/470.html)
+
+Footnotes
+---------
+1. [Chrome Developer Tools do not show form data on Windows Server 2012](https://stackoverflow.com/questions/46237449/chrome-developer-tools-do-not-show-form-data-on-windows-server-2012)
