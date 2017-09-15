@@ -339,7 +339,7 @@ public class UserController {
 			
 			ArrayList<String> events = new ArrayList<String>();
 			
-			String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + "; ";
+			String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + " ORDER BY id DESC; ";
 			logger.info(sqlQuery);
 			Statement sqlStatement = connect.createStatement();
 			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);

