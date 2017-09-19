@@ -13,13 +13,12 @@ We can exploit this like so:
 2. Click **Blabbers** in the menu.
 3. Open the FireFox Developer Tools (note do not use Chrome!<sup>1</sup>) to the Network tab and select HTML.
 4. Click **Listen** for a blabber.
-5. Click **Ignore** for this blabber.
-6. Note 2 new POST requests, note the command in the post data for both requests.
-7. Inspect a Listen or Ignore button.
-8. Rename it to "Remove Account"
-9. Change the hidden ```command``` field to ```removeAccount```.
-10. Click the Remove Account button.
-11. Notice the account has now been removed.
+5. Note the POST requests, note the command in the post data for both requests.
+6. Inspect a Listen or Ignore button.
+7. Rename it to "Remove Account"
+8. Change the hidden ```command``` field to ```removeAccount```.
+9. Click the Remove Account button.
+10. Notice the account has now been removed.
 
 
 Mitigate
