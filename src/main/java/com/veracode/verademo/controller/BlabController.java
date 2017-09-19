@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.veracode.verademo.commands.BlabberCommand;
 import com.veracode.verademo.utils.*;
-import com.veracode.annotation.CRLFCleanser;
 
 @Controller
 @Scope("request")
