@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.veracode.verademo.utils.Constants;
 import com.veracode.verademo.utils.User;
 import com.veracode.verademo.utils.UserFactory;
 
@@ -97,7 +98,7 @@ public class UserController {
 			// Get the Database Connection
 			logger.info("Creating the Database connection");
 			Class.forName("com.mysql.jdbc.Driver");
-			connect = DriverManager.getConnection(dbConnStr);
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
 			/* START BAD CODE */
 			// Execute the query
@@ -224,7 +225,7 @@ public class UserController {
 			// Get the Database Connection
 			logger.info("Creating the Database connection");
 			Class.forName("com.mysql.jdbc.Driver");
-			connect = DriverManager.getConnection(dbConnStr);
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
 			/* START BAD CODE */
 			// Execute the query
@@ -317,7 +318,7 @@ public class UserController {
 			logger.info("Getting Database connection");
 			// Get the Database Connection
 			Class.forName("com.mysql.jdbc.Driver");
-			connect = DriverManager.getConnection(dbConnStr);
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
 			// Find the Blabs that this user listens to
 			logger.info(sqlMyHecklers);
@@ -404,7 +405,7 @@ public class UserController {
 				logger.info("Getting Database connection");
 				// Get the Database Connection
 				Class.forName("com.mysql.jdbc.Driver");
-				connect = DriverManager.getConnection(dbConnStr);
+				connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
 				//
 				logger.info("Preparing the update Prepared Statement");
