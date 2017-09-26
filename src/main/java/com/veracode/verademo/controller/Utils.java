@@ -222,7 +222,7 @@ public class Utils {
 			logger.info("Getting Database connection");
 			// Get the Database Connection
 			Class.forName("com.mysql.jdbc.Driver");
-			connect = DriverManager.getConnection(dbConnStr);
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
 			// Drop and re-create the Tables
 			logger.info("Creating Statement for resetting the Database");

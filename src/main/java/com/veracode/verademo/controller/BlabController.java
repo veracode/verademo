@@ -30,8 +30,6 @@ import com.veracode.verademo.utils.*;
 public class BlabController {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:BlabController");
 
-	private final String dbConnStr = "jdbc:mysql://localhost/blab?user=blab&password=z2^E6J4$;u;d";
-
 	private final String sqlBlabsByMe = 
 			"SELECT blabs.content, blabs.timestamp, COUNT(comments.blabber), blabs.blabid "
 			+ "FROM blabs LEFT JOIN comments ON blabs.blabid = comments.blabid "
@@ -68,7 +66,7 @@ public class BlabController {
 			logger.info("Getting Database connection");
 			// Get the Database Connection
 			Class.forName("com.mysql.jdbc.Driver");
-			connect = DriverManager.getConnection(dbConnStr);
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 			
 			// Find the Blabs that this user listens to
 			logger.info("Preparing the BlabsForMe Prepared Statement");
@@ -189,7 +187,7 @@ public class BlabController {
 		StringBuilder ret = new StringBuilder();
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			connect = DriverManager.getConnection(dbConnStr);
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 			feedSql = connect.prepareStatement(String.format(sqlBlabsForMe, len, cnt));
 			feedSql.setInt(1, currentUser.getUserID());
 			
@@ -235,7 +233,7 @@ public class BlabController {
 				logger.info("Getting Database connection");
 				// Get the Database Connection
 				Class.forName("com.mysql.jdbc.Driver");
-				connect = DriverManager.getConnection(dbConnStr);
+				connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 				
 				java.util.Date now = new java.util.Date();
 				// 
@@ -307,7 +305,7 @@ public class BlabController {
 				logger.info("Getting Database connection");
 				// Get the Database Connection
 				Class.forName("com.mysql.jdbc.Driver");
-				connect = DriverManager.getConnection(dbConnStr);
+				connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 				
 				// Find the Blabs that this user listens to
 				logger.info("Preparing the blabDetails Prepared Statement");
@@ -396,7 +394,7 @@ public class BlabController {
 				logger.info("Getting Database connection");
 				// Get the Database Connection
 				Class.forName("com.mysql.jdbc.Driver");
-				connect = DriverManager.getConnection(dbConnStr);
+				connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 				
 				java.util.Date now = new java.util.Date();
 				// 
@@ -491,7 +489,7 @@ public class BlabController {
 				logger.info("Getting Database connection");
 				// Get the Database Connection
 				Class.forName("com.mysql.jdbc.Driver");
-				connect = DriverManager.getConnection(dbConnStr);
+				connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 				
 				// Find the Blabbers
 				logger.info(blabbersSql);
@@ -579,7 +577,7 @@ public class BlabController {
 			logger.info("Getting Database connection");
 			// Get the Database Connection
 			Class.forName("com.mysql.jdbc.Driver");
-			connect = DriverManager.getConnection(dbConnStr);
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 			
 			/* START BAD CODE */
 			Class<?> cmdClass = Class.forName("com.veracode.verademo.commands." + ucfirst(command) + "Command");
