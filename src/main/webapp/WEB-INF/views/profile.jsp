@@ -124,7 +124,7 @@
 								@SuppressWarnings("unchecked")
 								ArrayList<String> createdTimes = (ArrayList<String>) request.getAttribute("created");
 								
-								if (hecklerIds != null || hecklerIds.isEmpty()) {
+								if (hecklerIds != null && !hecklerIds.isEmpty()) {
 									for (int i = 0; i < hecklerIds.size(); i++) {
 							%>
 							<li>
@@ -163,7 +163,7 @@
 								@SuppressWarnings("unchecked")
 								ArrayList<String> events = (ArrayList<String>) request.getAttribute("events");
 								
-								if (events != null || events.isEmpty()) {
+								if (events != null && !events.isEmpty()) {
 									for (int i = 0; i < events.size(); i++) {
 							%>
 							<li>
