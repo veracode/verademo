@@ -80,22 +80,27 @@
 								<tbody>
 									<tr>
 										<td>Real Name</td>
-										<td><div class="form-group">
+										<td>
+											<div class="form-group">
 												<input type="text" class="form-control" name="realName"
 													value="<%=request.getAttribute("realName")%>">
-											</div></td>
+											</div>
+										</td>
 									</tr>
 									<tr>
 										<td>Blab Name</td>
-										<td><div class="form-group">
+										<td>
+											<div class="form-group">
 												<input type="text" class="form-control" name="blabName"
 													value="<%=request.getAttribute("blabName")%>">
-											</div></td>
+											</div>
+										</td>
 									</tr>
 									<tr>
-										<td><button type="submit" class="btn btn-primary"
-												id="login" name="Update" value="Update">Update</button></td>
-										<td></td>
+										<td colspan="2">
+											<button type="submit" class="btn btn-primary"
+												id="login" name="Update" value="Update">Update</button>
+										</td>
 									</tr>
 								</tbody>
 							</table>
@@ -112,26 +117,36 @@
 					<div class="actionBox">
 						<ul class="commentList">
 							<%
-								ArrayList<Integer> hecklerId = (ArrayList<Integer>) request.getAttribute("hecklerId");
-								ArrayList<String> hecklerName = (ArrayList<String>) request.getAttribute("hecklerName");
-								ArrayList<String> created = (ArrayList<String>) request.getAttribute("created");
-								for (int i = 0; i < hecklerId.size(); i++) {
+								@SuppressWarnings("unchecked")
+								ArrayList<Integer> hecklerIds = (ArrayList<Integer>) request.getAttribute("hecklerId");
+								@SuppressWarnings("unchecked")
+								ArrayList<String> hecklerNames = (ArrayList<String>) request.getAttribute("hecklerName");
+								@SuppressWarnings("unchecked")
+								ArrayList<String> createdTimes = (ArrayList<String>) request.getAttribute("created");
+								
+								if (hecklerIds != null || hecklerIds.isEmpty()) {
+									for (int i = 0; i < hecklerIds.size(); i++) {
 							%>
-
 							<li>
 								<div class="commenterImage">
-									<img src="resources/images/<%=hecklerId.get(i)%>.png" />
+									<img src="resources/images/<%=hecklerIds.get(i)%>.png" />
 								</div>
 								<div class="blockquote">
-									<p class=""><%=hecklerName.get(i)%></p>
-									<span class="date sub-text">member since <%=created.get(i)%></span><br>
+									<p class=""><%=hecklerNames.get(i)%></p>
+									<span class="date sub-text">member since <%=createdTimes.get(i)%></span><br>
 								</div>
+							</li>
+							<%
+									}
+								}
+								else {
+							%>
+							<li>
+								<p class="">You have no hecklers</p>
 							</li>
 							<%
 								}
 							%>
-
-
 						</ul>
 					</div>
 				</div>
@@ -145,34 +160,32 @@
 					<div class="actionBox">
 						<ul class="commentList">
 							<%
+								@SuppressWarnings("unchecked")
 								ArrayList<String> events = (ArrayList<String>) request.getAttribute("events");
-								for (int i = 0; i < events.size(); i++) {
+								
+								if (events != null || events.isEmpty()) {
+									for (int i = 0; i < events.size(); i++) {
 							%>
-
 							<li>
 								<p class=""><%=events.get(i)%></p>
 							</li>
 							<%
+									}
+								}
+								else {
+							%>
+							<li>
+								<p class="">You haven't done anything yet!</p>
+							</li>
+							<%
 								}
 							%>
-
-
 						</ul>
 					</div>
 				</div>
 			</div>
 
 		</div>
-
-
-
-
-
-
-
-
-
-
 
 	</div>
 	<!-- /container -->

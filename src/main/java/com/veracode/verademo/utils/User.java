@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("session")
 public class User implements Serializable{
-
+	private static final long serialVersionUID = 1L;
+	
 	private int userID = 0;
 	private String userName = null;
 	private String blabName = null;

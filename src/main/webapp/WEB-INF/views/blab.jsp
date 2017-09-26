@@ -95,10 +95,15 @@
 						</form>
 						<ul class="commentList">
 							<%
+								@SuppressWarnings("unchecked")
 								ArrayList<Integer> commenterID = (ArrayList<Integer>) request.getAttribute("commenterId");
+								@SuppressWarnings("unchecked")
 								ArrayList<String> commenterName = (ArrayList<String>) request.getAttribute("commenterName");
+								@SuppressWarnings("unchecked")
 								ArrayList<String> comment = (ArrayList<String>) request.getAttribute("comment");
+								@SuppressWarnings("unchecked")
 								ArrayList<String> timestamp = (ArrayList<String>) request.getAttribute("timestamp");
+								
 								for (int i = 0; i < commenterID.size(); i++) {
 							%>
 							<li>
@@ -116,9 +121,6 @@
 							<%
 								}
 							%>
-
-
-
 						</ul>
 					</div>
 				</div>
@@ -127,8 +129,6 @@
 			<div class="col-md-3"></div>
 
 		</div>
-	</div>
-	</div>
 	</div>
 	<!-- /container -->
 

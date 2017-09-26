@@ -1,7 +1,6 @@
 package com.veracode.verademo.commands;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,8 +26,6 @@ public class IgnoreCommand implements BlabberCommand {
 
 	@Override
 	public void execute(int blabberId) {
-		java.util.Date now = new java.util.Date();
-		
 		String sqlQuery = "DELETE FROM listeners WHERE blabber=? AND listener=?;";
 		logger.info(sqlQuery);
 		PreparedStatement action;

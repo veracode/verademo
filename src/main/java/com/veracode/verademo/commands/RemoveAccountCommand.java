@@ -16,12 +16,9 @@ public class RemoveAccountCommand implements BlabberCommand {
 	
 	private Connection connect;
 	
-	private User theUser;
-	
 	public RemoveAccountCommand(Connection connect, User theUser) {
 		super();
 		this.connect = connect;
-		this.theUser = theUser;
 	}
 
 	/* (non-Javadoc)
@@ -29,8 +26,6 @@ public class RemoveAccountCommand implements BlabberCommand {
 	 */
 	@Override
 	public void execute(int blabberId) {
-		java.util.Date now = new java.util.Date();
-		
 		String sqlQuery = "DELETE FROM listeners WHERE blabber=? OR listener=?;";
 		logger.info(sqlQuery);
 		PreparedStatement action;
@@ -57,8 +52,8 @@ public class RemoveAccountCommand implements BlabberCommand {
 			logger.info(sqlQuery);
 			sqlStatement.execute(sqlQuery);
 			/* END BAD CODE */
+			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
