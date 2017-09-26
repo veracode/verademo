@@ -52,18 +52,33 @@ public class UserController {
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String showLogin(@RequestParam(value = "target", required = false) String target,
 							@CookieValue(value="username", required=false) String username,
-							Model model) {
+							Model model,
+							HttpServletRequest req)
+	{
+		// Check if user is already logged in
+		User currentUser = UserFactory.createFromRequest(req);
+		if (currentUser != null && currentUser.getLoggedIn()) {
+			logger.info("User is already logged in - redirecting...");
+			if (target != null && !target.isEmpty() && !target.equals("null")) {
+				return "redirect:" + target;
+			} else {
+				// default to user's feed
+				return "redirect:feed";
+			}
+		}
+		
+		// User is not currently logged in
 		if (username == null) {
 			username = "";
+		}
+		if (target == null) {
+			target = "";
 		}
 		
 		logger.info("Entering showLogin with username " + username + " and target " + target);
 		
 		model.addAttribute("username", username);
-		if (null != target)
-			model.addAttribute("target", target);
-		else
-			model.addAttribute("target", "");
+		model.addAttribute("target", target);
 		return "login";
 	}
 
@@ -77,13 +92,28 @@ public class UserController {
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String processLogin(@RequestParam(value = "user", required = true) String username,
 							   @RequestParam(value = "password", required = true) String password,
-							   @RequestParam(value = "target", required = false) String target, 
+							   @RequestParam(value = "target", required = false) String target,
 							   Model model,
+							   HttpServletRequest req,
 							   HttpServletResponse response) {
-		String nextView = "login";
-
 		logger.info("Entering processLogin");
 
+		// Determine eventual redirect. Do this here in case we're already logged in
+		String nextView;
+		if (target != null && !target.isEmpty() && !target.equals("null")) {
+			nextView = "redirect:" + target;
+		} else {
+			// default to user's feed
+			nextView = "redirect:feed";
+		}
+		
+		// Check if user is already logged in
+		User currentUser = UserFactory.createFromRequest(req);
+		if (currentUser != null && currentUser.getLoggedIn()) {
+			logger.info("User is already logged in - redirecting...");
+			return nextView;
+		}
+		
 		Connection connect = null;
 		Statement sqlStatement = null;
 
@@ -104,7 +134,7 @@ public class UserController {
 
 			// Did we find exactly 1 user that matched?
 			if (result.first()) {
-				User currentUser = new User();
+				currentUser = new User();
 				// OK we have found the user, lets setup their Session object
 				logger.info("User Found. Setting up UserSession object");
 				logger.info("UserID: " + result.getInt(1));
@@ -118,38 +148,33 @@ public class UserController {
 				currentUser.setLoggedIn(true);
 				
 				UserFactory.updateInResponse(currentUser, response);
-
-				logger.info("Login complete. Redirecting (target=" + (null == target ? "null" : target) + ")");
-				if (null != target && !target.isEmpty() && target.equals("null")) {
-					logger.info("redirecting to target");
-					nextView = "redirect:" + target;
-
-				} else {
-					logger.info("redirecting to feed");
-					nextView = "redirect:feed";
-				}
-			} else {
-				logger.info("User Not Found");
+			}
+			else {
 				// Login failed...
+				logger.info("User Not Found");
 				model.addAttribute("error", "Login failed. Please try again.");
 				model.addAttribute("target", target);
+				nextView = "login";
 			}
-
-		} catch (SQLException exceptSql) {
+		}
+		catch (SQLException exceptSql) {
 			logger.error(exceptSql);
-			model.addAttribute("error", exceptSql.getMessage() + "<br>" + displayErrorForWeb(exceptSql));
+			model.addAttribute("error", exceptSql.getMessage() + "<br/>" + displayErrorForWeb(exceptSql));
 			model.addAttribute("target", target);
-		} catch (ClassNotFoundException cnfe) {
+		}
+		catch (ClassNotFoundException cnfe) {
 			logger.error(cnfe);
 			model.addAttribute("error", cnfe.getMessage());
 			model.addAttribute("target", target);
 
-		} finally {
+		}
+		finally {
 			try {
 				if (sqlStatement != null) {
 					sqlStatement.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 				model.addAttribute("error", exceptSql.getMessage());
 				model.addAttribute("target", target);
@@ -158,13 +183,16 @@ public class UserController {
 				if (connect != null) {
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 				model.addAttribute("error", exceptSql.getMessage());
 				model.addAttribute("target", target);
 			}
 		}
-		logger.info("returning the nextView: " + nextView);
+		
+		// Redirect to the appropriate place based on login actions above
+		logger.info("Redirecting to view: " + nextView);
 		return nextView;
 	}
 
@@ -297,17 +325,24 @@ public class UserController {
 	public String showProfile(
 			@RequestParam(value = "type", required = false) String type, 
 			Model model,
-			HttpServletRequest req
-		) {
+			HttpServletRequest req)
+	{
 		logger.info("Entering showProfile");
+		
+		User currentUser = UserFactory.createFromRequest(req);
+		
+		// Ensure user is logged in
+		if (currentUser == null || !currentUser.getLoggedIn()) {
+			logger.info("User is not Logged In - redirecting...");
+			return "redirect:login?target=profile";
+		}
+		
 		Connection connect = null;
 		PreparedStatement myHecklers = null;
 		String sqlMyHecklers = "SELECT users.userid, users.blab_name, users.date_created "
 				+ "FROM users LEFT JOIN listeners ON users.userid = listeners.listener "
 				+ "WHERE listeners.blabber=? AND listeners.status='Active';";
 		
-		User currentUser = UserFactory.createFromRequest(req);
-
 		try {
 			logger.info("Getting Database connection");
 			// Get the Database Connection
