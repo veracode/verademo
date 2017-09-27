@@ -65,6 +65,7 @@
 			String error = (String) request.getAttribute("error");
 			if (null != error) {
 		%>
+		
 		<div class="alert alert-danger" role="alert">
 			<%=error%>
 		</div>
@@ -82,11 +83,17 @@
 					<div id="feed" class="actionBox">
 						<ul class="commentList">
 							<%
+								@SuppressWarnings("unchecked")
 								ArrayList<Integer> userID = (ArrayList<Integer>) request.getAttribute("userID");
+								@SuppressWarnings("unchecked")
 								ArrayList<String> blabName = (ArrayList<String>) request.getAttribute("blabName");
+								@SuppressWarnings("unchecked")
 								ArrayList<String> contentForMe = (ArrayList<String>) request.getAttribute("contentForMe");
+								@SuppressWarnings("unchecked")
 								ArrayList<String> timestampForMe = (ArrayList<String>) request.getAttribute("timestampForMe");
+								@SuppressWarnings("unchecked")
 								ArrayList<Integer> countForMe = (ArrayList<Integer>) request.getAttribute("countForMe");
+								@SuppressWarnings("unchecked")
 								ArrayList<Integer> blabIdForMe = (ArrayList<Integer>) request.getAttribute("blabIdForMe");
 								for (int i = 0; i < userID.size(); i++) {
 							%>
@@ -96,11 +103,13 @@
 								</div>
 								<div class="commentText">
 									<p class=""><%=contentForMe.get(i)%></p>
-									<span class="date sub-text">by <%=blabName.get(i)%> on
-										<%=timestampForMe.get(i)%></span><br> <span
-										class="date sub-text"><a
-										href="blab?blabid=<%=blabIdForMe.get(i)%>"><%=countForMe.get(i)%>
-											Comments</a></span>
+									<span class="date sub-text">
+										by <%=blabName.get(i)%> on <%=timestampForMe.get(i)%>
+									</span>
+									<br/>
+									<span class="date sub-text">
+										<a href="blab?blabid=<%=blabIdForMe.get(i)%>"><%=countForMe.get(i)%> Comments</a>
+									</span>
 								</div>
 							</li>
 							<%
@@ -128,33 +137,34 @@
 						</form>
 						<ul class="commentList">
 							<%
+								@SuppressWarnings("unchecked")
 								ArrayList<String> contentByMe = (ArrayList<String>) request.getAttribute("contentByMe");
+								@SuppressWarnings("unchecked")
 								ArrayList<String> timestampByMe = (ArrayList<String>) request.getAttribute("timestampByMe");
+								@SuppressWarnings("unchecked")
 								ArrayList<Integer> countByMe = (ArrayList<Integer>) request.getAttribute("countByMe");
+								@SuppressWarnings("unchecked")
 								ArrayList<Integer> blabIdByMe = (ArrayList<Integer>) request.getAttribute("blabIdByMe");
+								
 								for (int i = 0; i < contentByMe.size(); i++) {
 							%>
 							<li>
 								<div class="commentText">
 									<p class=""><%=contentByMe.get(i)%></p>
-									<span class="date sub-text">by you on <%=timestampByMe.get(i)%></span><br>
-									<span class="date sub-text"><a
-										href="blab?blabid=<%=blabIdByMe.get(i)%>"><%=countByMe.get(i)%>
-											Comments</a></span>
+									<span class="date sub-text">by you on <%=timestampByMe.get(i)%></span><br/>
+									<span class="date sub-text">
+										<a href="blab?blabid=<%=blabIdByMe.get(i)%>"><%=countByMe.get(i)%> Comments</a>
+									</span>
 								</div>
 							</li>
 							<%
 								}
 							%>
-
-
 						</ul>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	</div>
 	</div>
 	<!-- /container -->
 

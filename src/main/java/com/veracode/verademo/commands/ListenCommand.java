@@ -26,8 +26,6 @@ public class ListenCommand implements BlabberCommand {
 
 	@Override
 	public void execute(int blabberId) {
-		java.util.Date now = new java.util.Date();
-		
 		String sqlQuery = "INSERT INTO listeners (blabber, listener, status) values (?, ?, 'Active');";
 		logger.info(sqlQuery);
 		PreparedStatement action;

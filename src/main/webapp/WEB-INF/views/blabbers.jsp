@@ -78,33 +78,47 @@
 					<div class="actionBox">
 						<table class="blabbers table">
 							<thead>
-								<th></th>
-								<th class="commenterName"><a href="?sort=blab_name ASC">Name</a></th>
-								<th class="commenterJoinDate"><a
-									href="?sort=date_created DESC">Join date</a></th>
-								<th class="commenterListening"><a
-									href="?sort=listening DESC">Listening</a></th>
-								<th class="commenterListeners"><a
-									href="?sort=listeners DESC">Listeners</a></th>
-								<th></th>
+								<tr>
+									<th></th>
+									<th class="commenterName"><a href="?sort=blab_name ASC">Name</a></th>
+									<th class="commenterJoinDate"><a
+										href="?sort=date_created DESC">Join date</a></th>
+									<th class="commenterListening"><a
+										href="?sort=listening DESC">Listening</a></th>
+									<th class="commenterListeners"><a
+										href="?sort=listeners DESC">Listeners</a></th>
+									<th></th>
+								</tr>
 							</thead>
 							<tbody>
 								<%
+									@SuppressWarnings("unchecked")
 									ArrayList<Integer> blabberId = (ArrayList<Integer>) request.getAttribute("blabberId");
+									@SuppressWarnings("unchecked")
 									ArrayList<String> blabberName = (ArrayList<String>) request.getAttribute("blabberName");
+									@SuppressWarnings("unchecked")
 									ArrayList<String> created = (ArrayList<String>) request.getAttribute("created");
+									@SuppressWarnings("unchecked")
 									ArrayList<Integer> listening = (ArrayList<Integer>) request.getAttribute("listening");
+									@SuppressWarnings("unchecked")
 									ArrayList<Integer> listeners = (ArrayList<Integer>) request.getAttribute("listeners");
 									for (int i = 0; i < blabberId.size(); i++) {
 								%>
 								<tr>
-									<td class="commenterImage"><img
-										src="resources/images/<%=blabberId.get(i)%>.png" /></td>
-									<td class="commenterName"><%=blabberName.get(i)%></td>
-									<td class="commenterJoinDate"><%=created.get(i)%></td>
-									<td class="commenterListeners">&nbsp;<%=listeners.get(i)%>&nbsp;
+									<td class="commenterImage">
+										<img src="resources/images/<%=blabberId.get(i)%>.png" />
 									</td>
-									<td class="commenterListening">&nbsp;<%=listening.get(i)%>&nbsp;
+									<td class="commenterName">
+										<%=blabberName.get(i)%>
+									</td>
+									<td class="commenterJoinDate">
+										<%=created.get(i)%>
+									</td>
+									<td class="commenterListeners">
+										&nbsp;<%=listeners.get(i)%>&nbsp;
+									</td>
+									<td class="commenterListening">
+										&nbsp;<%=listening.get(i)%>&nbsp;
 									</td>
 									<td>
 										<form class="form-inline" role="form" method="POST"
@@ -131,8 +145,6 @@
 			<div class="col-md-3"></div>
 
 		</div>
-	</div>
-	</div>
 	</div>
 	<!-- /container -->
 

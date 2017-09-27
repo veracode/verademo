@@ -1,6 +1,5 @@
 package com.veracode.verademo.controller;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Connection;
@@ -13,8 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Properties;
-import java.util.Collections;
-
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -24,14 +21,12 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,8 +43,6 @@ import com.veracode.verademo.utils.UserFactory;
 @Scope("request")
 public class UserController {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:UserController");
-
-	private String dbConnStr = "jdbc:mysql://localhost/blab?user=blab&password=z2^E6J4$;u;d";
 
 	/**
 	 * @param target
@@ -241,12 +234,11 @@ public class UserController {
 			
 			sqlStatement = connect.createStatement();
 			sqlStatement.execute(query.toString());
-			
-			
 			/* END BAD CODE */
 			
 			response.addCookie(new Cookie("username", username));
 			emailUser(username);
+			
 		} catch (SQLException exceptSql) {
 			logger.error(exceptSql);
 		} catch (ClassNotFoundException cnfe) {
@@ -285,11 +277,13 @@ public class UserController {
 
 		try {
 			MimeMessage message = new MimeMessage(session);
-			message.setFrom(new InternetAddress(to));
+			message.setFrom(new InternetAddress(from));
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+			
 			/* START BAD CODE */
 			message.setSubject("New user registered: " + username);
 			/* END BAD CODE */
+			
 			message.setText("A new VeraDemo user registered: " + username);
 
 			logger.info("Sending email to admin");
@@ -340,7 +334,7 @@ public class UserController {
 			
 			ArrayList<String> events = new ArrayList<String>();
 			
-			String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + " ORDER BY id DESC; ";
+			String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + " ORDER BY eventid DESC; ";
 			logger.info(sqlQuery);
 			Statement sqlStatement = connect.createStatement();
 			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
@@ -355,7 +349,7 @@ public class UserController {
 			model.addAttribute("realName", currentUser.getRealName());
 			model.addAttribute("blabName", currentUser.getBlabName());
 			model.addAttribute("events", events);
-
+			
 		} catch (SQLException exceptSql) {
 			logger.error(exceptSql);
 		} catch (ClassNotFoundException cnfe) {
@@ -479,11 +473,13 @@ public class UserController {
 
 		try {
 			MimeMessage message = new MimeMessage(session);
-			message.setFrom(new InternetAddress(to));
+			message.setFrom(new InternetAddress(from));
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+			
 			/* START BAD CODE */
 			message.setSubject("Error detected: " + t.getMessage());
 			/* END BAD CODE */
+			
 			message.setText(t.getMessage() + "<br>" + properties.getProperty("test") +  displayErrorForWeb(t));
 
 			logger.info("Sending email to admin");

@@ -35,11 +35,9 @@
 		<div class="header clearfix">
 			<nav>
 				<ul class="nav nav-pills pull-right">
-					<ul class="nav nav-pills pull-right">
-						<li role="presentation"><a href="reset" class="active">Reset</a></li>
-						<li role="presentation"><a href="login">Login</a></li>
-						<li role="presentation"><a href="register">Register</a></li>
-					</ul>
+					<li role="presentation"><a href="reset" class="active">Reset</a></li>
+					<li role="presentation"><a href="login">Login</a></li>
+					<li role="presentation"><a href="register">Register</a></li>
 				</ul>
 			</nav>
 			<img src="resources/images/Tokyoship_Talk_icon.svg" height="100"

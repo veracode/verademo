@@ -6,14 +6,12 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Random;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,10 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.veracode.verademo.utils.User;
+import com.veracode.verademo.utils.Constants;
 import java.security.SecureRandom;
-import java.security.NoSuchAlgorithmException ;
-import java.security.NoSuchProviderException ;
  
 @Controller
 @Scope("request")
@@ -159,17 +155,14 @@ public class Utils {
 			"DROP TABLE IF EXISTS blabs;",
 			"CREATE TABLE blabs (blabid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,blabber INT NOT NULL, content VARCHAR(250),timestamp DATETIME);",
 			"DROP TABLE IF EXISTS comments;",
-			"CREATE TABLE comments (commentid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,blabid INT NOT NULL,blabber INT NOT NULL, content VARCHAR(250),timestamp DATETIME);",				
+			"CREATE TABLE comments (commentid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,blabid INT NOT NULL,blabber INT NOT NULL, content VARCHAR(250),timestamp DATETIME);",
+			"DROP TABLE IF EXISTS users_history;",
+			"CREATE TABLE users_history (eventid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,blabber INT NOT NULL,event VARCHAR(250),timestamp DATETIME);",
 			};
 	
 	String  usersSQL = "INSERT INTO users (username, password, date_created, last_login, real_name, blab_name) values (?, ?, ?, ?, ?, ?);";
 	
 
-	
-	@Autowired
-	private User theUser;
-	
-	private String dbConnStr = "jdbc:mysql://localhost/blab?user=blab&password=z2^E6J4$;u;d";
 
 	@RequestMapping(value="/reset", method=RequestMethod.GET)
 	public String showReset(@RequestParam(value="type", required=false) String type, Model model) {
@@ -196,19 +189,16 @@ public class Utils {
 			                   @RequestParam(value="primary", required=false) String primary, Model model) {
 		logger.info("Entering processReset");
 		
-		 int yy=0;
-		 
 		/* BEGIN BAD CODE */
 		Random rand = new Random();
 		/* END BAD CODE */
+		
 		/* BEGIN GOOD CODE 
 		SecureRandom rand = generateRandom(new String[]{});
 		/* END GOOD CODE */
+		
 		int days_1 = 60 * 60 * 24;
 		int months_1 = days_1 * 31;
-		
-		// adding so I can commit
-		int y =0;
 		
 		Connection connect = null;
 		Statement tablesStatement = null;
@@ -232,7 +222,7 @@ public class Utils {
 				tablesStatement.addBatch(resetQueries[i]);
 			}
 			logger.info("Executing batch queries");
-			int[] resetResults = tablesStatement.executeBatch();
+			tablesStatement.executeBatch();
 			logger.info("Batch Statement Execution completed");
 			
 			// Add the users

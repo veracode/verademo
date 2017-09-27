@@ -28,20 +28,20 @@ public class UserFactory {
 		}
 		
 		InputStream stream = new ByteArrayInputStream(cookie.getValue().getBytes(StandardCharsets.UTF_8));
-		stream = Base64.getDecoder().wrap(stream);
+		InputStream decodedstream = Base64.getDecoder().wrap(stream);
 		ObjectInputStream in;
 		try {
 			/* START BAD CODE */
-			in = new ObjectInputStream(stream);
+			in = new ObjectInputStream(decodedstream);
 			User user = (User) in.readObject();
 			in.close();
 			/* END BAD CODE */
+			
 			return user;
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -70,7 +70,6 @@ public class UserFactory {
 			stream.writeObject(user);
 			stream.flush();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
