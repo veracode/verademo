@@ -116,7 +116,7 @@
 								}
 							%>
 						</ul>
-						<a href="#" onclick="getmore(this); return false;">more...</a>
+						<a href="#" onclick="getmore(this); return false;">Fetch more...</a>
 					</div>
 				</div>
 			</div>
@@ -126,15 +126,17 @@
 						<label>Your Blabs</label>
 					</div>
 					<div class="actionBox">
-						<form class="form-inline" role="form" method="POST" action="feed">
-							<div class="form-group">
-								<input class="form-control" type="text"
-									placeholder="Blab something now..." name="blab" />
-							</div>
-							<div class="form-group">
-								<button class="btn btn-default">Add</button>
-							</div>
-						</form>
+						<div class="blabber">
+							<form class="form-inline" role="form" method="POST" action="feed">
+								<div class="form-group">
+									<input class="form-control" type="text"
+										placeholder="Blab something now..." name="blab" />
+								</div>
+								<div class="form-group">
+									<button class="btn btn-default">Add</button>
+								</div>
+							</form>
+						</div>
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
