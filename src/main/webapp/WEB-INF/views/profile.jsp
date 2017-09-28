@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
 	pageEncoding="US-ASCII"%>
 <%@ page import="java.util.*"%>
+<%@ page import="com.veracode.verademo.model.Blabber"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,8 +80,8 @@
 							<table class="table table-condensed">
 								<tbody>
 									<tr>
-										<td>
-											<img width="55px" height="55px" src="resources/images/<%=request.getAttribute("userID")%>.png" />
+										<td class="commenterImage">
+											<img id="profileImage" src="resources/images/<%=request.getAttribute("username")%>.png" />
 										</td>
 										<td>
 											<div class="form-group">
@@ -107,6 +108,15 @@
 										</td>
 									</tr>
 									<tr>
+										<td>Username</td>
+										<td>
+											<div class="form-group">
+												<input type="text" class="form-control" name="username"
+													value="<%=request.getAttribute("username")%>">
+											</div>
+										</td>
+									</tr>
+									<tr>
 										<td colspan="2">
 											<button type="submit" class="btn btn-primary"
 												id="login" name="Update" value="Update">Update</button>
@@ -128,22 +138,28 @@
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
-								ArrayList<Integer> hecklerIds = (ArrayList<Integer>) request.getAttribute("hecklerId");
+								List<Blabber> hecklers = (List<Blabber>) request.getAttribute("hecklers");
+								
 								@SuppressWarnings("unchecked")
-								ArrayList<String> hecklerNames = (ArrayList<String>) request.getAttribute("hecklerName");
+								ArrayList<String> hecklerIds = (ArrayList<String>) request.getAttribute("hecklerUsernames");
+								@SuppressWarnings("unchecked")
+								ArrayList<String> hecklerNames = (ArrayList<String>) request.getAttribute("hecklerNames");
 								@SuppressWarnings("unchecked")
 								ArrayList<String> createdTimes = (ArrayList<String>) request.getAttribute("created");
 								
-								if (hecklerIds != null && !hecklerIds.isEmpty()) {
-									for (int i = 0; i < hecklerIds.size(); i++) {
+								if (hecklers != null && !hecklers.isEmpty()) {
+									for (Blabber heckler : hecklers) {
 							%>
 							<li>
-								<div class="commenterImage">
-									<img src="resources/images/<%=hecklerIds.get(i)%>.png" />
-								</div>
-								<div class="blockquote">
-									<p class=""><%=hecklerNames.get(i)%></p>
-									<span class="date sub-text">member since <%=createdTimes.get(i)%></span><br>
+								<div class="clear">
+									<div class="commenterImage">
+										<img src="resources/images/<%= heckler.getUsername() %>.png" />
+									</div>
+									<div class="commentText">
+										<p><%= heckler.getBlabName() %></p>
+										<span class="date sub-text">member since <%= heckler.getCreatedDateString() %></span>
+										<br/>
+									</div>
 								</div>
 							</li>
 							<%
@@ -223,6 +239,9 @@
 						if ('values' in data) {
 							$.each(data.values, function(key, val) {
 								$('input[name="' + key + '"]').val(val);
+								if (key === "username") {
+									$('#profileImage').attr('src', 'resources/images/' + val + '.png');
+								}
 							});
 						}
 						if ('message' in data) {

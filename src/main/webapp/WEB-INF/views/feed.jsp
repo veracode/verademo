@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
 	pageEncoding="US-ASCII"%>
 <%@ page import="com.veracode.verademo.utils.*"%>
+<%@ page import="com.veracode.verademo.model.*"%>
 <%@ page import="java.util.*"%>
 
 <!DOCTYPE html>
@@ -84,32 +85,23 @@
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
-								ArrayList<Integer> userID = (ArrayList<Integer>) request.getAttribute("userID");
-								@SuppressWarnings("unchecked")
-								ArrayList<String> blabName = (ArrayList<String>) request.getAttribute("blabName");
-								@SuppressWarnings("unchecked")
-								ArrayList<String> contentForMe = (ArrayList<String>) request.getAttribute("contentForMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<String> timestampForMe = (ArrayList<String>) request.getAttribute("timestampForMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<Integer> countForMe = (ArrayList<Integer>) request.getAttribute("countForMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<Integer> blabIdForMe = (ArrayList<Integer>) request.getAttribute("blabIdForMe");
-								for (int i = 0; i < userID.size(); i++) {
+								List<Blab> feedBlabs = (List<Blab>) request.getAttribute("blabsByOthers");
+								
+								for (Blab post : feedBlabs) {
 							%>
 							<li>
 								<div class="clear">
 									<div class="commenterImage">
-										<img src="resources/images/<%=userID.get(i)%>.png" />
+										<img src="resources/images/<%= post.getAuthor().getUsername() %>.png" />
 									</div>
 									<div class="commentText">
-										<p class=""><%=contentForMe.get(i)%></p>
+										<p class=""><%= post.getContent() %></p>
 										<span class="date sub-text">
-											by <%=blabName.get(i)%> on <%=timestampForMe.get(i)%>
+											by <%= post.getAuthor().getBlabName() %> on <%= post.getPostDateString() %>
 										</span>
 										<br/>
 										<span class="date sub-text">
-											<a href="blab?blabid=<%=blabIdForMe.get(i)%>"><%=countForMe.get(i)%> Comments</a>
+											<a href="blab?blabid=<%= post.getId() %>"><%= post.getCommentCount() %> Comments</a>
 										</span>
 									</div>
 								</div>
@@ -142,22 +134,16 @@
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
-								ArrayList<String> contentByMe = (ArrayList<String>) request.getAttribute("contentByMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<String> timestampByMe = (ArrayList<String>) request.getAttribute("timestampByMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<Integer> countByMe = (ArrayList<Integer>) request.getAttribute("countByMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<Integer> blabIdByMe = (ArrayList<Integer>) request.getAttribute("blabIdByMe");
+								List<Blab> myBlabs = (List<Blab>) request.getAttribute("blabsByMe");
 								
-								for (int i = 0; i < contentByMe.size(); i++) {
+								for (Blab post : myBlabs) {
 							%>
 							<li>
 								<div class="commentText">
-									<p class=""><%=contentByMe.get(i)%></p>
-									<span class="date sub-text">by you on <%=timestampByMe.get(i)%></span><br/>
+									<p class=""><%= post.getContent() %></p>
+									<span class="date sub-text">by you on <%= post.getPostDateString() %></span><br/>
 									<span class="date sub-text">
-										<a href="blab?blabid=<%=blabIdByMe.get(i)%>"><%=countByMe.get(i)%> Comments</a>
+										<a href="blab?blabid=<%= post.getId() %>"><%= post.getCommentCount() %> Comments</a>
 									</span>
 								</div>
 							</li>
