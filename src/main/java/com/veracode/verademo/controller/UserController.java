@@ -46,6 +46,9 @@ import com.veracode.verademo.utils.UserFactory;
 public class UserController {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:UserController");
 
+	@Autowired
+	ServletContext context;
+	
 	/**
 	 * @param target
 	 * @param model
@@ -444,6 +447,7 @@ public class UserController {
 			model.addAttribute("hecklerId", hecklerId);
 			model.addAttribute("hecklerName", hecklerName);
 			model.addAttribute("created", created);
+			model.addAttribute("userID", currentUser.getUserID());
 			model.addAttribute("realName", myInfoResults.getString("real_name"));
 			model.addAttribute("blabName", myInfoResults.getString("blab_name"));
 			model.addAttribute("events", events);
@@ -479,6 +483,11 @@ public class UserController {
 								 HttpServletRequest httpRequest, 
 								 HttpServletResponse response
 	) {
+								 @RequestParam(value = "blabName", required = true) String blabName,
+								 @RequestParam(value = "file", required = true) MultipartFile file,
+								 MultipartHttpServletRequest request,
+								 HttpServletResponse response)
+	{
 		logger.info("Entering processProfile");
 		
 		String username = (String) httpRequest.getSession().getAttribute("username");
@@ -535,6 +544,29 @@ public class UserController {
 				}
 			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
+			}
+			catch (SQLException exceptSql) {
+				logger.error(exceptSql);
+			}
+		}
+		
+		System.out.println("processing upload!");
+		
+		// Update user profile image
+		if (file != null && !file.isEmpty()) {
+            try {
+            	String path = context.getRealPath("/resources/images")
+            			+ File.separator
+            			+ file.getOriginalFilename();
+            	
+            	System.out.println(path);
+            	
+                File destinationFile = new File(path);
+				file.transferTo(destinationFile);
+			}
+            catch (IllegalStateException | IOException ex) {
+				logger.error(ex);
+				System.out.println(ex);
 			}
 		}
 		

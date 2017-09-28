@@ -74,10 +74,20 @@
 						<label>Your Profile</label>
 					</div>
 					<div class="actionBox">
-						<form method="POST" action="profile" id="updateprofile">
+						<form method="post" action="profile" id="updateprofile" enctype="multipart/form-data">
 							<input type="hidden" name="returnPath" value="">
 							<table class="table table-condensed">
 								<tbody>
+									<tr>
+										<td>
+											<img width="55px" height="55px" src="resources/images/<%=request.getAttribute("userID")%>.png" />
+										</td>
+										<td>
+											<div class="form-group">
+												<input type="file" class="form-control" name="file">
+											</div>
+										</td>
+									</tr>
 									<tr>
 										<td>Real Name</td>
 										<td>
@@ -200,14 +210,13 @@
 	<script type="text/javascript">
 		$('#updateprofile').submit(function(e) {
 			e.preventDefault();
-
-			console.log(e);
-			console.log(e.target.action);
-
+			
 			$.ajax({
 				type : e.target.method,
 				url : e.target.action,
-				data : $(e.target).serialize(),
+				data : new FormData(this),
+				processData : false,
+				contentType : false,
 				success : function(data) {
 					console.log("Profile updated");
 					if (data) {
