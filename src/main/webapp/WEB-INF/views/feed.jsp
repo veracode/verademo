@@ -98,25 +98,27 @@
 								for (int i = 0; i < userID.size(); i++) {
 							%>
 							<li>
-								<div class="commenterImage">
-									<img src="resources/images/<%=userID.get(i)%>.png" />
-								</div>
-								<div class="commentText">
-									<p class=""><%=contentForMe.get(i)%></p>
-									<span class="date sub-text">
-										by <%=blabName.get(i)%> on <%=timestampForMe.get(i)%>
-									</span>
-									<br/>
-									<span class="date sub-text">
-										<a href="blab?blabid=<%=blabIdForMe.get(i)%>"><%=countForMe.get(i)%> Comments</a>
-									</span>
+								<div class="clear">
+									<div class="commenterImage">
+										<img src="resources/images/<%=userID.get(i)%>.png" />
+									</div>
+									<div class="commentText">
+										<p class=""><%=contentForMe.get(i)%></p>
+										<span class="date sub-text">
+											by <%=blabName.get(i)%> on <%=timestampForMe.get(i)%>
+										</span>
+										<br/>
+										<span class="date sub-text">
+											<a href="blab?blabid=<%=blabIdForMe.get(i)%>"><%=countForMe.get(i)%> Comments</a>
+										</span>
+									</div>
 								</div>
 							</li>
 							<%
 								}
 							%>
 						</ul>
-						<a href="#" onclick="getmore(this); return false;">more...</a>
+						<a href="#" onclick="getmore(this); return false;">Fetch more...</a>
 					</div>
 				</div>
 			</div>
@@ -126,15 +128,17 @@
 						<label>Your Blabs</label>
 					</div>
 					<div class="actionBox">
-						<form class="form-inline" role="form" method="POST" action="feed">
-							<div class="form-group">
-								<input class="form-control" type="text"
-									placeholder="Blab something now..." name="blab" />
-							</div>
-							<div class="form-group">
-								<button class="btn btn-default">Add</button>
-							</div>
-						</form>
+						<div class="blabber">
+							<form class="form-inline" role="form" method="POST" action="feed">
+								<div class="form-group">
+									<input class="form-control" type="text"
+										placeholder="Blab something now..." name="blab" />
+								</div>
+								<div class="form-group">
+									<button class="btn btn-default">Add</button>
+								</div>
+							</form>
+						</div>
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
