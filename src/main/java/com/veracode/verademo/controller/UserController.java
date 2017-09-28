@@ -11,6 +11,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Properties;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.veracode.verademo.model.Blabber;
 import com.veracode.verademo.utils.Constants;
 import com.veracode.verademo.utils.User;
 import com.veracode.verademo.utils.UserFactory;
@@ -289,18 +291,25 @@ public class UserController {
 								  @RequestParam(value = "blabName", required = true) String blabName,
 								  HttpServletRequest httpRequest,
 								  HttpServletResponse response,
+<<<<<<< Upstream, based on origin/development
 								  Model model
 		) {
 		logger.info("Entering processRegisterFinish");
 		
 		String username = (String) httpRequest.getSession().getAttribute("username");
+=======
+								  Model model)
+	{
+		logger.info("Entering processRegister");
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 
 		// Do the password and cpassword parameters match ?
-		if (0 != password.compareTo(cpassword)) {
+		if (password.compareTo(cpassword) != 0) {
 			logger.info("Password and Confirm Password do not match");
 			model.addAttribute("error", "The Password and Confirm Password values do not match. Please try again.");
 			return "register";
 		}
+		
 		Connection connect = null;
 		Statement sqlStatement = null;
 
@@ -326,25 +335,25 @@ public class UserController {
 			sqlStatement.execute(query.toString());
 			/* END BAD CODE */
 			emailUser(username);
-			
-		} catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-
-		} finally {
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
 			try {
 				if (sqlStatement != null) {
 					sqlStatement.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -376,11 +385,23 @@ public class UserController {
 
 			logger.info("Sending email to admin");
 			Transport.send(message);
-		}catch (MessagingException mex) {
+		}
+		catch (MessagingException mex) {
 			mex.printStackTrace();
 		}
 	}
 
+	
+	public class Test {
+		private String foo;
+		public Test() {
+			this.foo = "bar";
+		}
+		public String getFoo() {
+			return this.foo;
+		}
+	}
+	
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
 	public String showProfile(
 			@RequestParam(value = "type", required = false) String type, 
@@ -397,46 +418,57 @@ public class UserController {
 		}
 		
 		Connection connect = null;
+<<<<<<< Upstream, based on origin/development
 		PreparedStatement myHecklers = null, myInfo = null;
 		String sqlMyHecklers = "SELECT users.username, users.blab_name, users.created_at "
 				+ "FROM users LEFT JOIN listeners ON users.username = listeners.listener "
+=======
+		PreparedStatement myHecklers = null;
+		String sqlMyHecklers = "SELECT users.username, users.blab_name, users.date_created "
+				+ "FROM users LEFT JOIN listeners ON users.userid = listeners.listener "
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 				+ "WHERE listeners.blabber=? AND listeners.status='Active';";
 		
 		try {
 			logger.info("Getting Database connection");
-			// Get the Database Connection
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
-			// Find the Blabs that this user listens to
+			// Find the Blabbers that this user listens to
 			logger.info(sqlMyHecklers);
 			myHecklers = connect.prepareStatement(sqlMyHecklers);
 			myHecklers.setString(1, username);
 			ResultSet myHecklersResults = myHecklers.executeQuery();
 			
-			// Store them in the Model
-			SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
-			ArrayList<Integer> hecklerId = new ArrayList<Integer>();
-			ArrayList<String> hecklerName = new ArrayList<String>();
-			ArrayList<String> created = new ArrayList<String>();
-
+			List<Blabber> hecklers = new ArrayList<Blabber>();
 			while (myHecklersResults.next()) {
-				hecklerId.add((Integer) myHecklersResults.getInt(1));
-				hecklerName.add(myHecklersResults.getString(2));
-				created.add(sdf.format(myHecklersResults.getDate(3)));
+				Blabber heckler = new Blabber();
+				heckler.setUsername(myHecklersResults.getString(1));
+				heckler.setBlabName(myHecklersResults.getString(2));
+				heckler.setCreatedDate(myHecklersResults.getDate(3));
+				hecklers.add(heckler);
 			}
 			
+			// Get the audit trail for this user
 			ArrayList<String> events = new ArrayList<String>();
 			
+<<<<<<< Upstream, based on origin/development
 			String sqlQuery = "select event from users_history where blabber=\"" + username + "\" ORDER BY eventid DESC; ";
 			logger.info(sqlQuery);
+=======
+			/* START BAD CODE */
+			String sqlMyEvents = "select event from users_history where blabber=" + currentUser.getUserID() + " ORDER BY eventid DESC; ";
+			logger.info(sqlMyEvents);
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 			Statement sqlStatement = connect.createStatement();
-			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
+			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlMyEvents);
+			/* END BAD CODE */
 			
 			while (userHistoryResult.next()) {
 				events.add(userHistoryResult.getString(1));
 			}
 			
+<<<<<<< Upstream, based on origin/development
 			// Get the users information
 			String sql = "SELECT username, real_name, blab_name FROM users WHERE username = '" + username + "'";
 			logger.info(sql);
@@ -457,18 +489,33 @@ public class UserController {
 		} catch (ClassNotFoundException cnfe) {
 			logger.error(cnfe);
 		} finally {
+=======
+			// Send these values to our View
+			model.addAttribute("hecklers", hecklers);
+			model.addAttribute("events", events);
+			model.addAttribute("username", currentUser.getUsername());
+			model.addAttribute("realName", currentUser.getRealName());
+			model.addAttribute("blabName", currentUser.getBlabName());
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 			try {
 				if (myHecklers != null) {
 					myHecklers.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -484,7 +531,8 @@ public class UserController {
 								 HttpServletResponse response
 	) {
 								 @RequestParam(value = "blabName", required = true) String blabName,
-								 @RequestParam(value = "file", required = true) MultipartFile file,
+								 @RequestParam(value = "username", required = true) String username,
+								 @RequestParam(value = "file", required = false) MultipartFile file,
 								 MultipartHttpServletRequest request,
 								 HttpServletResponse response)
 	{
@@ -499,6 +547,12 @@ public class UserController {
 
 		logger.info("User is Logged In - continuing...");
 
+<<<<<<< Upstream, based on origin/development
+=======
+		String oldUsername = currentUser.getUsername();
+		
+		// Update user information
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 		Connection connect = null;
 		PreparedStatement update = null;
 		String updateSql = "UPDATE users SET real_name=?, blab_name=? WHERE username=?;";
@@ -511,10 +565,18 @@ public class UserController {
 
 			//
 			logger.info("Preparing the update Prepared Statement");
+<<<<<<< Upstream, based on origin/development
 			update = connect.prepareStatement(updateSql);
 			update.setString(1, realName);
 			update.setString(2, blabName);
 			update.setString(3, username);
+=======
+			update = connect.prepareStatement("UPDATE users SET username=?, real_name=?, blab_name=? WHERE userid=?;");
+			update.setString(1, username.toLowerCase());
+			update.setString(2, realName);
+			update.setString(3, blabName);
+			update.setInt(4, currentUser.getUserID());
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 
 			logger.info("Executing the update Prepared Statement");
 			boolean updateResult = update.execute();
@@ -525,12 +587,25 @@ public class UserController {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				return "{\"message\": \"<script>alert('An error occurred, please try again.');</script>\"}";
 			}
+<<<<<<< Upstream, based on origin/development
 		} catch (SQLException exceptSql) {
 			logger.error(exceptSql);
 		} catch (ClassNotFoundException cnfe) {
 			logger.error(cnfe);
 
 		} finally {
+=======
+			else {
+				currentUser.setUsername(username.toLowerCase());
+				currentUser.setRealName(realName);
+				currentUser.setBlabName(blabName);
+			}
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 			try {
 				if (update != null) {
 					update.close();
@@ -550,19 +625,32 @@ public class UserController {
 			}
 		}
 		
-		System.out.println("processing upload!");
+		// Rename profile image if username changes
+		if (!username.equals(oldUsername)) {
+			logger.info("Renaming profile image from " + oldUsername + ".png to " + username + ".png");
+			
+			String path = context.getRealPath("/resources/images")
+        			+ File.separator + "%s.png";
+			
+			File oldName = new File(String.format(path, oldUsername));
+			File newName = new File(String.format(path, username));
+			oldName.renameTo(newName);
+		}
 		
 		// Update user profile image
+		// Because of the rename block above, this will still work if
+		// the username is changed at in the same request
 		if (file != null && !file.isEmpty()) {
+			// TODO: check if file is png first
             try {
             	String path = context.getRealPath("/resources/images")
             			+ File.separator
-            			+ file.getOriginalFilename();
+            			+ username + ".png";
             	
-            	System.out.println(path);
+            	logger.info("Saving new profile image: " + path);
             	
                 File destinationFile = new File(path);
-				file.transferTo(destinationFile);
+				file.transferTo(destinationFile); // will delete any existing file first
 			}
             catch (IllegalStateException | IOException ex) {
 				logger.error(ex);
@@ -571,8 +659,11 @@ public class UserController {
 		}
 		
 		response.setStatus(HttpServletResponse.SC_OK);
-		String respTemplate = "{\"values\": {\"realName\": \"%s\", \"blabName\": \"%s\"}, \"message\": \"<script>alert('Blab Name changed to %s');</script>\"}";
-		return String.format(respTemplate, realName, blabName, blabName);
+		UserFactory.updateInResponse(currentUser, response);
+		
+		String msg = "Successfully changed values!\\\\nusername: %1$s\\\\nReal Name: %2$s\\\\nBlab Name: %3$s";
+		String respTemplate = "{\"values\": {\"username\": \"%1$s\", \"realName\": \"%2$s\", \"blabName\": \"%3$s\"}, \"message\": \"<script>alert('" + msg + "');</script>\"}";
+		return String.format(respTemplate, username.toLowerCase(), realName, blabName);
 	}
 	
 	public String displayErrorForWeb(Throwable t) {

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
 	pageEncoding="US-ASCII"%>
 <%@ page import="com.veracode.verademo.utils.*"%>
+<%@ page import="com.veracode.verademo.model.*"%>
 <%@ page import="java.util.*"%>
 
 <!DOCTYPE html>
@@ -84,6 +85,7 @@
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
+<<<<<<< Upstream, based on origin/development
 								ArrayList<String> usernames = (ArrayList<String>) request.getAttribute("usernames");
 								@SuppressWarnings("unchecked")
 								ArrayList<String> blabName = (ArrayList<String>) request.getAttribute("blabName");
@@ -96,8 +98,14 @@
 								@SuppressWarnings("unchecked")
 								ArrayList<Integer> blabIdForMe = (ArrayList<Integer>) request.getAttribute("blabIdForMe");
 								for (int i = 0; i < usernames.size(); i++) {
+=======
+								List<Blab> feedBlabs = (List<Blab>) request.getAttribute("blabsByOthers");
+								
+								for (Blab post : feedBlabs) {
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 							%>
 							<li>
+<<<<<<< Upstream, based on origin/development
 								<div class="commenterImage">
 									<img src="resources/images/<%=i+2%>.png" />
 								</div>
@@ -110,6 +118,22 @@
 									<span class="date sub-text">
 										<a href="blab?blabid=<%=blabIdForMe.get(i)%>"><%=countForMe.get(i)%> Comments</a>
 									</span>
+=======
+								<div class="clear">
+									<div class="commenterImage">
+										<img src="resources/images/<%= post.getAuthor().getUsername() %>.png" />
+									</div>
+									<div class="commentText">
+										<p class=""><%= post.getContent() %></p>
+										<span class="date sub-text">
+											by <%= post.getAuthor().getBlabName() %> on <%= post.getPostDateString() %>
+										</span>
+										<br/>
+										<span class="date sub-text">
+											<a href="blab?blabid=<%= post.getId() %>"><%= post.getCommentCount() %> Comments</a>
+										</span>
+									</div>
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 								</div>
 							</li>
 							<%
@@ -140,22 +164,16 @@
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
-								ArrayList<String> contentByMe = (ArrayList<String>) request.getAttribute("contentByMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<String> timestampByMe = (ArrayList<String>) request.getAttribute("timestampByMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<Integer> countByMe = (ArrayList<Integer>) request.getAttribute("countByMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<Integer> blabIdByMe = (ArrayList<Integer>) request.getAttribute("blabIdByMe");
+								List<Blab> myBlabs = (List<Blab>) request.getAttribute("blabsByMe");
 								
-								for (int i = 0; i < contentByMe.size(); i++) {
+								for (Blab post : myBlabs) {
 							%>
 							<li>
 								<div class="commentText">
-									<p class=""><%=contentByMe.get(i)%></p>
-									<span class="date sub-text">by you on <%=timestampByMe.get(i)%></span><br/>
+									<p class=""><%= post.getContent() %></p>
+									<span class="date sub-text">by you on <%= post.getPostDateString() %></span><br/>
 									<span class="date sub-text">
-										<a href="blab?blabid=<%=blabIdByMe.get(i)%>"><%=countByMe.get(i)%> Comments</a>
+										<a href="blab?blabid=<%= post.getId() %>"><%= post.getCommentCount() %> Comments</a>
 									</span>
 								</div>
 							</li>

@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.veracode.verademo.commands.BlabberCommand;
+import com.veracode.verademo.model.Blab;
+import com.veracode.verademo.model.Blabber;
+import com.veracode.verademo.model.Comment;
 import com.veracode.verademo.utils.*;
 
 @Controller
@@ -64,7 +68,6 @@ public class BlabController {
 		
 		try {
 			logger.info("Getting Database connection");
-			// Get the Database Connection
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 			
@@ -74,6 +77,7 @@ public class BlabController {
 			blabsForMe.setString(1,  username);
 			logger.info("Executing the BlabsForMe Prepared Statement");
 			ResultSet blabsForMeResults = blabsForMe.executeQuery();
+			
 			// Store them in the Model
 			ArrayList<String> usernames = new ArrayList<String>();
 			ArrayList<String> blabName = new ArrayList<String>();
@@ -105,21 +109,19 @@ public class BlabController {
 			blabsByMe.setString(1,  username);
 			logger.info("Executing the BlabsByMe Prepared Statement");
 			ResultSet blabsByMeResults = blabsByMe.executeQuery();
+			
 			// Store them in the model
-			ArrayList<String> contentByMe = new ArrayList<String>();
-			ArrayList<String> timestampByMe = new ArrayList<String>();
-			ArrayList<Integer> countByMe = new ArrayList<Integer>();
-			ArrayList<Integer> blabIdByMe = new ArrayList<Integer>();
+			List<Blab> myBlabs = new ArrayList<Blab>();
 			while (blabsByMeResults.next()) {
-				contentByMe.add(blabsByMeResults.getString(1));
-				timestampByMe.add(sdf.format(blabsByMeResults.getDate(2)));
-				countByMe.add(blabsByMeResults.getInt(3));
-				blabIdByMe.add(blabsByMeResults.getInt(4));
+				Blab post = new Blab();
+				post.setId(blabsByMeResults.getInt(4));
+				post.setContent(blabsByMeResults.getString(1));
+				post.setPostDate(blabsByMeResults.getDate(2));
+				post.setCommentCount(blabsByMeResults.getInt(3));
+				
+				myBlabs.add(post);
 			}
-			model.addAttribute("contentByMe", contentByMe);
-			model.addAttribute("timestampByMe", timestampByMe);
-			model.addAttribute("countByMe", countByMe);
-			model.addAttribute("blabIdByMe", blabIdByMe);
+			model.addAttribute("blabsByMe", myBlabs);
 			
 		} catch (SQLException exceptSql) {
 			logger.error(exceptSql);
@@ -131,21 +133,24 @@ public class BlabController {
 				if (blabsByMe != null) {
 					blabsByMe.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (blabsForMe != null) {
 					blabsForMe.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null){
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -161,16 +166,16 @@ public class BlabController {
 			Model model, 
 			HttpServletRequest httpRequest) {
 		
-		String template = "<li>"
+		String template = "<li><div>"
 				+ "\t<div class=\"commenterImage\">"
-				+ "\t\t<img src=\"resources/images/%d.png\">"
+				+ "\t\t<img src=\"resources/images/%s.png\">"
 				+ "\t</div>"
 				+ "\t<div class=\"commentText\">"
 				+ "\t\t<p>%s</p>"
 				+ "\t\t<span class=\"date sub-text\">by %s on %s</span><br>"
 				+ "\t\t<span class=\"date sub-text\"><a href=\"blab?blabid=%d\">%d Comments</a></span>"
 				+ "\t</div>"
-				+ "</li>";
+				+ "</div></li>";
 		
 		int cnt, len;
 		try {
@@ -371,6 +376,7 @@ public class BlabController {
 				logger.error(exceptSql);
 			}
 		}
+		
 		return nextView;
 	}
 
@@ -535,6 +541,7 @@ public class BlabController {
 				logger.error(exceptSql);
 			}
 		}
+		
 		return nextView;
 	}
 

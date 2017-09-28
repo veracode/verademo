@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
 	pageEncoding="US-ASCII"%>
 <%@ page import="com.veracode.verademo.utils.*"%>
+<%@ page import="com.veracode.verademo.model.Blabber"%>
 <%@ page import="java.util.*"%>
 
 <!DOCTYPE html>
@@ -93,7 +94,14 @@
 							<tbody>
 								<%
 									@SuppressWarnings("unchecked")
+<<<<<<< Upstream, based on origin/development
 									ArrayList<String> blabberUsername = (ArrayList<String>) request.getAttribute("blabberUsername");
+=======
+									ArrayList<Blabber> blabbers = (ArrayList<Blabber>) request.getAttribute("blabbers");
+								
+									@SuppressWarnings("unchecked")
+									ArrayList<Integer> blabberId = (ArrayList<Integer>) request.getAttribute("blabberId");
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 									@SuppressWarnings("unchecked")
 									ArrayList<String> blabberName = (ArrayList<String>) request.getAttribute("blabberName");
 									@SuppressWarnings("unchecked")
@@ -102,34 +110,48 @@
 									ArrayList<Integer> listening = (ArrayList<Integer>) request.getAttribute("listening");
 									@SuppressWarnings("unchecked")
 									ArrayList<Integer> listeners = (ArrayList<Integer>) request.getAttribute("listeners");
+<<<<<<< Upstream, based on origin/development
 									for (int i = 0; i < blabberUsername.size(); i++) {
+=======
+									
+									for (Blabber blabber : blabbers) {
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 								%>
 								<tr>
 									<td class="commenterImage">
+<<<<<<< Upstream, based on origin/development
 										<img src="resources/images/<%=i+2%>.png" />
+=======
+										<img src="resources/images/<%= blabber.getUsername() %>.png" />
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 									</td>
 									<td class="commenterName">
-										<%=blabberName.get(i)%>
+										<%= blabber.getBlabName() %>
 									</td>
 									<td class="commenterJoinDate">
-										<%=created.get(i)%>
+										<%= blabber.getCreatedDateString() %>
 									</td>
 									<td class="commenterListeners">
-										&nbsp;<%=listeners.get(i)%>&nbsp;
+										&nbsp;<%= blabber.getNumberListeners() %>&nbsp;
 									</td>
 									<td class="commenterListening">
-										&nbsp;<%=listening.get(i)%>&nbsp;
+										&nbsp;<%= blabber.getNumberListening() %>&nbsp;
 									</td>
 									<td>
 										<form class="form-inline" role="form" method="POST"
 											action="blabbers">
+<<<<<<< Upstream, based on origin/development
 											<input type="hidden" name="blabberUsername"
 												value="<%=blabberUsername.get(i)%>"> <input type="hidden"
+=======
+											<input type="hidden" name="blabberId"
+												value="<%= blabber.getId() %>"> <input type="hidden"
+>>>>>>> 1e15e06 Revamp how we link users to profile images
 												name="command"
-												value="<%=(listening.get(i).intValue() == 1 ? "ignore" : "listen")%>">
+												value="<%=(blabber.getNumberListening() == 1 ? "ignore" : "listen")%>">
 											<input type="submit" class="btn btn-default pull-right"
 												name="button"
-												value="<%=(listening.get(i).intValue() == 1 ? "Ignore" : "Listen")%>" />
+												value="<%=(blabber.getNumberListening() == 1 ? "Ignore" : "Listen")%>" />
 										</form>
 									</td>
 								</tr>

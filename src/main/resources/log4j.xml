@@ -11,7 +11,7 @@
   </appender> 
 
   <root> 
-    <priority value ="info" /> 
+    <priority value="info" /> 
     <appender-ref ref="console" /> 
   </root>
   
