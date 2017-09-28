@@ -1,5 +1,7 @@
 package com.veracode.verademo.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Connection;
@@ -18,11 +20,13 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,6 +35,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.veracode.verademo.utils.Constants;
 import com.veracode.verademo.utils.User;
@@ -44,6 +50,9 @@ import com.veracode.verademo.utils.UserFactory;
 public class UserController {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:UserController");
 
+	@Autowired
+	ServletContext context;
+	
 	/**
 	 * @param target
 	 * @param model
@@ -381,6 +390,7 @@ public class UserController {
 			model.addAttribute("hecklerId", hecklerId);
 			model.addAttribute("hecklerName", hecklerName);
 			model.addAttribute("created", created);
+			model.addAttribute("userID", currentUser.getUserID());
 			model.addAttribute("realName", currentUser.getRealName());
 			model.addAttribute("blabName", currentUser.getBlabName());
 			model.addAttribute("events", events);
@@ -413,9 +423,11 @@ public class UserController {
 	@RequestMapping(value = "/profile", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public String processProfile(@RequestParam(value = "realName", required = true) String realName,
-								 @RequestParam(value = "blabName", required = true) String blabName, 
-								 HttpServletRequest request, HttpServletResponse response
-	) {
+								 @RequestParam(value = "blabName", required = true) String blabName,
+								 @RequestParam(value = "file", required = true) MultipartFile file,
+								 MultipartHttpServletRequest request,
+								 HttpServletResponse response)
+	{
 		logger.info("Entering processProfile");
 
 		User currentUser = UserFactory.createFromRequest(request);
@@ -423,59 +435,77 @@ public class UserController {
 			logger.info("User is not Logged In - redirecting...");
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return "{\"message\": \"<script>alert('Error - please login');</script>\"}";
-		} else {
-			logger.info("User is Logged In - continuing...");
+		}
+		
+		logger.info("User is Logged In - continuing...");
 
-			Connection connect = null;
-			PreparedStatement update = null;
-			String updateSql = "UPDATE users SET real_name=?, blab_name=? WHERE userid=?;";
+		// Update user information
+		Connection connect = null;
+		PreparedStatement update = null;
+		try {
+			logger.info("Getting Database connection");
+			Class.forName("com.mysql.jdbc.Driver");
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
+			logger.info("Preparing the update Prepared Statement");
+			update = connect.prepareStatement("UPDATE users SET real_name=?, blab_name=? WHERE userid=?;");
+			update.setString(1, realName);
+			update.setString(2, blabName);
+			update.setInt(3, currentUser.getUserID());
+
+			logger.info("Executing the update Prepared Statement");
+			boolean updateResult = update.execute();
+
+			// If there is a record...
+			if (updateResult) {
+				// failure
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return "{\"message\": \"<script>alert('An error occurred, please try again.');</script>\"}";
+			}
+			else {
+				currentUser.setRealName(realName);
+				currentUser.setBlabName(blabName);
+			}
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
 			try {
-				logger.info("Getting Database connection");
-				// Get the Database Connection
-				Class.forName("com.mysql.jdbc.Driver");
-				connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
-
-				//
-				logger.info("Preparing the update Prepared Statement");
-				update = connect.prepareStatement(updateSql);
-				update.setString(1, realName);
-				update.setString(2, blabName);
-				update.setInt(3, currentUser.getUserID());
-
-				logger.info("Executing the update Prepared Statement");
-				boolean updateResult = update.execute();
-
-				// If there is a record...
-				if (updateResult) {
-					//failure
-					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-					return "{\"message\": \"<script>alert('An error occurred, please try again.');</script>\"}";
-				} else {
-					currentUser.setRealName(realName);
-					currentUser.setBlabName(blabName);
+				if (update != null) {
+					update.close();
 				}
-
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
-			} catch (ClassNotFoundException cnfe) {
-				logger.error(cnfe);
-
-			} finally {
-				try {
-					if (update != null) {
-						update.close();
-					}
-				} catch (SQLException exceptSql) {
-					logger.error(exceptSql);
+			}
+			try {
+				if (connect != null) {
+					connect.close();
 				}
-				try {
-					if (connect != null) {
-						connect.close();
-					}
-				} catch (SQLException exceptSql) {
-					logger.error(exceptSql);
-				}
+			}
+			catch (SQLException exceptSql) {
+				logger.error(exceptSql);
+			}
+		}
+		
+		System.out.println("processing upload!");
+		
+		// Update user profile image
+		if (file != null && !file.isEmpty()) {
+            try {
+            	String path = context.getRealPath("/resources/images")
+            			+ File.separator
+            			+ file.getOriginalFilename();
+            	
+            	System.out.println(path);
+            	
+                File destinationFile = new File(path);
+				file.transferTo(destinationFile);
+			}
+            catch (IllegalStateException | IOException ex) {
+				logger.error(ex);
+				System.out.println(ex);
 			}
 		}
 		
