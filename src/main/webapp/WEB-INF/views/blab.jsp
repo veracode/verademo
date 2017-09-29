@@ -96,7 +96,7 @@
 							<%
 								@SuppressWarnings("unchecked")
 								List<Comment> comments = (ArrayList<Comment>) request.getAttribute("comments");
-
+								
 								for (Comment comment : comments) {
 							%>
 							<li>

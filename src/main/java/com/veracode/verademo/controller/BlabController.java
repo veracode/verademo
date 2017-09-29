@@ -144,7 +144,7 @@ public class BlabController {
 				logger.error(exceptSql);
 			}
 		}
-	
+		
 		return "feed";
 	}
 	
@@ -305,7 +305,7 @@ public class BlabController {
 		String blabDetailsSql = "SELECT blabs.content, users.blab_name "
 				  + "FROM blabs INNER JOIN users ON blabs.blabber = users.username "
 				  + "WHERE blabs.blabid = ?;";
-
+		
 		String blabCommentsSql = "SELECT users.username, users.blab_name, comments.content, comments.timestamp "
 				  + "FROM comments INNER JOIN users ON comments.blabber = users.username "
 				  + "WHERE comments.blabid = ? ORDER BY comments.timestamp DESC;";
