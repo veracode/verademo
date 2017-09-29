@@ -249,10 +249,10 @@
 						}
 					}
 				},
-				error : function(data) {
-					console.log("Form submission error", data);
-					if (data && 'message' in data) {
-						$('body').append(data.message);
+				error : function(err) {
+					console.log("Form submission error", err);
+					if (err.responseJSON && 'message' in err.responseJSON) {
+						$('body').append(err.responseJSON.message);
 					}
 				},
 			});

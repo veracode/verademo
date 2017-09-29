@@ -525,11 +525,10 @@ public class UserController {
 
 			//
 			logger.info("Preparing the update Prepared Statement");
-			update = connect.prepareStatement("UPDATE users SET username=?, real_name=?, blab_name=? WHERE username=?;");
-			update.setString(1, username.toLowerCase());
-			update.setString(2, realName);
-			update.setString(3, blabName);
-			update.setString(4, sessionUsername);
+			update = connect.prepareStatement("UPDATE users SET real_name=?, blab_name=? WHERE username=?;");
+			update.setString(1, realName);
+			update.setString(2, blabName);
+			update.setString(3, sessionUsername);
 
 			logger.info("Executing the update Prepared Statement");
 			boolean updateResult = update.execute();
@@ -565,19 +564,34 @@ public class UserController {
 		
 		// Rename profile image if username changes
 		if (!username.equals(oldUsername)) {
-			logger.info("Renaming profile image from " + oldUsername + ".png to " + username + ".png");
+			if (usernameExists(username)) {
+				response.setStatus(HttpServletResponse.SC_CONFLICT);
+				return "{\"message\": \"<script>alert('That username already exists. Please try another.');</script>\"}"; 
+			}
 			
-			String path = context.getRealPath("/resources/images")
-        			+ File.separator + "%s.png";
+			if(!updateUsername(oldUsername, username)) {
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return "{\"message\": \"<script>alert('An error occurred, please try again.');</script>\"}";
+			}
 			
-			File oldName = new File(String.format(path, oldUsername));
-			File newName = new File(String.format(path, username));
-			oldName.renameTo(newName);
+			// Update all session and cookie logic
+			request.getSession().setAttribute("username", username);
+			for (Cookie cookie : request.getCookies()) {
+				if (cookie.getName().equals("username")) {
+					cookie.setValue(username);
+					response.addCookie(cookie);
+				}
+			}
+			
+			// Update remember me functionality
+			User currentUser = UserFactory.createFromRequest(request);
+			if (currentUser != null) {
+				currentUser.setUserName(username);
+				UserFactory.updateInResponse(currentUser, response);
+			}
 		}
 		
 		// Update user profile image
-		// Because of the rename block above, this will still work if
-		// the username is changed at in the same request
 		if (file != null && !file.isEmpty()) {
 			// TODO: check if file is png first
             try {
@@ -596,12 +610,142 @@ public class UserController {
 		}
 		
 		response.setStatus(HttpServletResponse.SC_OK);
-		// TODO update session with new username?
-		// UserFactory.updateInResponse(currentUser, response);
-		
 		String msg = "Successfully changed values!\\\\nusername: %1$s\\\\nReal Name: %2$s\\\\nBlab Name: %3$s";
 		String respTemplate = "{\"values\": {\"username\": \"%1$s\", \"realName\": \"%2$s\", \"blabName\": \"%3$s\"}, \"message\": \"<script>alert('" + msg + "');</script>\"}";
 		return String.format(respTemplate, username.toLowerCase(), realName, blabName);
+	}
+	
+	private boolean usernameExists(String username) {
+		username = username.toLowerCase();
+		
+		// Check is the username already exists
+		Connection connect = null;
+		PreparedStatement sqlStatement = null;
+		try {
+			logger.info("Getting Database connection");
+			// Get the Database Connection
+			Class.forName("com.mysql.jdbc.Driver");
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
+			
+			logger.info("Preparing the duplicate username check Prepared Statement");
+			sqlStatement = connect.prepareStatement("SELECT username FROM users WHERE username=?");
+			sqlStatement.setString(1, username);
+			ResultSet result = sqlStatement.executeQuery();
+			
+			if (!result.first()) {
+				// username does not exist
+				return false;
+			}
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
+			try {
+				if (sqlStatement != null) {
+					sqlStatement.close();
+				}
+			}
+			catch (SQLException e) {
+				logger.error(e);
+			}
+			try {
+				if (connect != null) {
+					connect.close();
+				}
+			}
+			catch (SQLException e) {
+				logger.error(e);
+			}
+		}
+		
+		logger.info("Username: " + username + " already exists. Try again.");
+		return true;
+	}
+	
+	/**
+	 * Change the user's username. Since the username is the DB key, we have a lot to do
+	 * @param oldUsername Prior username
+	 * @param newUsername Desired new username
+	 * @return
+	 */
+	private boolean updateUsername(String oldUsername, String newUsername) {
+		// Enforce all lowercase usernames
+		oldUsername = oldUsername.toLowerCase();
+		newUsername = newUsername.toLowerCase();
+		
+		// Check is the username already exists
+		Connection connect = null;
+		List<PreparedStatement> sqlUpdateQueries = new ArrayList<PreparedStatement>();
+		try {
+			logger.info("Getting Database connection");
+			// Get the Database Connection
+			Class.forName("com.mysql.jdbc.Driver");
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
+			connect.setAutoCommit(false);
+			
+			// Update all references to this user
+			 String[] sqlStrQueries= new String[] {
+					"UPDATE users SET username=? WHERE username=?",
+					"UPDATE blabs SET blabber=? WHERE blabber=?",
+					"UPDATE comments SET blabber=? WHERE blabber=?",
+					"UPDATE listeners SET blabber=? WHERE blabber=?",
+					"UPDATE listeners SET listener=? WHERE listener=?",
+					"UPDATE users_history SET blabber=? WHERE blabber=?"
+			};
+			for (String sql : sqlStrQueries) {
+				logger.info("Preparing the Prepared Statement: " + sql);
+				sqlUpdateQueries.add(connect.prepareStatement(sql));
+			}
+			
+			// Execute updates as part of a batch transaction
+			// This will roll back all changes if one query fails
+			for (PreparedStatement stmt : sqlUpdateQueries) {
+				stmt.setString(1, newUsername);
+				stmt.setString(2, oldUsername);
+				stmt.executeUpdate();
+			}
+			connect.commit();
+			
+			// Rename the user profile image to match new username
+			logger.info("Renaming profile image from " + oldUsername + ".png to " + newUsername + ".png");
+			String path = context.getRealPath("/resources/images")
+        			+ File.separator + "%s.png";
+			
+			File oldName = new File(String.format(path, oldUsername));
+			File newName = new File(String.format(path, newUsername));
+			oldName.renameTo(newName);
+			
+			return true;
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
+			try {
+				if (sqlUpdateQueries != null) {
+					for (PreparedStatement stmt : sqlUpdateQueries) {
+						stmt.close();
+					}
+				}
+			}
+			catch (SQLException e) {
+				logger.error(e);
+			}
+			try {
+				if (connect != null) {
+					logger.error("Transaction is being rolled back");
+	                connect.rollback();
+					connect.close();
+				}
+			}
+			catch (SQLException e) {
+				logger.error(e);
+			}
+		}
+		
+		// Error occurred
+		return false;
 	}
 	
 	public String displayErrorForWeb(Throwable t) {
