@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
 	pageEncoding="US-ASCII"%>
-<%@ page import="com.veracode.verademo.utils.*"%>
 <%@ page import="com.veracode.verademo.model.*"%>
 <%@ page import="java.util.*"%>
 
@@ -85,41 +84,12 @@
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
-<<<<<<< Upstream, based on origin/development
-								ArrayList<String> usernames = (ArrayList<String>) request.getAttribute("usernames");
-								@SuppressWarnings("unchecked")
-								ArrayList<String> blabName = (ArrayList<String>) request.getAttribute("blabName");
-								@SuppressWarnings("unchecked")
-								ArrayList<String> contentForMe = (ArrayList<String>) request.getAttribute("contentForMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<String> timestampForMe = (ArrayList<String>) request.getAttribute("timestampForMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<Integer> countForMe = (ArrayList<Integer>) request.getAttribute("countForMe");
-								@SuppressWarnings("unchecked")
-								ArrayList<Integer> blabIdForMe = (ArrayList<Integer>) request.getAttribute("blabIdForMe");
-								for (int i = 0; i < usernames.size(); i++) {
-=======
 								List<Blab> feedBlabs = (List<Blab>) request.getAttribute("blabsByOthers");
 								
 								for (Blab post : feedBlabs) {
->>>>>>> 1e15e06 Revamp how we link users to profile images
 							%>
 							<li>
-<<<<<<< Upstream, based on origin/development
-								<div class="commenterImage">
-									<img src="resources/images/<%=i+2%>.png" />
-								</div>
-								<div class="commentText">
-									<p class=""><%=contentForMe.get(i)%></p>
-									<span class="date sub-text">
-										by <%=blabName.get(i)%> on <%=timestampForMe.get(i)%>
-									</span>
-									<br/>
-									<span class="date sub-text">
-										<a href="blab?blabid=<%=blabIdForMe.get(i)%>"><%=countForMe.get(i)%> Comments</a>
-									</span>
-=======
-								<div class="clear">
+								<div>
 									<div class="commenterImage">
 										<img src="resources/images/<%= post.getAuthor().getUsername() %>.png" />
 									</div>
@@ -133,7 +103,6 @@
 											<a href="blab?blabid=<%= post.getId() %>"><%= post.getCommentCount() %> Comments</a>
 										</span>
 									</div>
->>>>>>> 1e15e06 Revamp how we link users to profile images
 								</div>
 							</li>
 							<%

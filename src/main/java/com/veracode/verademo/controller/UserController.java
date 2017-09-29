@@ -1,5 +1,7 @@
 package com.veracode.verademo.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Connection;
@@ -19,21 +21,22 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.veracode.verademo.model.Blabber;
 import com.veracode.verademo.utils.Constants;
@@ -244,8 +247,8 @@ public class UserController {
 	public String processRegister(
 			@RequestParam(value = "user") String username, 
 			HttpServletRequest httpRequest,
-			Model model
-		) {
+			Model model)
+	{
 		logger.info("Entering processRegister");
 		
 		// Get the Database Connection
@@ -265,13 +268,11 @@ public class UserController {
 				httpRequest.getSession().setAttribute("username", username);
 				return "register-finish";
 			}
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		
 		return "register";
 	}
 	
@@ -291,17 +292,11 @@ public class UserController {
 								  @RequestParam(value = "blabName", required = true) String blabName,
 								  HttpServletRequest httpRequest,
 								  HttpServletResponse response,
-<<<<<<< Upstream, based on origin/development
-								  Model model
-		) {
+								  Model model)
+	{
 		logger.info("Entering processRegisterFinish");
 		
 		String username = (String) httpRequest.getSession().getAttribute("username");
-=======
-								  Model model)
-	{
-		logger.info("Entering processRegister");
->>>>>>> 1e15e06 Revamp how we link users to profile images
 
 		// Do the password and cpassword parameters match ?
 		if (password.compareTo(cpassword) != 0) {
@@ -418,15 +413,9 @@ public class UserController {
 		}
 		
 		Connection connect = null;
-<<<<<<< Upstream, based on origin/development
 		PreparedStatement myHecklers = null, myInfo = null;
 		String sqlMyHecklers = "SELECT users.username, users.blab_name, users.created_at "
 				+ "FROM users LEFT JOIN listeners ON users.username = listeners.listener "
-=======
-		PreparedStatement myHecklers = null;
-		String sqlMyHecklers = "SELECT users.username, users.blab_name, users.date_created "
-				+ "FROM users LEFT JOIN listeners ON users.userid = listeners.listener "
->>>>>>> 1e15e06 Revamp how we link users to profile images
 				+ "WHERE listeners.blabber=? AND listeners.status='Active';";
 		
 		try {
@@ -452,14 +441,10 @@ public class UserController {
 			// Get the audit trail for this user
 			ArrayList<String> events = new ArrayList<String>();
 			
-<<<<<<< Upstream, based on origin/development
-			String sqlQuery = "select event from users_history where blabber=\"" + username + "\" ORDER BY eventid DESC; ";
-			logger.info(sqlQuery);
-=======
+
 			/* START BAD CODE */
-			String sqlMyEvents = "select event from users_history where blabber=" + currentUser.getUserID() + " ORDER BY eventid DESC; ";
+			String sqlMyEvents = "select event from users_history where blabber=\"" + username + "\" ORDER BY eventid DESC; ";
 			logger.info(sqlMyEvents);
->>>>>>> 1e15e06 Revamp how we link users to profile images
 			Statement sqlStatement = connect.createStatement();
 			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlMyEvents);
 			/* END BAD CODE */
@@ -468,40 +453,24 @@ public class UserController {
 				events.add(userHistoryResult.getString(1));
 			}
 			
-<<<<<<< Upstream, based on origin/development
-			// Get the users information
+			//Get the users information
 			String sql = "SELECT username, real_name, blab_name FROM users WHERE username = '" + username + "'";
 			logger.info(sql);
 			myInfo = connect.prepareStatement(sql);
 			ResultSet myInfoResults = myInfo.executeQuery();
 			myInfoResults.next();
-			
-			model.addAttribute("hecklerId", hecklerId);
-			model.addAttribute("hecklerName", hecklerName);
-			model.addAttribute("created", created);
-			model.addAttribute("userID", currentUser.getUserID());
-			model.addAttribute("realName", myInfoResults.getString("real_name"));
-			model.addAttribute("blabName", myInfoResults.getString("blab_name"));
-			model.addAttribute("events", events);
-			
-		} catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-		} finally {
-=======
+
 			// Send these values to our View
 			model.addAttribute("hecklers", hecklers);
 			model.addAttribute("events", events);
-			model.addAttribute("username", currentUser.getUsername());
-			model.addAttribute("realName", currentUser.getRealName());
-			model.addAttribute("blabName", currentUser.getBlabName());
+			model.addAttribute("username", myInfoResults.getString("username"));
+			model.addAttribute("realName", myInfoResults.getString("real_name"));
+			model.addAttribute("blabName", myInfoResults.getString("blab_name"));
 		}
 		catch (SQLException | ClassNotFoundException ex) {
 			logger.error(ex);
 		}
 		finally {
->>>>>>> 1e15e06 Revamp how we link users to profile images
 			try {
 				if (myHecklers != null) {
 					myHecklers.close();
@@ -526,10 +495,6 @@ public class UserController {
 	@RequestMapping(value = "/profile", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public String processProfile(@RequestParam(value = "realName", required = true) String realName,
-								 @RequestParam(value = "blabName", required = true) String blabName, 
-								 HttpServletRequest httpRequest, 
-								 HttpServletResponse response
-	) {
 								 @RequestParam(value = "blabName", required = true) String blabName,
 								 @RequestParam(value = "username", required = true) String username,
 								 @RequestParam(value = "file", required = false) MultipartFile file,
@@ -538,25 +503,20 @@ public class UserController {
 	{
 		logger.info("Entering processProfile");
 		
-		String username = (String) httpRequest.getSession().getAttribute("username");
+		String sessionUsername = (String) request.getSession().getAttribute("username");
 		// Ensure user is logged in
-		if (username == null) {
+		if (sessionUsername == null) {
 			logger.info("User is not Logged In - redirecting...");
 			return "redirect:login?target=profile";
 		}
 
 		logger.info("User is Logged In - continuing...");
 
-<<<<<<< Upstream, based on origin/development
-=======
-		String oldUsername = currentUser.getUsername();
+		String oldUsername = sessionUsername;
 		
 		// Update user information
->>>>>>> 1e15e06 Revamp how we link users to profile images
 		Connection connect = null;
 		PreparedStatement update = null;
-		String updateSql = "UPDATE users SET real_name=?, blab_name=? WHERE username=?;";
-
 		try {
 			logger.info("Getting Database connection");
 			// Get the Database Connection
@@ -565,18 +525,11 @@ public class UserController {
 
 			//
 			logger.info("Preparing the update Prepared Statement");
-<<<<<<< Upstream, based on origin/development
-			update = connect.prepareStatement(updateSql);
-			update.setString(1, realName);
-			update.setString(2, blabName);
-			update.setString(3, username);
-=======
-			update = connect.prepareStatement("UPDATE users SET username=?, real_name=?, blab_name=? WHERE userid=?;");
+			update = connect.prepareStatement("UPDATE users SET username=?, real_name=?, blab_name=? WHERE username=?;");
 			update.setString(1, username.toLowerCase());
 			update.setString(2, realName);
 			update.setString(3, blabName);
-			update.setInt(4, currentUser.getUserID());
->>>>>>> 1e15e06 Revamp how we link users to profile images
+			update.setString(4, sessionUsername);
 
 			logger.info("Executing the update Prepared Statement");
 			boolean updateResult = update.execute();
@@ -587,38 +540,23 @@ public class UserController {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				return "{\"message\": \"<script>alert('An error occurred, please try again.');</script>\"}";
 			}
-<<<<<<< Upstream, based on origin/development
-		} catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-
-		} finally {
-=======
-			else {
-				currentUser.setUsername(username.toLowerCase());
-				currentUser.setRealName(realName);
-				currentUser.setBlabName(blabName);
-			}
 		}
 		catch (SQLException | ClassNotFoundException ex) {
 			logger.error(ex);
 		}
 		finally {
->>>>>>> 1e15e06 Revamp how we link users to profile images
 			try {
 				if (update != null) {
 					update.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
-				logger.error(exceptSql);
 			}
 			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
@@ -654,12 +592,12 @@ public class UserController {
 			}
             catch (IllegalStateException | IOException ex) {
 				logger.error(ex);
-				System.out.println(ex);
 			}
 		}
 		
 		response.setStatus(HttpServletResponse.SC_OK);
-		UserFactory.updateInResponse(currentUser, response);
+		// TODO update session with new username?
+		// UserFactory.updateInResponse(currentUser, response);
 		
 		String msg = "Successfully changed values!\\\\nusername: %1$s\\\\nReal Name: %2$s\\\\nBlab Name: %3$s";
 		String respTemplate = "{\"values\": {\"username\": \"%1$s\", \"realName\": \"%2$s\", \"blabName\": \"%3$s\"}, \"message\": \"<script>alert('" + msg + "');</script>\"}";

@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
 	pageEncoding="US-ASCII"%>
-<%@ page import="com.veracode.verademo.utils.*"%>
 <%@ page import="com.veracode.verademo.model.*"%>
 <%@ page import="java.util.*"%>
 
@@ -96,34 +95,11 @@
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
-<<<<<<< Upstream, based on origin/development
-								ArrayList<String> commenterName = (ArrayList<String>) request.getAttribute("commenterName");
-								@SuppressWarnings("unchecked")
-								ArrayList<String> comment = (ArrayList<String>) request.getAttribute("comment");
-								@SuppressWarnings("unchecked")
-								ArrayList<String> timestamp = (ArrayList<String>) request.getAttribute("timestamp");
-=======
 								List<Comment> comments = (ArrayList<Comment>) request.getAttribute("comments");
->>>>>>> 1e15e06 Revamp how we link users to profile images
-								
-<<<<<<< Upstream, based on origin/development
-								for (int i = 0; i < comment.size(); i++) {
-=======
+
 								for (Comment comment : comments) {
->>>>>>> 1e15e06 Revamp how we link users to profile images
 							%>
 							<li>
-<<<<<<< Upstream, based on origin/development
-								<div class="commenterImage">
-									<img src="resources/images/<%=i+2%>.png" />
-								</div>
-								<div class="blockquote">
-									<p class="">
-										"<%=comment.get(i)%>"
-									</p>
-									<span class="date sub-text">by <%=commenterName.get(i)%>
-										on <%=timestamp.get(i)%></span><br>
-=======
 								<div>
 									<div class="commenterImage">
 										<img src="resources/images/<%= comment.getAuthor().getUsername() %>.png" />
@@ -135,7 +111,6 @@
 										<span class="date sub-text">by <%= comment.getAuthor().getBlabName() %>
 											on <%= comment.getTimestampString() %></span><br>
 									</div>
->>>>>>> 1e15e06 Revamp how we link users to profile images
 								</div>
 							</li>
 							<%

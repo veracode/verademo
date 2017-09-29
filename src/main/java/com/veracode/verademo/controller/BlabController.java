@@ -7,12 +7,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.context.annotation.Scope;
@@ -49,8 +47,8 @@ public class BlabController {
 	public String showFeed(
 			@RequestParam(value="type", required=false) String type, 
 			Model model,
-			HttpServletRequest httpRequest
-		) {
+			HttpServletRequest httpRequest)
+	{
 		logger.info("Entering showFeed");
 		
 		String username = (String) httpRequest.getSession().getAttribute("username");
@@ -74,33 +72,27 @@ public class BlabController {
 			// Find the Blabs that this user listens to
 			logger.info("Preparing the BlabsForMe Prepared Statement");
 			blabsForMe = connect.prepareStatement(String.format(sqlBlabsForMe, 10, 0));
-			blabsForMe.setString(1,  username);
+			blabsForMe.setString(1, username);
 			logger.info("Executing the BlabsForMe Prepared Statement");
 			ResultSet blabsForMeResults = blabsForMe.executeQuery();
 			
 			// Store them in the Model
-			ArrayList<String> usernames = new ArrayList<String>();
-			ArrayList<String> blabName = new ArrayList<String>();
-			ArrayList<String> contentForMe = new ArrayList<String>();
-			ArrayList<String> timestampForMe = new ArrayList<String>();
-			ArrayList<Integer> countForMe = new ArrayList<Integer>();
-			ArrayList<Integer> blabIdForMe = new ArrayList<Integer>();
-			SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
+			List<Blab> feedBlabs = new ArrayList<Blab>();
 			while (blabsForMeResults.next()) {
-				usernames.add(blabsForMeResults.getString(1));
-				blabName.add(blabsForMeResults.getString(2));
-				contentForMe.add(blabsForMeResults.getString(3));
-				timestampForMe.add(sdf.format(blabsForMeResults.getDate(4)));
-				countForMe.add(blabsForMeResults.getInt(5));
-				blabIdForMe.add(blabsForMeResults.getInt(6));
+				Blabber author = new Blabber();
+				author.setUsername(blabsForMeResults.getString(1));
+				author.setBlabName(blabsForMeResults.getString(2));
+				
+				Blab post = new Blab();
+				post.setId(blabsForMeResults.getInt(6));
+				post.setContent(blabsForMeResults.getString(3));
+				post.setPostDate(blabsForMeResults.getDate(4));
+				post.setCommentCount(blabsForMeResults.getInt(5));
+				post.setAuthor(author);
+				
+				feedBlabs.add(post);
 			}
-			model.addAttribute("usernames", usernames);
-			model.addAttribute("blabName", blabName);
-			model.addAttribute("contentForMe", contentForMe);
-			model.addAttribute("timestampForMe", timestampForMe);
-			model.addAttribute("countForMe", countForMe);
-			model.addAttribute("blabIdForMe", blabIdForMe);
-			
+			model.addAttribute("blabsByOthers", feedBlabs);
 			model.addAttribute("currentUser", username);
 			
 			// Find the Blabs by this user
@@ -122,13 +114,11 @@ public class BlabController {
 				myBlabs.add(post);
 			}
 			model.addAttribute("blabsByMe", myBlabs);
-			
-		} catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-			
-		} finally {
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
 			try {
 				if (blabsByMe != null) {
 					blabsByMe.close();
@@ -164,8 +154,8 @@ public class BlabController {
 			@RequestParam(value="count", required=true)String count,
 			@RequestParam(value="len", required=true)String length, 
 			Model model, 
-			HttpServletRequest httpRequest) {
-		
+			HttpServletRequest httpRequest)
+	{
 		String template = "<li><div>"
 				+ "\t<div class=\"commenterImage\">"
 				+ "\t\t<img src=\"resources/images/%s.png\">"
@@ -200,24 +190,22 @@ public class BlabController {
 			feedSql.setString(1, username);
 			
 			ResultSet results = feedSql.executeQuery();
-			
-			SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
-			int i = 2;
 			while (results.next()) {
+				Blab blab = new Blab();
+				blab.setPostDate(results.getDate(4));
+				
 				ret.append(String.format(template,
-						i++,
-						results.getString(3),			// blab content
-						results.getString(2),			// user name
-						sdf.format(results.getDate(4)),	// timestamp
-						results.getInt(6),				// blabID
-						results.getInt(5)				// comment count
+						results.getString(1),		// username
+						results.getString(3),		// blab content
+						results.getString(2),		// blab name
+						blab.getPostDateString(),	// timestamp
+						results.getInt(6),			// blabID
+						results.getInt(5)			// comment count
 				));
 			}
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
 		}
 		
 		return ret.toString();
@@ -225,9 +213,14 @@ public class BlabController {
 
 
 	@RequestMapping(value="/feed", method=RequestMethod.POST)
-	public String processFeed(@RequestParam(value="blab", required=true) String blab, Model model, HttpServletRequest httpRequest) {
+	public String processFeed(
+			@RequestParam(value="blab", required=true) String blab,
+			Model model,
+			HttpServletRequest httpRequest)
+	{
 		String nextView = "redirect:feed";
 		logger.info("Entering processBlab");
+		
 		String username = (String) httpRequest.getSession().getAttribute("username");
 		// Ensure user is logged in
 		if (username == null) {
@@ -247,7 +240,6 @@ public class BlabController {
 			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 			
 			java.util.Date now = new java.util.Date();
-			// 
 			logger.info("Preparing the addBlab Prepared Statement");
 			addBlab = connect.prepareStatement(addBlabSql);
 			addBlab.setString(1,  username);
@@ -263,28 +255,29 @@ public class BlabController {
 				model.addAttribute("error", "Failed to add comment");
 			}
 			nextView = "redirect:feed";
-			
-		}catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-			
-		} finally {
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
 			try {
 				if (addBlab != null) {
 					addBlab.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null){
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
+		
 		return nextView;
 	}
 	
@@ -292,7 +285,8 @@ public class BlabController {
 	public String showBlab(
 			@RequestParam(value="blabid", required=true) Integer blabid, 
 			Model model, 
-			HttpServletRequest httpRequest) {
+			HttpServletRequest httpRequest)
+	{
 		String nextView = "redirect:feed";
 		logger.info("Entering showBlab");
 		
@@ -302,7 +296,9 @@ public class BlabController {
 			logger.info("User is not Logged In - redirecting...");
 			return "redirect:login?target=profile";
 		}
+		
 		logger.info("User is Logged In - continuing...");
+		
 		Connection connect = null;
 		PreparedStatement blabDetails = null;
 		PreparedStatement blabComments = null;
@@ -310,13 +306,12 @@ public class BlabController {
 				  + "FROM blabs INNER JOIN users ON blabs.blabber = users.username "
 				  + "WHERE blabs.blabid = ?;";
 
-		String blabCommentsSql = "SELECT users.blab_name, comments.content, comments.timestamp "
+		String blabCommentsSql = "SELECT users.username, users.blab_name, comments.content, comments.timestamp "
 				  + "FROM comments INNER JOIN users ON comments.blabber = users.username "
 				  + "WHERE comments.blabid = ? ORDER BY comments.timestamp DESC;";
 
 		try {
 			logger.info("Getting Database connection");
-			// Get the Database Connection
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 			
@@ -329,50 +324,55 @@ public class BlabController {
 			
 			// If there is a record...
 			if (blabDetailsResults.next()) {
+				// Get the blab contents
 				model.addAttribute("content", blabDetailsResults.getString(1));
 				model.addAttribute("blab_name", blabDetailsResults.getString(2));
+				
 				// Now lets get the comments...
 				logger.info("Preparing the blabComments Prepared Statement");
 				blabComments = connect.prepareStatement(blabCommentsSql);
 				blabComments.setInt(1,  blabid);
 				logger.info("Executing the blabComments Prepared Statement");
 				ResultSet blabCommentsResults = blabComments.executeQuery();
+				
 				// Store them in the model
-				ArrayList<String> commenterName = new ArrayList<String>();
-				ArrayList<String> comment = new ArrayList<String>();
-				ArrayList<String> timestamp = new ArrayList<String>();
-				SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
+				List<Comment> comments = new ArrayList<Comment>();
 				while (blabCommentsResults.next()) {
-					commenterName.add(blabCommentsResults.getString(1));
-					comment.add(blabCommentsResults.getString(2));
-					timestamp.add(sdf.format(blabCommentsResults.getDate(3)));
+					Blabber author = new Blabber();
+					author.setUsername(blabCommentsResults.getString(1));
+					author.setBlabName(blabCommentsResults.getString(2));
+					
+					Comment comment = new Comment();
+					comment.setContent(blabCommentsResults.getString(3));
+					comment.setTimestamp(blabCommentsResults.getDate(4));
+					comment.setAuthor(author);
+					
+					comments.add(comment);
 				}
-				model.addAttribute("commenterName", commenterName);
-				model.addAttribute("comment", comment);
-				model.addAttribute("timestamp", timestamp);
-				model.addAttribute("blabid", blabid);
-
+				model.addAttribute("comments", comments);
+				
 				nextView = "blab";
 			}
 			
-		}catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-			
-		} finally {
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
 			try {
 				if (blabDetails != null) {
 					blabDetails.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null){
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -384,8 +384,8 @@ public class BlabController {
 	public String processBlab(@RequestParam(value="comment", required=true) String comment, 
 							  @RequestParam(value="blabid", required=true) Integer blabid, 
 							  Model model,
-							  HttpServletRequest httpRequest
-		) {
+							  HttpServletRequest httpRequest)
+	{
 		String nextView = "redirect:feed";
 		logger.info("Entering processBlab");
 		
@@ -424,29 +424,31 @@ public class BlabController {
 				//failure
 				model.addAttribute("error", "Failed to add comment");
 			}
+			
 			nextView = "redirect:blab?blabid=" + blabid;
-			
-		}catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-			
-		} finally {
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
 			try {
 				if (addComment != null) {
 					addComment.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null){
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
+		
 		return nextView;
 	}
 
@@ -454,11 +456,12 @@ public class BlabController {
 	public String showBlabbers(
 			@RequestParam(value="sort", required=false) String sort,
 			Model model,
-			HttpServletRequest httpRequest
-		) {
+			HttpServletRequest httpRequest)
+	{
 		if (sort == null || sort.isEmpty()) {
 			sort = "blab_name ASC";
 		}
+		
 		String nextView = "redirect:feed";
 		logger.info("Entering showBlabbers");
 		
@@ -468,10 +471,11 @@ public class BlabController {
 			logger.info("User is not Logged In - redirecting...");
 			return "redirect:login?target=blabbers";
 		}
+		
 		logger.info("User is Logged In - continuing...");
 		
 		Connection connect = null;
-		PreparedStatement blabbers = null;
+		PreparedStatement blabberQuery = null;
 		
 		/* START BAD CODE */
 		String blabbersSql = "SELECT users.username,"
@@ -492,52 +496,46 @@ public class BlabController {
 			
 			// Find the Blabbers
 			logger.info(blabbersSql);
-			blabbers = connect.prepareStatement(blabbersSql);
-			blabbers.setString(1,  username);
-			blabbers.setString(2,  username);
-			ResultSet blabbersResults = blabbers.executeQuery();
+			blabberQuery = connect.prepareStatement(blabbersSql);
+			blabberQuery.setString(1, username);
+			blabberQuery.setString(2, username);
+			ResultSet blabbersResults = blabberQuery.executeQuery();
 			/* END BAD CODE */
 			
-			SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
-			ArrayList<String> blabberUsername = new ArrayList<String>();
-			ArrayList<String> blabberName = new ArrayList<String>();
-			ArrayList<String> created = new ArrayList<String>();
-			ArrayList<Integer> listening = new ArrayList<Integer>();
-			ArrayList<Integer> listeners = new ArrayList<Integer>();
-
+			List<Blabber> blabbers = new ArrayList<Blabber>();
 			while (blabbersResults.next()) {
-				blabberUsername.add(blabbersResults.getString(1));
-				blabberName.add(blabbersResults.getString(2));
-				created.add(sdf.format(blabbersResults.getDate(3)));
-				listening.add(blabbersResults.getInt(4));
-				listeners.add(blabbersResults.getInt(5));
+				Blabber blabber = new Blabber();
+				blabber.setBlabName(blabbersResults.getString(2));
+				blabber.setUsername(blabbersResults.getString(1));
+				blabber.setCreatedDate(blabbersResults.getDate(3));
+				blabber.setNumberListeners(blabbersResults.getInt(4));
+				blabber.setNumberListening(blabbersResults.getInt(5));
+				
+				blabbers.add(blabber);
 			}
-			model.addAttribute("blabberUsername", blabberUsername);
-			model.addAttribute("blabberName", blabberName);
-			model.addAttribute("created", created);
-			model.addAttribute("listening", listening);
-			model.addAttribute("listeners", listeners);
+			model.addAttribute("blabbers", blabbers);
 
 			nextView = "blabbers";
 			
-		}catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-			
-		} finally {
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
 			try {
-				if (blabbers != null) {
-					blabbers.close();
+				if (blabberQuery != null) {
+					blabberQuery.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null){
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -549,8 +547,8 @@ public class BlabController {
 	public String processBlabbers(@RequestParam(value="blabberUsername", required=true) String blabberUsername, 
 								  @RequestParam(value="command", required=true) String command, 
 								  Model model,
-								  HttpServletRequest httpRequest
-		) {
+								  HttpServletRequest httpRequest)
+	{
 		String nextView = "redirect:feed";
 		logger.info("Entering processBlabbers");
 		
@@ -560,6 +558,7 @@ public class BlabController {
 			logger.info("User is not Logged In - redirecting...");
 			return "redirect:login?target=blabbers";
 		}
+		
 		logger.info("User is Logged In - continuing...");
 		
 		if (command == null || command.isEmpty()) {
@@ -587,41 +586,29 @@ public class BlabController {
 			
 			nextView = "redirect:blabbers";
 			
-		}catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
+		}
+		catch (SQLException | ClassNotFoundException
+				| InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException ex)
+		{
+			logger.error(ex);
+		}
+		finally {
 			try {
 				if (action != null) {
 					action.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null){
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}

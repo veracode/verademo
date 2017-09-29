@@ -143,17 +143,17 @@ public class Utils {
 				}
 			}
 			
-			// Get the array offset for a random user, except admin who's offset 0.
-			int randomUserOffset = rand.nextInt(users.length - 2) + 1;
-			
-			// get the number or seconds until some time in the last 30 days.
-			long vary = rand.nextInt(30 * 24 * 3600);
-
 			// Add the blabs
 			logger.info("Preparing the Statement for adding blabs");
 			String blabsSQL = "INSERT INTO blabs (blabber, content, timestamp) values (?, ?, ?);";
 			blabsStatement = connect.prepareStatement(blabsSQL);
 			for (int i = 0; i < blabsContent.length; i++) {
+				// Get the array offset for a random user, except admin who's offset 0.
+				int randomUserOffset = rand.nextInt(users.length - 2) + 1;
+				
+				// get the number or seconds until some time in the last 30 days.
+				long vary = rand.nextInt(30 * 24 * 3600);
+				
 				blabsStatement.setString(1, users[randomUserOffset].getUserName());
 				blabsStatement.setString(2, blabsContent[i]);
 				blabsStatement.setTimestamp(3, new Timestamp(now.getTime() - (vary * 1000)));
@@ -172,6 +172,12 @@ public class Utils {
 				// How many comments?
 				int count = rand.nextInt(6); // (between 0 and 6)
 				for (int j = 0; j < count; j++) {
+					// Get the array offset for a random user, except admin who's offset 0.
+					int randomUserOffset = rand.nextInt(users.length - 2) + 1;
+					
+					// get the number or seconds until some time in the last 30 days.
+					long vary = rand.nextInt(30 * 24 * 3600);
+					
 					int commentNum = rand.nextInt(commentsContent.length);
 					commentsStatement.setInt(1, i);
 					commentsStatement.setString(2, users[randomUserOffset].getUserName());
