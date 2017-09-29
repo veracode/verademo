@@ -1,5 +1,5 @@
 package com.veracode.verademo.commands;
 
 public interface BlabberCommand {
-	void execute(int blabberId);
+	void execute(String blabberUsername);
 }

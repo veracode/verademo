@@ -93,7 +93,7 @@
 							<tbody>
 								<%
 									@SuppressWarnings("unchecked")
-									ArrayList<Integer> blabberId = (ArrayList<Integer>) request.getAttribute("blabberId");
+									ArrayList<String> blabberUsername = (ArrayList<String>) request.getAttribute("blabberUsername");
 									@SuppressWarnings("unchecked")
 									ArrayList<String> blabberName = (ArrayList<String>) request.getAttribute("blabberName");
 									@SuppressWarnings("unchecked")
@@ -102,11 +102,11 @@
 									ArrayList<Integer> listening = (ArrayList<Integer>) request.getAttribute("listening");
 									@SuppressWarnings("unchecked")
 									ArrayList<Integer> listeners = (ArrayList<Integer>) request.getAttribute("listeners");
-									for (int i = 0; i < blabberId.size(); i++) {
+									for (int i = 0; i < blabberUsername.size(); i++) {
 								%>
 								<tr>
 									<td class="commenterImage">
-										<img src="resources/images/<%=blabberId.get(i)%>.png" />
+										<img src="resources/images/<%=i+2%>.png" />
 									</td>
 									<td class="commenterName">
 										<%=blabberName.get(i)%>
@@ -123,8 +123,8 @@
 									<td>
 										<form class="form-inline" role="form" method="POST"
 											action="blabbers">
-											<input type="hidden" name="blabberId"
-												value="<%=blabberId.get(i)%>"> <input type="hidden"
+											<input type="hidden" name="blabberUsername"
+												value="<%=blabberUsername.get(i)%>"> <input type="hidden"
 												name="command"
 												value="<%=(listening.get(i).intValue() == 1 ? "ignore" : "listen")%>">
 											<input type="submit" class="btn btn-default pull-right"

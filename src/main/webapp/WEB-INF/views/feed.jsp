@@ -84,7 +84,7 @@
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
-								ArrayList<Integer> userID = (ArrayList<Integer>) request.getAttribute("userID");
+								ArrayList<String> usernames = (ArrayList<String>) request.getAttribute("usernames");
 								@SuppressWarnings("unchecked")
 								ArrayList<String> blabName = (ArrayList<String>) request.getAttribute("blabName");
 								@SuppressWarnings("unchecked")
@@ -95,11 +95,11 @@
 								ArrayList<Integer> countForMe = (ArrayList<Integer>) request.getAttribute("countForMe");
 								@SuppressWarnings("unchecked")
 								ArrayList<Integer> blabIdForMe = (ArrayList<Integer>) request.getAttribute("blabIdForMe");
-								for (int i = 0; i < userID.size(); i++) {
+								for (int i = 0; i < usernames.size(); i++) {
 							%>
 							<li>
 								<div class="commenterImage">
-									<img src="resources/images/<%=userID.get(i)%>.png" />
+									<img src="resources/images/<%=i+2%>.png" />
 								</div>
 								<div class="commentText">
 									<p class=""><%=contentForMe.get(i)%></p>

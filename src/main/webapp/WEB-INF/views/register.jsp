@@ -84,34 +84,6 @@
 											</div></td>
 									</tr>
 									<tr>
-										<td>Password</td>
-										<td><div class="form-group">
-												<input type="password" class="form-control" name="password"
-													value="">
-											</div></td>
-									</tr>
-									<tr>
-										<td>Confirm Password</td>
-										<td><div class="form-group">
-												<input type="password" class="form-control" name="cpassword"
-													value="">
-											</div></td>
-									</tr>
-									<tr>
-										<td>Real Name</td>
-										<td><div class="form-group">
-												<input type="text" class="form-control" name="realName"
-													value="">
-											</div></td>
-									</tr>
-									<tr>
-										<td>Blab Name</td>
-										<td><div class="form-group">
-												<input type="text" class="form-control" name="blabName"
-													value="">
-											</div></td>
-									</tr>
-									<tr>
 										<td><button type="submit" class="btn btn-primary"
 												id="login" name="Register" value="Register">Register</button></td>
 										<td></td>

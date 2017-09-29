@@ -96,19 +96,17 @@
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
-								ArrayList<Integer> commenterID = (ArrayList<Integer>) request.getAttribute("commenterId");
-								@SuppressWarnings("unchecked")
 								ArrayList<String> commenterName = (ArrayList<String>) request.getAttribute("commenterName");
 								@SuppressWarnings("unchecked")
 								ArrayList<String> comment = (ArrayList<String>) request.getAttribute("comment");
 								@SuppressWarnings("unchecked")
 								ArrayList<String> timestamp = (ArrayList<String>) request.getAttribute("timestamp");
 								
-								for (int i = 0; i < commenterID.size(); i++) {
+								for (int i = 0; i < comment.size(); i++) {
 							%>
 							<li>
 								<div class="commenterImage">
-									<img src="resources/images/<%=commenterID.get(i)%>.png" />
+									<img src="resources/images/<%=i+2%>.png" />
 								</div>
 								<div class="blockquote">
 									<p class="">
