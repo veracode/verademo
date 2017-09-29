@@ -81,11 +81,16 @@
 								<tbody>
 									<tr>
 										<td class="commenterImage">
-											<img id="profileImage" src="resources/images/<%=request.getAttribute("username")%>.png" />
+											<img id="profileImage" src="resources/images/<%= request.getAttribute("username") %>.png" />
 										</td>
 										<td>
 											<div class="form-group">
-												<input type="file" class="form-control" name="file">
+												<input type="file" class="form-control" name="file" />
+											</div>
+											<div>
+												<a href="downloadprofileimage?image=<%= request.getAttribute("username") %>.png">
+													Download Current Image
+												</a>
 											</div>
 										</td>
 									</tr>
@@ -94,7 +99,7 @@
 										<td>
 											<div class="form-group">
 												<input type="text" class="form-control" name="realName"
-													value="<%=request.getAttribute("realName")%>">
+													value="<%=request.getAttribute("realName")%>" />
 											</div>
 										</td>
 									</tr>
@@ -103,7 +108,7 @@
 										<td>
 											<div class="form-group">
 												<input type="text" class="form-control" name="blabName"
-													value="<%=request.getAttribute("blabName")%>">
+													value="<%=request.getAttribute("blabName")%>" />
 											</div>
 										</td>
 									</tr>
@@ -112,7 +117,7 @@
 										<td>
 											<div class="form-group">
 												<input type="text" class="form-control" name="username"
-													value="<%=request.getAttribute("username")%>">
+													value="<%=request.getAttribute("username")%>" />
 											</div>
 										</td>
 									</tr>
