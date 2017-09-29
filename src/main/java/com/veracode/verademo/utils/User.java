@@ -2,8 +2,6 @@ package com.veracode.verademo.utils;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Random;
-
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
