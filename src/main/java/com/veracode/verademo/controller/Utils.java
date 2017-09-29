@@ -20,186 +20,69 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.veracode.verademo.utils.Constants;
+import com.veracode.verademo.utils.User;
+
 import java.security.SecureRandom;
- 
+
 @Controller
 @Scope("request")
 public class Utils {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:Utils");
+	
+	private static User[] users = new User[] {
+			User.create("admin", "admin", "Thats Mr Administrator to you."),
+			User.create("john", "John", "John Smith"),
+			User.create("paul", "Paul", "Paul Farrington"),
+			User.create("chrisc", "Chris", "Chris Campbell"),
+			User.create("laurie", "Laurie", "Laurie Mercer"),
+			User.create("nabil", "Nabil", "Nabil Bousselham"),
+			User.create("julian", "Julian", "Julian Totzek-Hallhuber"),
+			User.create("joash", "Joash", "Joash Herbrink"),
+			User.create("andrzej", "Andrzej", "Andrzej Szaryk"),
+			User.create("april", "April", "April Sauer"),
+			User.create("armando", "Armando", "Armando Bioc"),
+			User.create("ben", "Ben", "Ben Stoll"),
+			User.create("brian", "Brian", "Brian Pitta"),
+			User.create("caitlin", "Caitlin", "Caitlin Johanson"),
+			User.create("christraut", "Chris Trautwein", "Chris Trautwein"),
+			User.create("christyson", "Chris Tyson", "Chris Tyson"),
+			User.create("clint", "Clint", "Clint Pollock"),
+			User.create("cody", "Cody", "Cody Bertram"),
+			User.create("derek", "Derek", "Derek Chowaniec"),
+			User.create("glenn", "Glenn", "Glenn Whittemore"),
+			User.create("grant", "Grant", "Grant Robinson"),
+			User.create("gregory", "Gregory", "Gregory Wolford"),
+			User.create("jacob", "Jacob", "Jacob Martel"),
+			User.create("jeremy", "Jeremy", "Jeremy Anderson"),
+			User.create("johnny", "Johnny", "Johnny Wong"),
+			User.create("kevin", "Kevin", "Kevin Rise"),
+			User.create("scottrum", "Scott Rumrill", "Scott Rumrill"),
+			User.create("scottsim", "Scott Simpson", "Scott Simpson"),
+	};
 
-	private String[] usersUsername = {
-			"admin",
-			"john",
-			"paul",
-			"chrisc",
-			"laurie",
-			"nabil",
-			"julian", //7
-			"joash",
-			"andrzej",//9
-			"april",
-			"armando",
-			"ben",
-			"brian",//13
-			"caitlin",
-			"christraut",
-			"christyson",
-			"clint",//17
-			"cody",
-			"derek",
-			"glenn",
-			"grant",//21
-			"gregory",
-			"jacob",
-			"jeremy",//24
-			"johnny",
-			"kevin",
-			"scottrum",//27
-			"scottsim"
-			};
-	String[] usersPassword = {
-			"admin",
-			"john",
-			"paul",
-			"chrisc",
-			"laurie",
-			"nabil",
-			"julian", //7
-			"joash",
-			"andrzej",//9
-			"april",
-			"armando",
-			"ben",
-			"brian",//13
-			"caitlin",
-			"christraut",
-			"christyson",
-			"clint",//17
-			"cody",
-			"derek",
-			"glenn",
-			"grant",//21
-			"gregory",
-			"jacob",
-			"jeremy",//24
-			"johnny",
-			"kevin",
-			"scottrum",//27
-			"scottsim"
-			};
-	String[] usersRealName = {
-			"Thats Mr Administrator to you.",
-			"John Smith",
-			"Paul Farrington",
-			"Chris Campbell",
-			"Laurie Mercer",
-			"Nabil Bousselham",
-			"Julian Totzek-Hallhuber",
-			"Joash Herbrink",
-			"Andrzej Szaryk",//9
-			"April Sauer",
-			"Armando Bioc",
-			"Ben Stoll",
-			"Brian Pitta",//13
-			"Caitlin Johanson",
-			"Chris Trautwein",
-			"Chris Tyson",
-			"Clint Pollock",//17
-			"Cody Bertram",
-			"Derek Chowaniec",
-			"Glenn Whittemore",
-			"Grant Robinson",//21
-			"Gregory Wolford",
-			"Jacob Martel",
-			"Jeremy Anderson",//24
-			"Johnny Wong",
-			"Kevin Rise",
-			"Scott Rumrill",//27
-			"Scott Simpson"
-			};
-	String[] usersBlabName = {
-			"admin",
-			"John",
-			"Paul",
-			"Chris",
-			"Laurie",
-			"Nabil",
-			"Julian",
-			"Joash",
-			"Andrzej",//9
-			"April",
-			"Armando",
-			"Ben",
-			"Brian",//13
-			"Caitlin",
-			"Chris Trautwein",
-			"Chris Tyson",
-			"Clint",//17
-			"Cody",
-			"Derek",
-			"Glenn",
-			"Grant",//21
-			"Gregory",
-			"Jacob",
-			"Jeremy",//24
-			"Johnny",
-			"Kevin",
-			"Scott Rumrill",//27
-			"Scott Simpson"
-			};
-	String[] resetQueries = {
-			"DROP TABLE IF EXISTS users;",
-			"CREATE TABLE users (userid INT NOT NULL AUTO_INCREMENT PRIMARY KEY, username VARCHAR(100), password VARCHAR(100), date_created DATE, last_login DATETIME, real_name VARCHAR(100), blab_name VARCHAR(100));",
+	String[] resetQueries = { "DROP TABLE IF EXISTS users;",
+			"CREATE TABLE users (username VARCHAR(100) NOT NULL PRIMARY KEY, password VARCHAR(100), created_at DATETIME, last_login DATETIME, real_name VARCHAR(100), blab_name VARCHAR(100));",
 			"DROP TABLE IF EXISTS listeners;",
-			"CREATE TABLE listeners (blabber INT NOT NULL, listener INT NOT NULL,status VARCHAR(20));",
+			"CREATE TABLE listeners (blabber VARCHAR(100) NOT NULL, listener VARCHAR(100) NOT NULL,status VARCHAR(20));",
 			"DROP TABLE IF EXISTS blabs;",
-			"CREATE TABLE blabs (blabid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,blabber INT NOT NULL, content VARCHAR(250),timestamp DATETIME);",
+			"CREATE TABLE blabs (blabid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,blabber VARCHAR(100) NOT NULL, content VARCHAR(250),timestamp DATETIME);",
 			"DROP TABLE IF EXISTS comments;",
-			"CREATE TABLE comments (commentid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,blabid INT NOT NULL,blabber INT NOT NULL, content VARCHAR(250),timestamp DATETIME);",
+			"CREATE TABLE comments (commentid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,blabid INT NOT NULL,blabber VARCHAR(100) NOT NULL, content VARCHAR(250),timestamp DATETIME);",
 			"DROP TABLE IF EXISTS users_history;",
-			"CREATE TABLE users_history (eventid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,blabber INT NOT NULL,event VARCHAR(250),timestamp DATETIME);",
-			};
-	
-	String  usersSQL = "INSERT INTO users (username, password, date_created, last_login, real_name, blab_name) values (?, ?, ?, ?, ?, ?);";
-	
+			"CREATE TABLE users_history (eventid INT NOT NULL AUTO_INCREMENT PRIMARY KEY,blabber VARCHAR(100) NOT NULL,event VARCHAR(250),timestamp DATETIME);", };
 
-
-	@RequestMapping(value="/reset", method=RequestMethod.GET)
-	public String showReset(@RequestParam(value="type", required=false) String type, Model model) {
+	@RequestMapping(value = "/reset", method = RequestMethod.GET)
+	public String showReset() {
 		logger.info("Entering showReset");
-		
-		
-		model.addAttribute("usersUsername",  Arrays.asList(usersUsername));
-		
+
 		return "reset";
 	}
 
-	// SecureRandom
-	// NOTE: Use this method to get a SecureRandom object for use whenever
-	//       you need a Random number
-	public static SecureRandom generateRandom(String arg[]) {
-	        SecureRandom random1 = new SecureRandom();
-	        random1.nextBytes(new byte[20]);
-	        //random1.setSeed(123);
-	        return random1;
-	}
-
-	@RequestMapping(value="/reset", method=RequestMethod.POST)
-	public String processReset(@RequestParam(value="confirm", required=true) String confirm, 
-			                   @RequestParam(value="primary", required=false) String primary, Model model) {
+	@RequestMapping(value = "/reset", method = RequestMethod.POST)
+	public String processReset(@RequestParam(value = "confirm", required = true) String confirm,
+			@RequestParam(value = "primary", required = false) String primary, Model model) {
 		logger.info("Entering processReset");
-		
-		/* BEGIN BAD CODE */
-		Random rand = new Random();
-		/* END BAD CODE */
-		
-		/* BEGIN GOOD CODE 
-		SecureRandom rand = generateRandom(new String[]{});
-		/* END GOOD CODE */
-		
-		int days_1 = 60 * 60 * 24;
-		int months_1 = days_1 * 31;
-		
+
 		Connection connect = null;
 		Statement tablesStatement = null;
 		PreparedStatement usersStatement = null;
@@ -218,121 +101,109 @@ public class Utils {
 			logger.info("Creating Statement for resetting the Database");
 			tablesStatement = connect.createStatement();
 			logger.info("Adding queries to batch");
-			for (int i=0; i< resetQueries.length; i++) {
+			for (int i = 0; i < resetQueries.length; i++) {
 				tablesStatement.addBatch(resetQueries[i]);
 			}
 			logger.info("Executing batch queries");
 			tablesStatement.executeBatch();
 			logger.info("Batch Statement Execution completed");
-			
+
 			// Add the users
 			logger.info("Preparing the Stetement for adding users");
-			usersStatement = connect.prepareStatement(usersSQL);
-			for (int i=0; i<usersUsername.length; i++) {
-				long vary = rand.nextInt(months_1);
-				Date created = new Date(now.getTime() - (vary * 1000));
-				vary = rand.nextInt(days_1);
-				Timestamp lastLogin = new Timestamp(now.getTime() - (vary * 1000));
-				usersStatement.setString(1,  usersUsername[i]);
-				usersStatement.setString(2,  usersPassword[i]);
-				usersStatement.setDate(3,  created);
-				usersStatement.setTimestamp(4,  lastLogin);
-				usersStatement.setString(5,  usersRealName[i]);
-				usersStatement.setString(6,  usersBlabName[i]);
-				logger.info("Adding a user");
+			usersStatement = connect.prepareStatement(
+					"INSERT INTO users (username, password, created_at, last_login, real_name, blab_name) values (?, ?, ?, ?, ?, ?);"
+			);
+			for (int i = 0; i < users.length; i++) {
+				usersStatement.setString(1, users[i].getUserName());
+				usersStatement.setString(2, users[i].getPassword());
+				usersStatement.setTimestamp(3, users[i].getDateCreated());
+				usersStatement.setTimestamp(4, users[i].getLastLogin());
+				usersStatement.setString(5, users[i].getRealName());
+				usersStatement.setString(6, users[i].getBlabName());
+				logger.info("Adding user " + users[i].getUserName());
 				boolean usersResult = usersStatement.execute();
-				logger.info((!usersResult ? "Success":"Failed"));
-
+				logger.info((!usersResult ? "Success" : "Failed"));
 			}
 			
+			Random rand = new Random();
+
 			// Add the listeners
 			logger.info("Preparing the Stetement for adding listeners");
-			String  listenersSQL = "INSERT INTO listeners (blabber, listener, status) values (?, ?, 'Active');";
+			String listenersSQL = "INSERT INTO listeners (blabber, listener, status) values (?, ?, 'Active');";
 			listenersStatement = connect.prepareStatement(listenersSQL);
-			for (int i=2; i<=usersUsername.length; i++) {
-				for (int j=2; j<=usersUsername.length; j++) {
-					if (rand.nextBoolean() && i!=j) {
-						listenersStatement.setInt(1,  i);
-						listenersStatement.setInt(2,  j);
+			for (int i = 1; i < users.length; i++) {
+				for (int j = 1; j < users.length; j++) {
+					if (rand.nextBoolean() && i != j) {
+						listenersStatement.setString(1, users[i].getUserName());
+						listenersStatement.setString(2, users[j].getUserName());
 						logger.info("Adding a listener");
 						boolean listenersResult = listenersStatement.execute();
-						logger.info((!listenersResult ? "Success":"Failed"));
+						logger.info((!listenersResult ? "Success" : "Failed"));
 					}
 				}
-
 			}
 			
+			// Get the array offset for a random user, except admin who's offset 0.
+			int randomUserOffset = rand.nextInt(users.length - 2) + 1;
+			
+			// get the number or seconds until some time in the last 30 days.
+			long vary = rand.nextInt(30 * 24 * 3600);
+
 			// Add the blabs
-			logger.info("Preparing the Stetement for adding blabs");
-			String  blabsSQL = "INSERT INTO blabs (blabber, content, timestamp) values (?, ?, ?);";
+			logger.info("Preparing the Statement for adding blabs");
+			String blabsSQL = "INSERT INTO blabs (blabber, content, timestamp) values (?, ?, ?);";
 			blabsStatement = connect.prepareStatement(blabsSQL);
-			for (int i=0; i<blabsContent.length; i++) {
-				// Pick a random userID
-				// userID's in the database are 1 based, Random.nextInt() is 0 based
-				// and we don't want 1 - thats admin
-				blabsStatement.setInt(1,  rand.nextInt(usersUsername.length-2)+2);
-				blabsStatement.setString(2, blabsContent[i] );
-				long vary = rand.nextInt(months_1);
-				blabsStatement.setTimestamp(3, new Timestamp( now.getTime() - (vary * 1000)));
+			for (int i = 0; i < blabsContent.length; i++) {
+				blabsStatement.setString(1, users[randomUserOffset].getUserName());
+				blabsStatement.setString(2, blabsContent[i]);
+				blabsStatement.setTimestamp(3, new Timestamp(now.getTime() - (vary * 1000)));
 				logger.info("Adding a blab");
 				boolean blabResult = blabsStatement.execute();
-				logger.info((!blabResult ? "Success":"Failed"));
+				logger.info((!blabResult ? "Success" : "Failed"));
 			}
-			
-			
+
 			// Add the comments
 			logger.info("Preparing the Statement for adding comments");
-			String  commentsSQL = "INSERT INTO comments (blabid, blabber, content, timestamp) values (?, ?, ?, ?);";
+			String commentsSQL = "INSERT INTO comments (blabid, blabber, content, timestamp) values (?, ?, ?, ?);";
 			commentsStatement = connect.prepareStatement(commentsSQL);
-			for (int i=1; i<=blabsContent.length; i++) {
+			for (int i = 1; i <= blabsContent.length; i++) {
 				// For each Blab...
-				
+
 				// How many comments?
-				int count = rand.nextInt(6); //(between 0 and 6)
-				for (int j=0; j<count; j++) {
-					int blabber = rand.nextInt(usersUsername.length-2) + 2;
+				int count = rand.nextInt(6); // (between 0 and 6)
+				for (int j = 0; j < count; j++) {
 					int commentNum = rand.nextInt(commentsContent.length);
-					commentsStatement.setInt(1,  i);
-					commentsStatement.setInt(2, blabber);
-					commentsStatement.setString(3,  commentsContent[commentNum]);
-					long vary = rand.nextInt(months_1);
-					commentsStatement.setTimestamp(4, new Timestamp(now.getTime() - (vary * 1000) ));
+					commentsStatement.setInt(1, i);
+					commentsStatement.setString(2, users[randomUserOffset].getUserName());
+					commentsStatement.setString(3, commentsContent[commentNum]);
+					commentsStatement.setTimestamp(4, new Timestamp(now.getTime() - (vary * 1000)));
 					logger.info("Adding a comment");
 					boolean commentsResult = commentsStatement.execute();
-					logger.info((!commentsResult ? "Success":"Failed"));
-					
+					logger.info((!commentsResult ? "Success" : "Failed"));
 				}
-
 			}
-			
-			
-			
-
-			
-
-		}catch (SQLException exceptSql) {
+		} catch (SQLException exceptSql) {
 			logger.error(exceptSql);
-        } catch (ClassNotFoundException cnfe) {
+		} catch (ClassNotFoundException cnfe) {
 			logger.error(cnfe);
-        	
-        } finally {
-        	try {
-                if (tablesStatement != null) {
-                	tablesStatement.close();
-                }
-        	} catch (SQLException exceptSql) {
-    			logger.error(exceptSql);
-            }
-        	try {
-                if (connect != null){
-                    connect.close();
-                }
-            } catch (SQLException exceptSql) {
-    			logger.error(exceptSql);
-            }
-        }
 
-		
+		} finally {
+			try {
+				if (tablesStatement != null) {
+					tablesStatement.close();
+				}
+			} catch (SQLException exceptSql) {
+				logger.error(exceptSql);
+			}
+			try {
+				if (connect != null) {
+					connect.close();
+				}
+			} catch (SQLException exceptSql) {
+				logger.error(exceptSql);
+			}
+		}
+
 		return "redirect:reset";
 	}
 
@@ -407,30 +278,11 @@ public class Utils {
 			"A man was arrested for stealing helium balloons, police held him for a while then let him go.",
 			"A man was in court for stealing a bag, took just 3 minutes to get sentenced, it was a briefcase ",
 			"The tiles, A,E,I,O,and U were discovered in a dead scrabble players stomach, vowel play is supected.",
-			"I was in a restaurant when I got hit in the head with a prawn cocktail, as I looked round, the waiter shouted, 'that's for starters!!'"
-			};
-	String[] commentsContent = {
-			"I give that 1/10.",
-			"I give that 2/10.",
-			"I give that 3/10.",
-			"I give that 4/10.",
-			"I give that 5/10.",
-			"I give that 6/10.",
-			"I give that 7/10.",
-			"I give that 8/10.",
-			"I give that 9/10.",
-			"I give that 10/10.",
-			"So funny I fell off my chair.",
-			"Its funny because its true!",
-			"Oh man, you suck.",
-			"Awful. Just awful.",
-			"I want to laugh, I really do. But thats just not funny.",
-			"Don't give up the day job.",
-			"You make me laugh - a lot.",
-			"Love it.",
-			"Hate it.",
-			"Feel kind of indifferent about that one.",
-			"I wonder whether fish would find that funny."
-			};
-
+			"I was in a restaurant when I got hit in the head with a prawn cocktail, as I looked round, the waiter shouted, 'that's for starters!!'" };
+	String[] commentsContent = { "I give that 1/10.", "I give that 2/10.", "I give that 3/10.", "I give that 4/10.",
+			"I give that 5/10.", "I give that 6/10.", "I give that 7/10.", "I give that 8/10.", "I give that 9/10.",
+			"I give that 10/10.", "So funny I fell off my chair.", "Its funny because its true!", "Oh man, you suck.",
+			"Awful. Just awful.", "I want to laugh, I really do. But thats just not funny.",
+			"Don't give up the day job.", "You make me laugh - a lot.", "Love it.", "Hate it.",
+			"Feel kind of indifferent about that one.", "I wonder whether fish would find that funny." };
 }

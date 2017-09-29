@@ -1,6 +1,8 @@
 package com.veracode.verademo.utils;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Random;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -10,40 +12,56 @@ import org.springframework.stereotype.Component;
 public class User implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	private int userID = 0;
-	private String userName = null;
-	private String blabName = null;
-	private String realName = null;
-	private boolean loggedIn = false;
+	private String userName;
+	private String password;
+	private Timestamp dateCreated;
+	private Timestamp lastLogin;
+	private String blabName;
+	private String realName;
 	
-	public void setUserID(int value) {
-		userID = value;
+	public static User create(String userName, String blabName, String realName) {
+		String password = userName;
+		Timestamp dateCreated = new Timestamp(System.currentTimeMillis());
+		Timestamp lastLogin = null;
+		
+		return new User(userName, password, dateCreated, lastLogin, blabName, realName);
 	}
-	public int getUserID() {
-		return userID;
+	
+	public User(String userName, String password, Timestamp dateCreated, Timestamp lastLogin, String blabName, String realName) {
+		this.userName = userName;
+		this.password = password;
+		this.dateCreated = dateCreated;
+		this.lastLogin = lastLogin;
+		this.blabName = blabName;
+		this.realName = realName;
 	}
-	public void setUsername(String value) {
-		userName = value;
-	}
-	public String getUsername() {
+
+	public String getUserName() {
 		return userName;
 	}
-	public void setRealName(String value) {
-		realName = value;
+
+	public String getPassword() {
+		return password;
 	}
-	public String getRealName() {
-		return realName;
+	
+	public String setPassword(String password) {
+		this.password = password;
+		return password;
 	}
-	public void setBlabName(String value) {
-		blabName = value;
+
+	public Timestamp getDateCreated() {
+		return dateCreated;
 	}
+
+	public Timestamp getLastLogin() {
+		return lastLogin;
+	}
+
 	public String getBlabName() {
 		return blabName;
 	}
-	public void setLoggedIn(boolean value) {
-		loggedIn = value;
-	}
-	public boolean getLoggedIn() {
-		return loggedIn;
+
+	public String getRealName() {
+		return realName;
 	}
 }

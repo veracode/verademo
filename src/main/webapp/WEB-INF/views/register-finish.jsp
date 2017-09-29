@@ -10,7 +10,7 @@
 <meta name="author" content="">
 <link rel="icon" href="../../favicon.ico">
 
-<title>Login to Blab</title>
+<title>Register for Blab</title>
 
 <!-- Bootstrap core CSS -->
 <link href="resources/css/bootstrap.min.css" rel="stylesheet">
@@ -35,8 +35,8 @@
 			<nav>
 				<ul class="nav nav-pills pull-right">
 					<li role="presentation"><a href="reset">Reset</a></li>
-					<li role="presentation"><a href="login" class="active">Login</a></li>
-					<li role="presentation"><a href="register">Register</a></li>
+					<li role="presentation"><a href="login">Login</a></li>
+					<li role="presentation"><a href="register" class="active">Register</a></li>
 				</ul>
 			</nav>
 			<img src="resources/images/Tokyoship_Talk_icon.svg" height="100"
@@ -49,7 +49,7 @@
 	<div class="container theme-showcase" role="main">
 
 		<div class="page-header">
-			<h3>Login</h3>
+			<h3>Register</h3>
 		</div>
 
 		<%
@@ -64,43 +64,56 @@
 			}
 		%>
 
-
 		<div class="row">
 			<div class="col-md-12">
 
 				<div class="panel panel-default">
 					<div class="panel-heading">
-						<h3 class="panel-title">Please provide your username and
-							password to login to Blab</h3>
+						<h3 class="panel-title">Please provide your user information
+							to register for Blab</h3>
 					</div>
 					<div class="panel-body">
-						<form method="POST" action="<%= request.getAttribute("javax.servlet.forward.request_uri") %>">
-							<input type="hidden" name="target"
-								value="<%=(String) request.getAttribute("target")%>">
+						<form method="POST" action="register-finish">
+							<input type="hidden" name="returnPath" value="">
 							<table class="table table-condensed">
 								<tbody>
-									<tr>
+																		<tr>
 										<td>Username</td>
 										<td><div class="form-group">
-												<input type="text" class="form-control" name="user"
-													value="<%=(String) request.getAttribute("username")%>">
+												<%= request.getSession().getAttribute("username") %>
 											</div></td>
 									</tr>
 									<tr>
 										<td>Password</td>
 										<td><div class="form-group">
-												<input type="text" class="form-control" name="password"
+												<input type="password" class="form-control" name="password"
 													value="">
 											</div></td>
 									</tr>
 									<tr>
-										<td></td>
-										<td><input type="checkbox" name="remember" value="1" />
-										<label for="remember">Remember me</label>
+										<td>Confirm Password</td>
+										<td><div class="form-group">
+												<input type="password" class="form-control" name="cpassword"
+													value="">
+											</div></td>
+									</tr>
+									<tr>
+										<td>Real Name</td>
+										<td><div class="form-group">
+												<input type="text" class="form-control" name="realName"
+													value="">
+											</div></td>
+									</tr>
+									<tr>
+										<td>Blab Name</td>
+										<td><div class="form-group">
+												<input type="text" class="form-control" name="blabName"
+													value="">
+											</div></td>
 									</tr>
 									<tr>
 										<td><button type="submit" class="btn btn-primary"
-												id="login" name="Login" value="Login">Login</button></td>
+												id="login" name="Register" value="Register">Register</button></td>
 										<td></td>
 									</tr>
 								</tbody>

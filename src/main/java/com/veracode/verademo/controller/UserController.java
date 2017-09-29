@@ -21,6 +21,8 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.context.annotation.Scope;
@@ -51,13 +53,13 @@ public class UserController {
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String showLogin(@RequestParam(value = "target", required = false) String target,
-							@CookieValue(value="username", required=false) String username,
+							@RequestParam(value = "username", required=false) String username,
 							Model model,
-							HttpServletRequest req)
+							HttpServletRequest httpRequest,
+							HttpServletResponse httpResponse)
 	{
 		// Check if user is already logged in
-		User currentUser = UserFactory.createFromRequest(req);
-		if (currentUser != null && currentUser.getLoggedIn()) {
+		if (httpRequest.getSession().getAttribute("username") != null) {
 			logger.info("User is already logged in - redirecting...");
 			if (target != null && !target.isEmpty() && !target.equals("null")) {
 				return "redirect:" + target;
@@ -67,10 +69,24 @@ public class UserController {
 			}
 		}
 		
-		// User is not currently logged in
+		User user = UserFactory.createFromRequest(httpRequest);
+		if (user != null) {
+			httpRequest.getSession().setAttribute("username", user.getUserName());
+			logger.info("User is remembered - redirecting...");
+			if (target != null && !target.isEmpty() && !target.equals("null")) {
+				return "redirect:" + target;
+			} else {
+				// default to user's feed
+				return "redirect:feed";
+			}
+		} else {
+			logger.info("User is not remembered");
+		}
+		
 		if (username == null) {
 			username = "";
 		}
+		
 		if (target == null) {
 			target = "";
 		}
@@ -92,6 +108,7 @@ public class UserController {
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String processLogin(@RequestParam(value = "user", required = true) String username,
 							   @RequestParam(value = "password", required = true) String password,
+							   @RequestParam(value = "remember", required = false) String remember,
 							   @RequestParam(value = "target", required = false) String target,
 							   Model model,
 							   HttpServletRequest req,
@@ -107,13 +124,6 @@ public class UserController {
 			nextView = "redirect:feed";
 		}
 		
-		// Check if user is already logged in
-		User currentUser = UserFactory.createFromRequest(req);
-		if (currentUser != null && currentUser.getLoggedIn()) {
-			logger.info("User is already logged in - redirecting...");
-			return nextView;
-		}
-		
 		Connection connect = null;
 		Statement sqlStatement = null;
 
@@ -126,7 +136,7 @@ public class UserController {
 			/* START BAD CODE */
 			// Execute the query
 			logger.info("Creating the Statement");
-			String sqlQuery = "select * from users where username='" + username + "' and password='" + password + "';";
+			String sqlQuery = "select username, password, created_at, last_login, real_name, blab_name from users where username='" + username + "' and password='" + password + "';";
 			sqlStatement = connect.createStatement();
 			logger.info("Execute the Statement");
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
@@ -134,20 +144,25 @@ public class UserController {
 
 			// Did we find exactly 1 user that matched?
 			if (result.first()) {
-				currentUser = new User();
-				// OK we have found the user, lets setup their Session object
-				logger.info("User Found. Setting up UserSession object");
-				logger.info("UserID: " + result.getInt(1));
-				currentUser.setUserID(result.getInt(1));
-				logger.info("Username: " + result.getString(2));
-				currentUser.setUsername(result.getString(2));
-				logger.info("RealName: " + result.getString(6));
-				currentUser.setRealName(result.getString(6));
-				logger.info("BlabName: " + result.getString(7));
-				currentUser.setBlabName(result.getString(7));
-				currentUser.setLoggedIn(true);
+				logger.info("User Found.");
+				// Remember the username as a courtesy.
+				response.addCookie(new Cookie("username", username));
 				
-				UserFactory.updateInResponse(currentUser, response);
+				// If the user wants us to auto-login, store the user details as a cookie.
+				if (remember != null) {
+					User currentUser = new User(
+							result.getString("username"),
+							result.getString("password"),
+							result.getTimestamp("created_at"),
+							result.getTimestamp("last_login"),
+							result.getString("real_name"),
+							result.getString("blab_name")
+					);
+					
+					UserFactory.updateInResponse(currentUser, response);
+				}
+				
+				req.getSession().setAttribute("username", username);
 			}
 			else {
 				// Login failed...
@@ -204,34 +219,78 @@ public class UserController {
 			HttpServletResponse response
 		) {
 		logger.info("Entering processLogout");
-		logger.info("Clearing UserSession");
-		User currentUser = UserFactory.createFromRequest(req);
-		currentUser.setBlabName("");
-		currentUser.setUserID(0);
-		currentUser.setUsername("");
-		currentUser.setLoggedIn(false);
+		
+		req.getSession().setAttribute("username", null);
+		
+		User currentUser = null;
 		UserFactory.updateInResponse(currentUser, response);
 		logger.info("Redirecting to Login...");
 		return "redirect:login";
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
-	public String showRegister(@RequestParam(value = "type", required = false) String type, Model model) {
+	public String showRegister() {
 		logger.info("Entering showRegister");
 
 		return "register";
 	}
-
+	
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public String processRegister(@RequestParam(value = "user", required = true) String username,
+	public String processRegister(
+			@RequestParam(value = "user") String username, 
+			HttpServletRequest httpRequest,
+			Model model
+		) {
+		logger.info("Entering processRegister");
+		
+		// Get the Database Connection
+		logger.info("Creating the Database connection");
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
+			
+			String sql = "SELECT username FROM users WHERE username = '" + username + "'";
+			Statement statement = connect.createStatement();
+			ResultSet result = statement.executeQuery(sql);
+			if (result.first()) {
+				model.addAttribute("error", "Username '" + username + "' already exists!");
+				return "register";
+			}
+			else {
+				httpRequest.getSession().setAttribute("username", username);
+				return "register-finish";
+			}
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "register";
+	}
+	
+	
+	@RequestMapping(value = "/register-finish", method = RequestMethod.GET)
+	public String showRegisterFinish() {
+		logger.info("Entering showRegisterFinish");
+		
+		return "register-finish";
+	}
+
+	@RequestMapping(value = "/register-finish", method = RequestMethod.POST)
+	public String processRegisterFinish(
 								  @RequestParam(value = "password", required = true) String password,
 								  @RequestParam(value = "cpassword", required = true) String cpassword,
 								  @RequestParam(value = "realName", required = true) String realName,
 								  @RequestParam(value = "blabName", required = true) String blabName,
+								  HttpServletRequest httpRequest,
 								  HttpServletResponse response,
 								  Model model
 		) {
-		logger.info("Entering processRegister");
+		logger.info("Entering processRegisterFinish");
+		
+		String username = (String) httpRequest.getSession().getAttribute("username");
 
 		// Do the password and cpassword parameters match ?
 		if (0 != password.compareTo(cpassword)) {
@@ -252,7 +311,7 @@ public class UserController {
 			// Execute the query
 			String mysqlCurrentDateTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(Calendar.getInstance().getTime());
 			StringBuilder query = new StringBuilder();
-			query.append("insert into users (username, password, date_created, real_name, blab_name) values(");
+			query.append("insert into users (username, password, created_at, real_name, blab_name) values(");
 			query.append("'" + username + "',");
 			query.append("'" + password + "',");
 			query.append("'" + mysqlCurrentDateTime + "',");
@@ -263,8 +322,6 @@ public class UserController {
 			sqlStatement = connect.createStatement();
 			sqlStatement.execute(query.toString());
 			/* END BAD CODE */
-			
-			response.addCookie(new Cookie("username", username));
 			emailUser(username);
 			
 		} catch (SQLException exceptSql) {
@@ -288,7 +345,7 @@ public class UserController {
 				logger.error(exceptSql);
 			}
 		}
-		return "redirect:login";
+		return "redirect:login?username=" + username;
 	}
 
 	private void emailUser(String username) {
@@ -325,22 +382,21 @@ public class UserController {
 	public String showProfile(
 			@RequestParam(value = "type", required = false) String type, 
 			Model model,
-			HttpServletRequest req)
+			HttpServletRequest httpRequest)
 	{
 		logger.info("Entering showProfile");
 		
-		User currentUser = UserFactory.createFromRequest(req);
-		
+		String username = (String) httpRequest.getSession().getAttribute("username");
 		// Ensure user is logged in
-		if (currentUser == null || !currentUser.getLoggedIn()) {
+		if (username == null) {
 			logger.info("User is not Logged In - redirecting...");
 			return "redirect:login?target=profile";
 		}
 		
 		Connection connect = null;
-		PreparedStatement myHecklers = null;
-		String sqlMyHecklers = "SELECT users.userid, users.blab_name, users.date_created "
-				+ "FROM users LEFT JOIN listeners ON users.userid = listeners.listener "
+		PreparedStatement myHecklers = null, myInfo = null;
+		String sqlMyHecklers = "SELECT users.username, users.blab_name, users.created_at "
+				+ "FROM users LEFT JOIN listeners ON users.username = listeners.listener "
 				+ "WHERE listeners.blabber=? AND listeners.status='Active';";
 		
 		try {
@@ -352,7 +408,7 @@ public class UserController {
 			// Find the Blabs that this user listens to
 			logger.info(sqlMyHecklers);
 			myHecklers = connect.prepareStatement(sqlMyHecklers);
-			myHecklers.setInt(1, currentUser.getUserID());
+			myHecklers.setString(1, username);
 			ResultSet myHecklersResults = myHecklers.executeQuery();
 			
 			// Store them in the Model
@@ -369,7 +425,7 @@ public class UserController {
 			
 			ArrayList<String> events = new ArrayList<String>();
 			
-			String sqlQuery = "select event from users_history where blabber=" + currentUser.getUserID() + " ORDER BY eventid DESC; ";
+			String sqlQuery = "select event from users_history where blabber=\"" + username + "\" ORDER BY eventid DESC; ";
 			logger.info(sqlQuery);
 			Statement sqlStatement = connect.createStatement();
 			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
@@ -378,18 +434,24 @@ public class UserController {
 				events.add(userHistoryResult.getString(1));
 			}
 			
+			// Get the users information
+			String sql = "SELECT username, real_name, blab_name FROM users WHERE username = '" + username + "'";
+			logger.info(sql);
+			myInfo = connect.prepareStatement(sql);
+			ResultSet myInfoResults = myInfo.executeQuery();
+			myInfoResults.next();
+			
 			model.addAttribute("hecklerId", hecklerId);
 			model.addAttribute("hecklerName", hecklerName);
 			model.addAttribute("created", created);
-			model.addAttribute("realName", currentUser.getRealName());
-			model.addAttribute("blabName", currentUser.getBlabName());
+			model.addAttribute("realName", myInfoResults.getString("real_name"));
+			model.addAttribute("blabName", myInfoResults.getString("blab_name"));
 			model.addAttribute("events", events);
 			
 		} catch (SQLException exceptSql) {
 			logger.error(exceptSql);
 		} catch (ClassNotFoundException cnfe) {
 			logger.error(cnfe);
-
 		} finally {
 			try {
 				if (myHecklers != null) {
@@ -414,68 +476,65 @@ public class UserController {
 	@ResponseBody
 	public String processProfile(@RequestParam(value = "realName", required = true) String realName,
 								 @RequestParam(value = "blabName", required = true) String blabName, 
-								 HttpServletRequest request, HttpServletResponse response
+								 HttpServletRequest httpRequest, 
+								 HttpServletResponse response
 	) {
 		logger.info("Entering processProfile");
-
-		User currentUser = UserFactory.createFromRequest(request);
-		if (!currentUser.getLoggedIn()) {
+		
+		String username = (String) httpRequest.getSession().getAttribute("username");
+		// Ensure user is logged in
+		if (username == null) {
 			logger.info("User is not Logged In - redirecting...");
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			return "{\"message\": \"<script>alert('Error - please login');</script>\"}";
-		} else {
-			logger.info("User is Logged In - continuing...");
+			return "redirect:login?target=profile";
+		}
 
-			Connection connect = null;
-			PreparedStatement update = null;
-			String updateSql = "UPDATE users SET real_name=?, blab_name=? WHERE userid=?;";
+		logger.info("User is Logged In - continuing...");
 
+		Connection connect = null;
+		PreparedStatement update = null;
+		String updateSql = "UPDATE users SET real_name=?, blab_name=? WHERE username=?;";
+
+		try {
+			logger.info("Getting Database connection");
+			// Get the Database Connection
+			Class.forName("com.mysql.jdbc.Driver");
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
+
+			//
+			logger.info("Preparing the update Prepared Statement");
+			update = connect.prepareStatement(updateSql);
+			update.setString(1, realName);
+			update.setString(2, blabName);
+			update.setString(3, username);
+
+			logger.info("Executing the update Prepared Statement");
+			boolean updateResult = update.execute();
+
+			// If there is a record...
+			if (updateResult) {
+				//failure
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return "{\"message\": \"<script>alert('An error occurred, please try again.');</script>\"}";
+			}
+		} catch (SQLException exceptSql) {
+			logger.error(exceptSql);
+		} catch (ClassNotFoundException cnfe) {
+			logger.error(cnfe);
+
+		} finally {
 			try {
-				logger.info("Getting Database connection");
-				// Get the Database Connection
-				Class.forName("com.mysql.jdbc.Driver");
-				connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
-
-				//
-				logger.info("Preparing the update Prepared Statement");
-				update = connect.prepareStatement(updateSql);
-				update.setString(1, realName);
-				update.setString(2, blabName);
-				update.setInt(3, currentUser.getUserID());
-
-				logger.info("Executing the update Prepared Statement");
-				boolean updateResult = update.execute();
-
-				// If there is a record...
-				if (updateResult) {
-					//failure
-					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-					return "{\"message\": \"<script>alert('An error occurred, please try again.');</script>\"}";
-				} else {
-					currentUser.setRealName(realName);
-					currentUser.setBlabName(blabName);
+				if (update != null) {
+					update.close();
 				}
-
 			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
-			} catch (ClassNotFoundException cnfe) {
-				logger.error(cnfe);
-
-			} finally {
-				try {
-					if (update != null) {
-						update.close();
-					}
-				} catch (SQLException exceptSql) {
-					logger.error(exceptSql);
+			}
+			try {
+				if (connect != null) {
+					connect.close();
 				}
-				try {
-					if (connect != null) {
-						connect.close();
-					}
-				} catch (SQLException exceptSql) {
-					logger.error(exceptSql);
-				}
+			} catch (SQLException exceptSql) {
+				logger.error(exceptSql);
 			}
 		}
 		

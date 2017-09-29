@@ -16,35 +16,35 @@ public class IgnoreCommand implements BlabberCommand {
 	
 	private Connection connect;
 	
-	private User theUser;
+	private String username;
 
-	public IgnoreCommand(Connection connect, User theUser) {
+	public IgnoreCommand(Connection connect, String username) {
 		super();
 		this.connect = connect;
-		this.theUser = theUser;
+		this.username = username;
 	}
 
 	@Override
-	public void execute(int blabberId) {
+	public void execute(String blabberUsername) {
 		String sqlQuery = "DELETE FROM listeners WHERE blabber=? AND listener=?;";
 		logger.info(sqlQuery);
 		PreparedStatement action;
 		try {
 			action = connect.prepareStatement(sqlQuery);
 			
-			action.setInt(1, blabberId);
-			action.setInt(2, theUser.getUserID());
+			action.setString(1, blabberUsername);
+			action.setString(2, username);
 			action.execute();
 						
-			sqlQuery = "SELECT username FROM users WHERE userid = " + blabberId;
+			sqlQuery = "SELECT blab_name FROM users WHERE username = '" + blabberUsername + "'";
 			Statement sqlStatement = connect.createStatement();
 			logger.info(sqlQuery);
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
 			result.next();
 			
 			/* START BAD CODE */
-			String event = "Removed account for " + result.getString(1);
-			sqlQuery = "INSERT INTO users_history (blabber, event) VALUES (\"" + theUser.getUserID() + "\", \"" + event + "\")";
+			String event = username + " is now ignoring " + blabberUsername + "(" + result.getString(1) + ")";
+			sqlQuery = "INSERT INTO users_history (blabber, event) VALUES (\"" + username + "\", \"" + event + "\")";
 			logger.info(sqlQuery);
 			sqlStatement.execute(sqlQuery);
 			/* END BAD CODE */

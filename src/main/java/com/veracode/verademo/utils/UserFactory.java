@@ -13,17 +13,24 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 public class UserFactory {
 	private static final String COOKIE_NAME = "user";
+	
+	private static final Logger logger = LogManager.getLogger("VeraDemo:UserFactory");
 
 	public static User createFromRequest(HttpServletRequest req) {
 		Cookie cookie = getCookieFromRequestByName(req, COOKIE_NAME);
 		
 		if (cookie == null) {
+			logger.info("No user cookie");
 			return null;
 		}
 		
 		if (cookie.getValue().isEmpty()) {
+			logger.info("User cookie is empty");
 			return null;
 		}
 		
@@ -50,6 +57,7 @@ public class UserFactory {
 
 	private static Cookie getCookieFromRequestByName(HttpServletRequest req, String username) {
 		if (req == null) {
+			logger.info("No request");
 			return null;
 		}
 		

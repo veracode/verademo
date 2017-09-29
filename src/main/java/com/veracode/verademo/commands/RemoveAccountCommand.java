@@ -16,7 +16,7 @@ public class RemoveAccountCommand implements BlabberCommand {
 	
 	private Connection connect;
 	
-	public RemoveAccountCommand(Connection connect, User theUser) {
+	public RemoveAccountCommand(Connection connect, String username) {
 		super();
 		this.connect = connect;
 	}
@@ -25,18 +25,18 @@ public class RemoveAccountCommand implements BlabberCommand {
 	 * @see com.veracode.verademo.commands.Command#execute()
 	 */
 	@Override
-	public void execute(int blabberId) {
+	public void execute(String blabberUsername) {
 		String sqlQuery = "DELETE FROM listeners WHERE blabber=? OR listener=?;";
 		logger.info(sqlQuery);
 		PreparedStatement action;
 		try {
 			action = connect.prepareStatement(sqlQuery);
 			
-			action.setInt(1, blabberId);
-			action.setInt(2, blabberId);
+			action.setString(1, blabberUsername);
+			action.setString(2, blabberUsername);
 			action.execute();
 
-			sqlQuery = "SELECT blab_name FROM users WHERE userid = " + blabberId;
+			sqlQuery = "SELECT blab_name FROM users WHERE username = " + blabberUsername;
 			Statement sqlStatement = connect.createStatement();
 			logger.info(sqlQuery);
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
@@ -44,11 +44,11 @@ public class RemoveAccountCommand implements BlabberCommand {
 			
 			/* START BAD CODE */
 			String event = "Removed account for blabber " + result.getString(1);
-			sqlQuery = "INSERT INTO users_history (blabber, event) VALUES ('" + blabberId + "', '" + event + "')";
+			sqlQuery = "INSERT INTO users_history (blabber, event) VALUES ('" + blabberUsername + "', '" + event + "')";
 			logger.info(sqlQuery);
 			sqlStatement.execute(sqlQuery);
 			
-			sqlQuery = "DELETE FROM users WHERE userid = " + blabberId;
+			sqlQuery = "DELETE FROM users WHERE username = " + blabberUsername;
 			logger.info(sqlQuery);
 			sqlStatement.execute(sqlQuery);
 			/* END BAD CODE */
