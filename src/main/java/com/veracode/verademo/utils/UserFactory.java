@@ -62,6 +62,12 @@ public class UserFactory {
 		}
 		
 		Cookie[] cookies = req.getCookies();
+		
+		if (cookies == null) {
+			logger.info("No cookies");
+			return null;
+		}
+		
 		for (int i = 0; i < cookies.length; i++) {
 			if (cookies[i].getName().equals(username)) {
 				return cookies[i];
