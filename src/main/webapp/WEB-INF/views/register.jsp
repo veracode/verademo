@@ -72,6 +72,10 @@
 						<h3 class="panel-title">Please provide your user information
 							to register for Blab</h3>
 					</div>
+					<%
+					String username = (String) request.getSession().getAttribute("username");
+					if (username == null) username = "";
+					%>
 					<div class="panel-body">
 						<form method="POST" action="register">
 							<input type="hidden" name="returnPath" value="">
@@ -80,7 +84,7 @@
 									<tr>
 										<td>Username</td>
 										<td><div class="form-group">
-												<input type="text" class="form-control" name="user" value="">
+												<input type="text" class="form-control" name="user" value="<%=username%>">
 											</div></td>
 									</tr>
 									<tr>
