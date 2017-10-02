@@ -1,5 +1,10 @@
 package com.veracode.verademo.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Connection;
@@ -11,6 +16,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Properties;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -18,22 +24,24 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.veracode.verademo.model.Blabber;
 import com.veracode.verademo.utils.Constants;
 import com.veracode.verademo.utils.User;
 import com.veracode.verademo.utils.UserFactory;
@@ -46,6 +54,9 @@ import com.veracode.verademo.utils.UserFactory;
 public class UserController {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:UserController");
 
+	@Autowired
+	ServletContext context;
+	
 	/**
 	 * @param target
 	 * @param model
@@ -239,8 +250,8 @@ public class UserController {
 	public String processRegister(
 			@RequestParam(value = "user") String username, 
 			HttpServletRequest httpRequest,
-			Model model
-		) {
+			Model model)
+	{
 		logger.info("Entering processRegister");
 		
 		// Get the Database Connection
@@ -260,13 +271,11 @@ public class UserController {
 				httpRequest.getSession().setAttribute("username", username);
 				return "register-finish";
 			}
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		
 		return "register";
 	}
 	
@@ -286,18 +295,19 @@ public class UserController {
 								  @RequestParam(value = "blabName", required = true) String blabName,
 								  HttpServletRequest httpRequest,
 								  HttpServletResponse response,
-								  Model model
-		) {
+								  Model model)
+	{
 		logger.info("Entering processRegisterFinish");
 		
 		String username = (String) httpRequest.getSession().getAttribute("username");
 
 		// Do the password and cpassword parameters match ?
-		if (0 != password.compareTo(cpassword)) {
+		if (password.compareTo(cpassword) != 0) {
 			logger.info("Password and Confirm Password do not match");
 			model.addAttribute("error", "The Password and Confirm Password values do not match. Please try again.");
 			return "register";
 		}
+		
 		Connection connect = null;
 		Statement sqlStatement = null;
 
@@ -323,25 +333,25 @@ public class UserController {
 			sqlStatement.execute(query.toString());
 			/* END BAD CODE */
 			emailUser(username);
-			
-		} catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-
-		} finally {
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
 			try {
 				if (sqlStatement != null) {
 					sqlStatement.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -373,11 +383,23 @@ public class UserController {
 
 			logger.info("Sending email to admin");
 			Transport.send(message);
-		}catch (MessagingException mex) {
+		}
+		catch (MessagingException mex) {
 			mex.printStackTrace();
 		}
 	}
 
+	
+	public class Test {
+		private String foo;
+		public Test() {
+			this.foo = "bar";
+		}
+		public String getFoo() {
+			return this.foo;
+		}
+	}
+	
 	@RequestMapping(value = "/profile", method = RequestMethod.GET)
 	public String showProfile(
 			@RequestParam(value = "type", required = false) String type, 
@@ -401,70 +423,70 @@ public class UserController {
 		
 		try {
 			logger.info("Getting Database connection");
-			// Get the Database Connection
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
-			// Find the Blabs that this user listens to
+			// Find the Blabbers that this user listens to
 			logger.info(sqlMyHecklers);
 			myHecklers = connect.prepareStatement(sqlMyHecklers);
 			myHecklers.setString(1, username);
 			ResultSet myHecklersResults = myHecklers.executeQuery();
 			
-			// Store them in the Model
-			SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
-			ArrayList<Integer> hecklerId = new ArrayList<Integer>();
-			ArrayList<String> hecklerName = new ArrayList<String>();
-			ArrayList<String> created = new ArrayList<String>();
-
+			List<Blabber> hecklers = new ArrayList<Blabber>();
 			while (myHecklersResults.next()) {
-				hecklerId.add((Integer) myHecklersResults.getInt(1));
-				hecklerName.add(myHecklersResults.getString(2));
-				created.add(sdf.format(myHecklersResults.getDate(3)));
+				Blabber heckler = new Blabber();
+				heckler.setUsername(myHecklersResults.getString(1));
+				heckler.setBlabName(myHecklersResults.getString(2));
+				heckler.setCreatedDate(myHecklersResults.getDate(3));
+				hecklers.add(heckler);
 			}
 			
+			// Get the audit trail for this user
 			ArrayList<String> events = new ArrayList<String>();
 			
-			String sqlQuery = "select event from users_history where blabber=\"" + username + "\" ORDER BY eventid DESC; ";
-			logger.info(sqlQuery);
+			/* START BAD CODE */
+			String sqlMyEvents = "select event from users_history where blabber=\"" + username + "\" ORDER BY eventid DESC; ";
+			logger.info(sqlMyEvents);
 			Statement sqlStatement = connect.createStatement();
-			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlQuery);
+			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlMyEvents);
+			/* END BAD CODE */
 			
 			while (userHistoryResult.next()) {
 				events.add(userHistoryResult.getString(1));
 			}
 			
-			// Get the users information
+			//Get the users information
 			String sql = "SELECT username, real_name, blab_name FROM users WHERE username = '" + username + "'";
 			logger.info(sql);
 			myInfo = connect.prepareStatement(sql);
 			ResultSet myInfoResults = myInfo.executeQuery();
 			myInfoResults.next();
-			
-			model.addAttribute("hecklerId", hecklerId);
-			model.addAttribute("hecklerName", hecklerName);
-			model.addAttribute("created", created);
+
+			// Send these values to our View
+			model.addAttribute("hecklers", hecklers);
+			model.addAttribute("events", events);
+			model.addAttribute("username", myInfoResults.getString("username"));
 			model.addAttribute("realName", myInfoResults.getString("real_name"));
 			model.addAttribute("blabName", myInfoResults.getString("blab_name"));
-			model.addAttribute("events", events);
-			
-		} catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-		} finally {
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
 			try {
 				if (myHecklers != null) {
 					myHecklers.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -475,25 +497,29 @@ public class UserController {
 	@RequestMapping(value = "/profile", method = RequestMethod.POST, produces = "application/json")
 	@ResponseBody
 	public String processProfile(@RequestParam(value = "realName", required = true) String realName,
-								 @RequestParam(value = "blabName", required = true) String blabName, 
-								 HttpServletRequest httpRequest, 
-								 HttpServletResponse response
-	) {
+								 @RequestParam(value = "blabName", required = true) String blabName,
+								 @RequestParam(value = "username", required = true) String username,
+								 @RequestParam(value = "file", required = false) MultipartFile file,
+								 MultipartHttpServletRequest request,
+								 HttpServletResponse response)
+	{
 		logger.info("Entering processProfile");
 		
-		String username = (String) httpRequest.getSession().getAttribute("username");
+		String sessionUsername = (String) request.getSession().getAttribute("username");
 		// Ensure user is logged in
-		if (username == null) {
+		if (sessionUsername == null) {
 			logger.info("User is not Logged In - redirecting...");
-			return "redirect:login?target=profile";
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return "{\"message\": \"<script>alert('Error - please login');</script>\"}";
 		}
-
+		
 		logger.info("User is Logged In - continuing...");
 
+		String oldUsername = sessionUsername;
+		
+		// Update user information
 		Connection connect = null;
 		PreparedStatement update = null;
-		String updateSql = "UPDATE users SET real_name=?, blab_name=? WHERE username=?;";
-
 		try {
 			logger.info("Getting Database connection");
 			// Get the Database Connection
@@ -502,10 +528,10 @@ public class UserController {
 
 			//
 			logger.info("Preparing the update Prepared Statement");
-			update = connect.prepareStatement(updateSql);
+			update = connect.prepareStatement("UPDATE users SET real_name=?, blab_name=? WHERE username=?;");
 			update.setString(1, realName);
 			update.setString(2, blabName);
-			update.setString(3, username);
+			update.setString(3, sessionUsername);
 
 			logger.info("Executing the update Prepared Statement");
 			boolean updateResult = update.execute();
@@ -516,31 +542,296 @@ public class UserController {
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				return "{\"message\": \"<script>alert('An error occurred, please try again.');</script>\"}";
 			}
-		} catch (SQLException exceptSql) {
-			logger.error(exceptSql);
-		} catch (ClassNotFoundException cnfe) {
-			logger.error(cnfe);
-
-		} finally {
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
 			try {
 				if (update != null) {
 					update.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			} catch (SQLException exceptSql) {
+			}
+			catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
 		
+		// Rename profile image if username changes
+		if (!username.equals(oldUsername)) {
+			if (usernameExists(username)) {
+				response.setStatus(HttpServletResponse.SC_CONFLICT);
+				return "{\"message\": \"<script>alert('That username already exists. Please try another.');</script>\"}"; 
+			}
+			
+			if(!updateUsername(oldUsername, username)) {
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				return "{\"message\": \"<script>alert('An error occurred, please try again.');</script>\"}";
+			}
+			
+			// Update all session and cookie logic
+			request.getSession().setAttribute("username", username);
+			for (Cookie cookie : request.getCookies()) {
+				if (cookie.getName().equals("username")) {
+					cookie.setValue(username);
+					response.addCookie(cookie);
+				}
+			}
+			
+			// Update remember me functionality
+			User currentUser = UserFactory.createFromRequest(request);
+			if (currentUser != null) {
+				currentUser.setUserName(username);
+				UserFactory.updateInResponse(currentUser, response);
+			}
+		}
+		
+		// Update user profile image
+		if (file != null && !file.isEmpty()) {
+			// TODO: check if file is png first
+            try {
+            	String path = context.getRealPath("/resources/images")
+            			+ File.separator
+            			+ username + ".png";
+            	
+            	logger.info("Saving new profile image: " + path);
+            	
+                File destinationFile = new File(path);
+				file.transferTo(destinationFile); // will delete any existing file first
+			}
+            catch (IllegalStateException | IOException ex) {
+				logger.error(ex);
+			}
+		}
+		
 		response.setStatus(HttpServletResponse.SC_OK);
-		String respTemplate = "{\"values\": {\"realName\": \"%s\", \"blabName\": \"%s\"}, \"message\": \"<script>alert('Blab Name changed to %s');</script>\"}";
-		return String.format(respTemplate, realName, blabName, blabName);
+		String msg = "Successfully changed values!\\\\nusername: %1$s\\\\nReal Name: %2$s\\\\nBlab Name: %3$s";
+		String respTemplate = "{\"values\": {\"username\": \"%1$s\", \"realName\": \"%2$s\", \"blabName\": \"%3$s\"}, \"message\": \"<script>alert('" + msg + "');</script>\"}";
+		return String.format(respTemplate, username.toLowerCase(), realName, blabName);
+	}
+	
+	@RequestMapping(value = "/downloadprofileimage", method = RequestMethod.GET)
+	public String downloadImage(@RequestParam(value = "image", required = true) String imageName,
+								HttpServletRequest request,
+								HttpServletResponse response)
+	{
+		logger.info("Entering downloadImage");
+		
+		// Ensure user is logged in
+		String sessionUsername = (String) request.getSession().getAttribute("username");
+		if (sessionUsername == null) {
+			logger.info("User is not Logged In - redirecting...");
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return "redirect:login?target=profile";
+		}
+		
+		logger.info("User is Logged In - continuing...");
+		
+		String path = context.getRealPath("/resources/images")
+    			+ File.separator
+    			+ imageName;
+		
+		logger.info("Fetching profile image: " + path);
+		
+		InputStream inputStream = null;
+		OutputStream outStream = null;
+		try {
+            File downloadFile = new File(path);
+            inputStream = new FileInputStream(downloadFile);
+            
+            // get MIME type of the file
+            String mimeType = context.getMimeType(path);
+            if (mimeType == null) {
+                // set to binary type if MIME mapping not found
+                mimeType = "application/octet-stream";
+            }
+            logger.info("MIME type: " + mimeType);
+            
+            // Set content attributes for the response
+            response.setContentType(mimeType);
+            response.setContentLength((int) downloadFile.length());
+            response.setHeader("Content-Disposition", "attachment; filename=" + imageName);
+            
+            // get output stream of the response
+            outStream = response.getOutputStream();
+            byte[] buffer = new byte[4096];
+            int bytesRead = -1;
+     
+            // write bytes read from the input stream into the output stream
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outStream.write(buffer, 0, bytesRead);
+            }
+            outStream.flush();
+		}
+        catch (IllegalStateException | IOException ex) {
+			logger.error(ex);
+		}
+		finally {
+			try {
+				if (inputStream != null) {
+					inputStream.close();
+				}
+			}
+			catch (IOException ex) {
+				logger.error(ex);
+			}
+			try {
+				if (outStream != null) {
+					outStream.close();
+				}
+			}
+			catch (IOException ex) {
+				logger.error(ex);
+			}
+		}
+		
+		return "profile";
+	}
+	
+	/**
+	 * Check if the username already exists
+	 * @param username The username to check
+	 * @return true if the username exists, false otherwise
+	 */
+	private boolean usernameExists(String username) {
+		username = username.toLowerCase();
+		
+		// Check is the username already exists
+		Connection connect = null;
+		PreparedStatement sqlStatement = null;
+		try {
+			logger.info("Getting Database connection");
+			// Get the Database Connection
+			Class.forName("com.mysql.jdbc.Driver");
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
+			
+			logger.info("Preparing the duplicate username check Prepared Statement");
+			sqlStatement = connect.prepareStatement("SELECT username FROM users WHERE username=?");
+			sqlStatement.setString(1, username);
+			ResultSet result = sqlStatement.executeQuery();
+			
+			if (!result.first()) {
+				// username does not exist
+				return false;
+			}
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
+			try {
+				if (sqlStatement != null) {
+					sqlStatement.close();
+				}
+			}
+			catch (SQLException e) {
+				logger.error(e);
+			}
+			try {
+				if (connect != null) {
+					connect.close();
+				}
+			}
+			catch (SQLException e) {
+				logger.error(e);
+			}
+		}
+		
+		logger.info("Username: " + username + " already exists. Try again.");
+		return true;
+	}
+	
+	/**
+	 * Change the user's username. Since the username is the DB key, we have a lot to do
+	 * @param oldUsername Prior username
+	 * @param newUsername Desired new username
+	 * @return
+	 */
+	private boolean updateUsername(String oldUsername, String newUsername) {
+		// Enforce all lowercase usernames
+		oldUsername = oldUsername.toLowerCase();
+		newUsername = newUsername.toLowerCase();
+		
+		// Check is the username already exists
+		Connection connect = null;
+		List<PreparedStatement> sqlUpdateQueries = new ArrayList<PreparedStatement>();
+		try {
+			logger.info("Getting Database connection");
+			// Get the Database Connection
+			Class.forName("com.mysql.jdbc.Driver");
+			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
+			connect.setAutoCommit(false);
+			
+			// Update all references to this user
+			 String[] sqlStrQueries= new String[] {
+					"UPDATE users SET username=? WHERE username=?",
+					"UPDATE blabs SET blabber=? WHERE blabber=?",
+					"UPDATE comments SET blabber=? WHERE blabber=?",
+					"UPDATE listeners SET blabber=? WHERE blabber=?",
+					"UPDATE listeners SET listener=? WHERE listener=?",
+					"UPDATE users_history SET blabber=? WHERE blabber=?"
+			};
+			for (String sql : sqlStrQueries) {
+				logger.info("Preparing the Prepared Statement: " + sql);
+				sqlUpdateQueries.add(connect.prepareStatement(sql));
+			}
+			
+			// Execute updates as part of a batch transaction
+			// This will roll back all changes if one query fails
+			for (PreparedStatement stmt : sqlUpdateQueries) {
+				stmt.setString(1, newUsername);
+				stmt.setString(2, oldUsername);
+				stmt.executeUpdate();
+			}
+			connect.commit();
+			
+			// Rename the user profile image to match new username
+			logger.info("Renaming profile image from " + oldUsername + ".png to " + newUsername + ".png");
+			String path = context.getRealPath("/resources/images")
+        			+ File.separator + "%s.png";
+			
+			File oldName = new File(String.format(path, oldUsername));
+			File newName = new File(String.format(path, newUsername));
+			oldName.renameTo(newName);
+			
+			return true;
+		}
+		catch (SQLException | ClassNotFoundException ex) {
+			logger.error(ex);
+		}
+		finally {
+			try {
+				if (sqlUpdateQueries != null) {
+					for (PreparedStatement stmt : sqlUpdateQueries) {
+						stmt.close();
+					}
+				}
+			}
+			catch (SQLException e) {
+				logger.error(e);
+			}
+			try {
+				if (connect != null) {
+					logger.error("Transaction is being rolled back");
+	                connect.rollback();
+					connect.close();
+				}
+			}
+			catch (SQLException e) {
+				logger.error(e);
+			}
+		}
+		
+		// Error occurred
+		return false;
 	}
 	
 	public String displayErrorForWeb(Throwable t) {

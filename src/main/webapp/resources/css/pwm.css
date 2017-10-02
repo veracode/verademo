@@ -61,7 +61,8 @@ body {
 .detailBox {
     width:100%;
     border:1px solid #bbb;
-    margin:50px;
+    margin:0;
+    margin-bottom:20px;
 }
 .titleBox {
     background-color:#fdfdfd;
@@ -89,21 +90,37 @@ body {
 .taskDescription {
     margin-top:10px 0;
 }
+.blabber {
+	margin:10px;
+}
 .blabbers {
 	padding: 50px;
 }
+.commentList {
+	list-style:none;
+	padding-left:10px;
+}
+.commentList > li > div {
+	clear:both;
+	margin-bottom:10px;
+}
 .commenterImage {
-    width:30px;
+    width:50px;
     margin-right:5px;
     height:100%;
-    float:left;
 }
 .commenterImage img {
     width:100%;
     border-radius:50%;
 }
+.commentList .commenterImage {
+	float:left;
+}
 .commentText p {
     margin:0;
+}
+.commentList .commentText {
+	margin-left:60px;
 }
 .sub-text {
     color:#aaa;

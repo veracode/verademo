@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
 	pageEncoding="US-ASCII"%>
-<%@ page import="com.veracode.verademo.utils.*"%>
+<%@ page import="com.veracode.verademo.model.Blabber"%>
 <%@ page import="java.util.*"%>
 
 <!DOCTYPE html>
@@ -70,7 +70,7 @@
 		%>
 
 		<div class="row">
-			<div class="col-md-6">
+			<div class="col-md-12">
 				<div class="detailBox">
 					<div class="titleBox">
 						<label>Blabbers</label>
@@ -93,43 +93,35 @@
 							<tbody>
 								<%
 									@SuppressWarnings("unchecked")
-									ArrayList<String> blabberUsername = (ArrayList<String>) request.getAttribute("blabberUsername");
-									@SuppressWarnings("unchecked")
-									ArrayList<String> blabberName = (ArrayList<String>) request.getAttribute("blabberName");
-									@SuppressWarnings("unchecked")
-									ArrayList<String> created = (ArrayList<String>) request.getAttribute("created");
-									@SuppressWarnings("unchecked")
-									ArrayList<Integer> listening = (ArrayList<Integer>) request.getAttribute("listening");
-									@SuppressWarnings("unchecked")
-									ArrayList<Integer> listeners = (ArrayList<Integer>) request.getAttribute("listeners");
-									for (int i = 0; i < blabberUsername.size(); i++) {
+									ArrayList<Blabber> blabbers = (ArrayList<Blabber>) request.getAttribute("blabbers");
+									
+									for (Blabber blabber : blabbers) {
 								%>
 								<tr>
 									<td class="commenterImage">
-										<img src="resources/images/<%=i+2%>.png" />
+										<img src="resources/images/<%= blabber.getUsername() %>.png" />
 									</td>
 									<td class="commenterName">
-										<%=blabberName.get(i)%>
+										<%= blabber.getBlabName() %>
 									</td>
 									<td class="commenterJoinDate">
-										<%=created.get(i)%>
+										<%= blabber.getCreatedDateString() %>
 									</td>
 									<td class="commenterListeners">
-										&nbsp;<%=listeners.get(i)%>&nbsp;
+										&nbsp;<%= blabber.getNumberListeners() %>&nbsp;
 									</td>
 									<td class="commenterListening">
-										&nbsp;<%=listening.get(i)%>&nbsp;
+										&nbsp;<%= blabber.getNumberListening() %>&nbsp;
 									</td>
 									<td>
 										<form class="form-inline" role="form" method="POST"
 											action="blabbers">
 											<input type="hidden" name="blabberUsername"
-												value="<%=blabberUsername.get(i)%>"> <input type="hidden"
-												name="command"
-												value="<%=(listening.get(i).intValue() == 1 ? "ignore" : "listen")%>">
-											<input type="submit" class="btn btn-default pull-right"
-												name="button"
-												value="<%=(listening.get(i).intValue() == 1 ? "Ignore" : "Listen")%>" />
+												value="<%= blabber.getUsername() %>" />
+											<input type="hidden" name="command"
+												value="<%=(blabber.getNumberListening() == 1 ? "ignore" : "listen")%>" />
+											<input type="submit" class="btn btn-default pull-right" name="button"
+												value="<%=(blabber.getNumberListening() == 1 ? "Ignore" : "Listen")%>" />
 										</form>
 									</td>
 								</tr>

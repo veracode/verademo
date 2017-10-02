@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
 	pageEncoding="US-ASCII"%>
 <%@ page import="java.util.*"%>
+<%@ page import="com.veracode.verademo.model.Blabber"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -74,16 +75,31 @@
 						<label>Your Profile</label>
 					</div>
 					<div class="actionBox">
-						<form method="POST" action="profile" id="updateprofile">
+						<form method="post" action="profile" id="updateprofile" enctype="multipart/form-data">
 							<input type="hidden" name="returnPath" value="">
 							<table class="table table-condensed">
 								<tbody>
+									<tr>
+										<td class="commenterImage">
+											<img id="profileImage" src="resources/images/<%= request.getAttribute("username") %>.png" />
+										</td>
+										<td>
+											<div class="form-group">
+												<input type="file" class="form-control" name="file" />
+											</div>
+											<div>
+												<a href="downloadprofileimage?image=<%= request.getAttribute("username") %>.png">
+													Download Current Image
+												</a>
+											</div>
+										</td>
+									</tr>
 									<tr>
 										<td>Real Name</td>
 										<td>
 											<div class="form-group">
 												<input type="text" class="form-control" name="realName"
-													value="<%=request.getAttribute("realName")%>">
+													value="<%=request.getAttribute("realName")%>" />
 											</div>
 										</td>
 									</tr>
@@ -92,7 +108,16 @@
 										<td>
 											<div class="form-group">
 												<input type="text" class="form-control" name="blabName"
-													value="<%=request.getAttribute("blabName")%>">
+													value="<%=request.getAttribute("blabName")%>" />
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td>Username</td>
+										<td>
+											<div class="form-group">
+												<input type="text" class="form-control" name="username"
+													value="<%=request.getAttribute("username")%>" />
 											</div>
 										</td>
 									</tr>
@@ -118,22 +143,28 @@
 						<ul class="commentList">
 							<%
 								@SuppressWarnings("unchecked")
-								ArrayList<Integer> hecklerIds = (ArrayList<Integer>) request.getAttribute("hecklerId");
+								List<Blabber> hecklers = (List<Blabber>) request.getAttribute("hecklers");
+								
 								@SuppressWarnings("unchecked")
-								ArrayList<String> hecklerNames = (ArrayList<String>) request.getAttribute("hecklerName");
+								ArrayList<String> hecklerIds = (ArrayList<String>) request.getAttribute("hecklerUsernames");
+								@SuppressWarnings("unchecked")
+								ArrayList<String> hecklerNames = (ArrayList<String>) request.getAttribute("hecklerNames");
 								@SuppressWarnings("unchecked")
 								ArrayList<String> createdTimes = (ArrayList<String>) request.getAttribute("created");
 								
-								if (hecklerIds != null && !hecklerIds.isEmpty()) {
-									for (int i = 0; i < hecklerIds.size(); i++) {
+								if (hecklers != null && !hecklers.isEmpty()) {
+									for (Blabber heckler : hecklers) {
 							%>
 							<li>
-								<div class="commenterImage">
-									<img src="resources/images/<%=hecklerIds.get(i)%>.png" />
-								</div>
-								<div class="blockquote">
-									<p class=""><%=hecklerNames.get(i)%></p>
-									<span class="date sub-text">member since <%=createdTimes.get(i)%></span><br>
+								<div class="clear">
+									<div class="commenterImage">
+										<img src="resources/images/<%= heckler.getUsername() %>.png" />
+									</div>
+									<div class="commentText">
+										<p><%= heckler.getBlabName() %></p>
+										<span class="date sub-text">member since <%= heckler.getCreatedDateString() %></span>
+										<br/>
+									</div>
 								</div>
 							</li>
 							<%
@@ -200,20 +231,22 @@
 	<script type="text/javascript">
 		$('#updateprofile').submit(function(e) {
 			e.preventDefault();
-
-			console.log(e);
-			console.log(e.target.action);
-
+			
 			$.ajax({
 				type : e.target.method,
 				url : e.target.action,
-				data : $(e.target).serialize(),
+				data : new FormData(this),
+				processData : false,
+				contentType : false,
 				success : function(data) {
 					console.log("Profile updated");
 					if (data) {
 						if ('values' in data) {
 							$.each(data.values, function(key, val) {
 								$('input[name="' + key + '"]').val(val);
+								if (key === "username") {
+									$('#profileImage').attr('src', 'resources/images/' + val + '.png');
+								}
 							});
 						}
 						if ('message' in data) {
@@ -221,10 +254,10 @@
 						}
 					}
 				},
-				error : function(data) {
-					console.log("Form submission error", data);
-					if (data && 'message' in data) {
-						$('body').append(data.message);
+				error : function(err) {
+					console.log("Form submission error", err);
+					if (err.responseJSON && 'message' in err.responseJSON) {
+						$('body').append(err.responseJSON.message);
 					}
 				},
 			});
