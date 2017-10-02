@@ -253,6 +253,7 @@ public class UserController {
 			Model model)
 	{
 		logger.info("Entering processRegister");
+		httpRequest.getSession().setAttribute("username", username);
 		
 		// Get the Database Connection
 		logger.info("Creating the Database connection");
@@ -268,7 +269,6 @@ public class UserController {
 				return "register";
 			}
 			else {
-				httpRequest.getSession().setAttribute("username", username);
 				return "register-finish";
 			}
 		}
