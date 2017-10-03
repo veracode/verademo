@@ -7,25 +7,27 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("session")
-public class User implements Serializable{
+public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private String userName;
 	private String password;
 	private Timestamp dateCreated;
 	private Timestamp lastLogin;
 	private String blabName;
 	private String realName;
-	
-	public static User create(String userName, String blabName, String realName) {
+
+	public static User create(String userName, String blabName, String realName)
+	{
 		String password = userName;
 		Timestamp dateCreated = new Timestamp(System.currentTimeMillis());
 		Timestamp lastLogin = null;
-		
+
 		return new User(userName, password, dateCreated, lastLogin, blabName, realName);
 	}
-	
-	public User(String userName, String password, Timestamp dateCreated, Timestamp lastLogin, String blabName, String realName) {
+
+	public User(String userName, String password, Timestamp dateCreated, Timestamp lastLogin, String blabName,
+			String realName) {
 		this.userName = userName;
 		this.password = password;
 		this.dateCreated = dateCreated;
@@ -34,36 +36,44 @@ public class User implements Serializable{
 		this.realName = realName;
 	}
 
-	public String getUserName() {
+	public String getUserName()
+	{
 		return userName;
 	}
-	
-	public void setUserName(String userName) {
+
+	public void setUserName(String userName)
+	{
 		this.userName = userName;
 	}
 
-	public String getPassword() {
+	public String getPassword()
+	{
 		return password;
 	}
-	
-	public String setPassword(String password) {
+
+	public String setPassword(String password)
+	{
 		this.password = password;
 		return password;
 	}
 
-	public Timestamp getDateCreated() {
+	public Timestamp getDateCreated()
+	{
 		return dateCreated;
 	}
 
-	public Timestamp getLastLogin() {
+	public Timestamp getLastLogin()
+	{
 		return lastLogin;
 	}
 
-	public String getBlabName() {
+	public String getBlabName()
+	{
 		return blabName;
 	}
 
-	public String getRealName() {
+	public String getRealName()
+	{
 		return realName;
 	}
 }
