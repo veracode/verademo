@@ -23,11 +23,11 @@ public class Constants {
 	
 	public final String getJdbcConnectionString() {
 		return String.format(
-				"jdbc:%s://%s/%s?user=%s&password=%s", 
-				JDBC_DRIVER, 
-				JDBC_HOSTNAME, 
-				JDBC_DATABASE, 
-				JDBC_USER, 
+				"jdbc:%s://%s/%s?user=%s&password=%s",
+				JDBC_DRIVER,
+				JDBC_HOSTNAME,
+				JDBC_DATABASE,
+				JDBC_USER,
 				JDBC_PASSWORD
 		);
 	}
