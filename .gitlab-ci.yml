@@ -1,0 +1,24 @@
+---
+image: docker-ro.laputa.veracode.io/agora/buildbox:centos7-m1-java8-latest
+
+stages:
+    - build
+    - scan
+
+maven:
+    stage: build
+    script:
+        - yum -y install maven
+        - mvn compile package
+    artifacts:
+        paths:
+            - target/
+
+upload-for-sast:
+    stage: scan
+    script:
+        - java -jar $HOME/helpers/VeracodeJavaAPI.jar -vid ${TEAM_ANALYSISCENTER_ID} -vkey ${TEAM_ANALYSISCENTER_KEY}
+          -action UploadAndScan -appname "Demo Java Application (Verademo)" -createprofile true -autoscan true
+          -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
+    allow_failure: true
+
