@@ -14,11 +14,21 @@ maven:
         paths:
             - target/
 
-upload-for-sast:
+development-upload-for-sast:
     stage: scan
+    only:
+        - development
     script:
         - java -jar $HOME/helpers/VeracodeJavaAPI.jar -vid ${TEAM_ANALYSISCENTER_ID} -vkey ${TEAM_ANALYSISCENTER_KEY}
-          -action UploadAndScan -appname "Demo Java Application (Verademo)" -createprofile true -autoscan true
+          -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true -sandboxname "gitlab/development"
           -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
     allow_failure: true
-
+    
+monthly-upload-for-sast:
+    stage: scan
+    only:
+        - schedules
+    script:
+        - java -jar $HOME/helpers/VeracodeJavaAPI.jar -vid ${TEAM_ANALYSISCENTER_ID} -vkey ${TEAM_ANALYSISCENTER_KEY}
+          -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true
+          -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
