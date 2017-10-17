@@ -24,7 +24,17 @@ development-upload-for-sast:
           -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
     allow_failure: true
     
-monthly-upload-for-sast:
+release-upload-for-sast:
+    stage: scan
+    only:
+        - release
+    script:
+        - java -jar $HOME/helpers/VeracodeJavaAPI.jar -vid ${TEAM_ANALYSISCENTER_ID} -vkey ${TEAM_ANALYSISCENTER_KEY}
+          -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true -sandboxname "gitlab/release"
+          -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
+    allow_failure: true
+    
+nightly-upload-for-sast:
     stage: scan
     only:
         - schedules
