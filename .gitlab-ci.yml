@@ -35,10 +35,13 @@ release-upload-for-sast:
     allow_failure: true
     
 nightly-upload-for-sast:
+    image: docker-ro.laputa.veracode.io/agora/buildbox:centos7-m3-python-latest
     stage: scan
     only:
         - schedules
+    before_script:
+        - git clone https://ccampbell@gitlab.laputa.veracode.io/ccampbell/upload-and-scan.git
     script:
-        - java -jar $HOME/helpers/VeracodeJavaAPI.jar -vid ${TEAM_ANALYSISCENTER_ID} -vkey ${TEAM_ANALYSISCENTER_KEY}
-          -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true
-          -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
+        - python upload-and-scan/uploadandscan.py $HOME/helpers/VeracodeJavaAPI.jar ${TEAM_ANALYSISCENTER_ID} ${TEAM_ANALYSISCENTER_KEY}
+          --breakthebuild --waitmax 3600 --waitinterval 60
+          -appname "Verademo" -createprofile false -autoscan true -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
