@@ -34,11 +34,12 @@ release-upload-for-sast:
           -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
     allow_failure: true
     
-nightly-upload-for-sast:
+policy-upload-for-sast:
     image: docker-ro.laputa.veracode.io/agora/buildbox:centos7-m3-python-latest
     stage: scan
     only:
         - schedules
+        - master
     before_script:
         - git clone https://ccampbell@gitlab.laputa.veracode.io/ccampbell/upload-and-scan.git
     script:
