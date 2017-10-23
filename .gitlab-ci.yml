@@ -41,6 +41,8 @@ policy-upload-for-sast:
         - schedules
         - master
     before_script:
+        - pyenv install 3.6.3
+        - pyenv local 3.6.3
         - git clone https://ccampbell@gitlab.laputa.veracode.io/ccampbell/upload-and-scan.git
     script:
         - python upload-and-scan/uploadandscan.py $HOME/helpers/VeracodeJavaAPI.jar ${TEAM_ANALYSISCENTER_ID} ${TEAM_ANALYSISCENTER_KEY}
