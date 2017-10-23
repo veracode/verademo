@@ -21,7 +21,7 @@ development-upload-for-sast:
     script:
         - java -jar $HOME/helpers/VeracodeJavaAPI.jar -vid ${TEAM_ANALYSISCENTER_ID} -vkey ${TEAM_ANALYSISCENTER_KEY}
           -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true -sandboxname "gitlab/development"
-          -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
+          -filepath ./target/verademo.war -version "Job ${CI_JOB_ID} in pipeline ${CI_PIPELINE_ID}"
     allow_failure: true
     
 release-upload-for-sast:
@@ -31,7 +31,7 @@ release-upload-for-sast:
     script:
         - java -jar $HOME/helpers/VeracodeJavaAPI.jar -vid ${TEAM_ANALYSISCENTER_ID} -vkey ${TEAM_ANALYSISCENTER_KEY}
           -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true -sandboxname "gitlab/release"
-          -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
+          -filepath ./target/verademo.war -version "Job ${CI_JOB_ID} in pipeline ${CI_PIPELINE_ID}"
     allow_failure: true
     
 policy-upload-for-sast:
@@ -47,4 +47,4 @@ policy-upload-for-sast:
     script:
         - python upload-and-scan/uploadandscan.py $HOME/helpers/VeracodeJavaAPI.jar ${TEAM_ANALYSISCENTER_ID} ${TEAM_ANALYSISCENTER_KEY}
           --breakthebuild --waitmax 3600 --waitinterval 60
-          -appname "Verademo" -createprofile false -autoscan true -filepath ./target/verademo.war -version ${CI_PIPELINE_ID}
+          -appname "Verademo" -createprofile false -autoscan true -filepath ./target/verademo.war -version "Job ${CI_JOB_ID} in pipeline ${CI_PIPELINE_ID}"
