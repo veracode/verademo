@@ -84,7 +84,7 @@
 										<td><div class="form-group">
 												<input type="text" class="form-control" name="user"
 													value="<%=(String) request.getAttribute("username")%>">
-											</div></td>
+											</div><a href="javascript:hint()">Hint</a></td>
 									</tr>
 									<tr>
 										<td>Password</td>
@@ -118,5 +118,18 @@
 	<!-- Placed at the end of the document so the pages load faster -->
 	<script src="resources/js/jquery-1.11.2.min.js"></script>
 	<script src="resources/js/bootstrap.min.js"></script>
+	<script>
+	function hint() {
+		
+		function alerter () {
+			window.alert(this.responseText);
+		}
+
+		var oReq = new XMLHttpRequest();
+		oReq.addEventListener("load", alerter);
+		oReq.open("GET", "/verademo/password-hint?username=" + document.forms[0].user.value);
+		oReq.send();
+	}
+	</script>
 </body>
 </html>
