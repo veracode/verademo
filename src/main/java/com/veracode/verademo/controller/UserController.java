@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -28,6 +30,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,8 +158,8 @@ public class UserController {
 			/* START BAD CODE */
 			// Execute the query
 			logger.info("Creating the Statement");
-			String sqlQuery = "select username, password, created_at, last_login, real_name, blab_name from users where username='"
-					+ username + "' and password='" + password + "';";
+			String sqlQuery = "select username, password, password_hint, created_at, last_login, real_name, blab_name from users where username='"
+					+ username + "' and password='" + md5(password) + "';";
 			sqlStatement = connect.createStatement();
 			logger.info("Execute the Statement");
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
@@ -169,7 +173,7 @@ public class UserController {
 
 				// If the user wants us to auto-login, store the user details as a cookie.
 				if (remember != null) {
-					User currentUser = new User(result.getString("username"), result.getString("password"),
+					User currentUser = new User(result.getString("username"), result.getString("password_hint"),
 							result.getTimestamp("created_at"), result.getTimestamp("last_login"),
 							result.getString("real_name"), result.getString("blab_name"));
 
@@ -240,12 +244,12 @@ public class UserController {
 			
 			Connection connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 	
-			String sql = "SELECT password FROM users WHERE username = '" + username + "'";
+			String sql = "SELECT password_hint FROM users WHERE username = '" + username + "'";
 			logger.info(sql);
 			Statement statement = connect.createStatement();
 			ResultSet result = statement.executeQuery(sql);
 			if (result.first()) {
-				String password= result.getString("password");
+				String password= result.getString("password_hint");
 				String formatString = "Username '" + username + "' has password: %.2s%s";
 				logger.info(formatString);
 				return String.format(
@@ -258,12 +262,11 @@ public class UserController {
 				return "No password found for " + username;
 			}
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		return "ERROR!";
 	}
 
@@ -918,5 +921,22 @@ public class UserController {
 		catch (MessagingException mex) {
 			mex.printStackTrace();
 		}
+	}
+	
+	private static String md5(String val)
+	{
+		MessageDigest md;
+		String ret = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+			md.update(val.getBytes());
+		    byte[] digest = md.digest();
+		    ret = DatatypeConverter.printHexBinary(digest);
+		}
+		catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		
+		return ret;
 	}
 }
