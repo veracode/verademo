@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.context.annotation.Scope;
@@ -25,7 +26,7 @@ import com.veracode.verademo.commands.BlabberCommand;
 import com.veracode.verademo.model.Blab;
 import com.veracode.verademo.model.Blabber;
 import com.veracode.verademo.model.Comment;
-import com.veracode.verademo.utils.*;
+import com.veracode.verademo.utils.Constants;
 
 @Controller
 @Scope("request")
@@ -287,7 +288,7 @@ public class BlabController {
 			logger.info("User is not Logged In - redirecting...");
 			return "redirect:login?target=profile";
 		}
-
+		
 		logger.info("User is Logged In - continuing...");
 
 		Connection connect = null;

@@ -1,7 +1,12 @@
 package com.veracode.verademo.utils;
 
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
+
+import javax.xml.bind.DatatypeConverter;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +17,7 @@ public class User implements Serializable {
 
 	private String userName;
 	private String password;
+	private String hint;
 	private Timestamp dateCreated;
 	private Timestamp lastLogin;
 	private String blabName;
@@ -29,7 +35,8 @@ public class User implements Serializable {
 	public User(String userName, String password, Timestamp dateCreated, Timestamp lastLogin, String blabName,
 			String realName) {
 		this.userName = userName;
-		this.password = password;
+		this.password = md5(password);
+		this.hint = password;
 		this.dateCreated = dateCreated;
 		this.lastLogin = lastLogin;
 		this.blabName = blabName;
@@ -53,8 +60,19 @@ public class User implements Serializable {
 
 	public String setPassword(String password)
 	{
-		this.password = password;
+		this.password = md5(password);
 		return password;
+	}
+	
+	public String getPasswordHint()
+	{
+		return hint;
+	}
+
+	public String setPasswordHint(String hint)
+	{
+		this.hint = hint;
+		return hint;
 	}
 
 	public Timestamp getDateCreated()
@@ -75,5 +93,22 @@ public class User implements Serializable {
 	public String getRealName()
 	{
 		return realName;
+	}
+	
+	private static String md5(String val)
+	{
+		MessageDigest md;
+		String ret = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+			md.update(val.getBytes());
+		    byte[] digest = md.digest();
+		    ret = DatatypeConverter.printHexBinary(digest);
+		}
+		catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		
+		return ret;
 	}
 }
