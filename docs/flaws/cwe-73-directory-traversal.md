@@ -17,7 +17,7 @@ Exploit 1 - Stealing files
 Exploit 2 - Upload Files
 -------
 1. Go to /verademo/profile as a logged in user
-2. Choose the payload file as the profile image
+2. Choose a payload as the profile image (example provided in doc/artifacts)
 3. Change the username to: ../../resources/bin/exploit
 5. Navigate to /verademo/resources/bin/exploit.html
 6. See the script renders successfully
