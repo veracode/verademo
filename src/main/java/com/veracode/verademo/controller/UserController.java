@@ -2,6 +2,7 @@ package com.veracode.verademo.controller;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -508,6 +509,7 @@ public class UserController {
 			model.addAttribute("hecklers", hecklers);
 			model.addAttribute("events", events);
 			model.addAttribute("username", myInfoResults.getString("username"));
+			model.addAttribute("image", getProfileImageNameFromUsername(myInfoResults.getString("username")));
 			model.addAttribute("realName", myInfoResults.getString("real_name"));
 			model.addAttribute("blabName", myInfoResults.getString("blab_name"));
 		}
@@ -639,14 +641,22 @@ public class UserController {
 
 		// Update user profile image
 		if (file != null && !file.isEmpty()) {
+			String imageDir = context.getRealPath("/resources/images") + File.separator;
+			
+			// Get old image name, if any, to delete
+			String oldImage = getProfileImageNameFromUsername(username);
+			if (oldImage != null) {
+				new File(imageDir + oldImage).delete();
+			}
+			
 			// TODO: check if file is png first
 			try {
-				String path = context.getRealPath("/resources/images") + File.separator + username + ".png";
+				String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+				String path = imageDir + username + extension;
 
 				logger.info("Saving new profile image: " + path);
 
-				File destinationFile = new File(path);
-				file.transferTo(destinationFile); // will delete any existing file first
+				file.transferTo(new File(path)); // will delete any existing file first
 			}
 			catch (IllegalStateException | IOException ex) {
 				logger.error(ex);
@@ -841,12 +851,17 @@ public class UserController {
 			connect.commit();
 
 			// Rename the user profile image to match new username
-			logger.info("Renaming profile image from " + oldUsername + ".png to " + newUsername + ".png");
-			String path = context.getRealPath("/resources/images") + File.separator + "%s.png";
+			String oldImage = getProfileImageNameFromUsername(oldUsername);
+			if (oldImage != null) {
+				String extension = oldImage.substring(oldImage.lastIndexOf("."));
 
-			File oldName = new File(String.format(path, oldUsername));
-			File newName = new File(String.format(path, newUsername));
-			oldName.renameTo(newName);
+				logger.info("Renaming profile image from " + oldImage + " to " + newUsername + extension);
+				String path = context.getRealPath("/resources/images") + File.separator;
+
+				File oldName = new File(path + oldImage);
+				File newName = new File(path + newUsername + extension);
+				oldName.renameTo(newName);
+			}
 
 			return true;
 		}
@@ -878,6 +893,20 @@ public class UserController {
 
 		// Error occurred
 		return false;
+	}
+
+	private String getProfileImageNameFromUsername(String username) {
+		File f = new File(context.getRealPath("/resources/images"));
+		File[] matchingFiles = f.listFiles(new FilenameFilter() {
+		    public boolean accept(File dir, String name) {
+		        return name.startsWith(username + ".");
+		    }
+		});
+		
+		if (matchingFiles.length < 1) {
+			return null;
+		}
+		return matchingFiles[0].getName();
 	}
 
 	public String displayErrorForWeb(Throwable t)

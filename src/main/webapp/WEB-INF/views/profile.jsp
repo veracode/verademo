@@ -81,7 +81,7 @@
 								<tbody>
 									<tr>
 										<td class="commenterImage">
-											<img id="profileImage" src="resources/images/<%= request.getAttribute("username") %>.png" />
+											<img id="profileImage" src="resources/images/<%= request.getAttribute("image") %>" />
 										</td>
 										<td>
 											<div class="form-group">
