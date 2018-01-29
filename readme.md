@@ -34,12 +34,6 @@ The simplest way to aquire these on MacOS is via [Homebrew](http://brew.sh/). In
 
     brew install maven mysql tomcat
 
-### Dependencies
-
-Download the Veracode custom cleanser library from `https://tools.veracode.com/customcleanser/VeracodeAnnotations.jar` then install into a local Maven repository (`~/.m2/` will be created for you):
-
-    mvn install:install-file -Dfile=VeracodeAnnotations.jar -DgroupId=com.veracode -DartifactId=annotations -Dversion=1.0 -Dpackaging=jar
-
 ### Database
 
 Set up a database in MySQL called `blab` with a user of `blab` and password `z2^E6J4$;u;d`
