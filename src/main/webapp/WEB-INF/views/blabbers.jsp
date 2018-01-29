@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=US-ASCII"
 	pageEncoding="US-ASCII"%>
-<%@ page import="com.veracode.verademo.utils.*"%>
+<%@ page import="com.veracode.verademo.model.Blabber"%>
 <%@ page import="java.util.*"%>
 
 <!DOCTYPE html>
@@ -70,7 +70,7 @@
 		%>
 
 		<div class="row">
-			<div class="col-md-6">
+			<div class="col-md-12">
 				<div class="detailBox">
 					<div class="titleBox">
 						<label>Blabbers</label>
@@ -78,39 +78,56 @@
 					<div class="actionBox">
 						<table class="blabbers table">
 							<thead>
-								<th></th>
-								<th class="commenterName"><a href="?sort=blab_name ASC">Name</a></th>
-								<th class="commenterJoinDate"><a href="?sort=date_created DESC">Join date</a></th>
-								<th class="commenterListening"><a href="?sort=listening DESC">Listening</a></th>
-								<th class="commenterListeners"><a href="?sort=listeners DESC">Listeners</a></th>
-								<th></th>
+								<tr>
+									<th></th>
+									<th class="commenterName"><a href="?sort=blab_name ASC">Name</a></th>
+									<th class="commenterJoinDate"><a
+										href="?sort=date_created DESC">Join date</a></th>
+									<th class="commenterListening"><a
+										href="?sort=listening DESC">Listening</a></th>
+									<th class="commenterListeners"><a
+										href="?sort=listeners DESC">Listeners</a></th>
+									<th></th>
+								</tr>
 							</thead>
 							<tbody>
-							<%
-								ArrayList<Integer> blabberId = (ArrayList<Integer>) request.getAttribute("blabberId");
-								ArrayList<String> blabberName = (ArrayList<String>) request.getAttribute("blabberName");
-								ArrayList<String> created = (ArrayList<String>) request.getAttribute("created");
-								ArrayList<Integer> listening = (ArrayList<Integer>) request.getAttribute("listening");
-								ArrayList<Integer> listeners = (ArrayList<Integer>) request.getAttribute("listeners");
-								for (int i = 0; i < blabberId.size(); i++) {
-							%>
-							<tr>
-								<td class="commenterImage"><img src="resources/images/<%=blabberId.get(i)%>.png" /></td>
-								<td class="commenterName"><%=blabberName.get(i)%></td>
-								<td class="commenterJoinDate"><%=created.get(i)%></td>
-								<td class="commenterListeners">&nbsp;<%=listeners.get(i)%>&nbsp;</td>
-								<td class="commenterListening">&nbsp;<%=listening.get(i)%>&nbsp;</td>
-								<td>
-									<form class="form-inline" role="form" method="POST" action="blabbers">
-										<input type="hidden" name="blabberId" value="<%=blabberId.get(i)%>">
-										<input type="hidden" name="command" value="<%=(listening.get(i).intValue() == 1 ? "ignore" : "listen")%>">
-										<input type="submit" class="btn btn-default pull-right" name="button" value="<%=(listening.get(i).intValue() == 1 ? "Ignore" : "Listen")%>" />
-									</form>
-								</td>
-							</tr>
-							<%
-								}
-							%>
+								<%
+									@SuppressWarnings("unchecked")
+									ArrayList<Blabber> blabbers = (ArrayList<Blabber>) request.getAttribute("blabbers");
+									
+									for (Blabber blabber : blabbers) {
+								%>
+								<tr>
+									<td class="commenterImage">
+										<img src="resources/images/<%= blabber.getUsername() %>.png" />
+									</td>
+									<td class="commenterName">
+										<%= blabber.getBlabName() %>
+									</td>
+									<td class="commenterJoinDate">
+										<%= blabber.getCreatedDateString() %>
+									</td>
+									<td class="commenterListeners">
+										&nbsp;<%= blabber.getNumberListeners() %>&nbsp;
+									</td>
+									<td class="commenterListening">
+										&nbsp;<%= blabber.getNumberListening() %>&nbsp;
+									</td>
+									<td>
+										<form class="form-inline" role="form" method="POST"
+											action="blabbers">
+											<input type="hidden" name="blabberUsername"
+												value="<%= blabber.getUsername() %>" />
+											<input type="hidden" name="command"
+												value="<%=(blabber.getNumberListening() == 1 ? "ignore" : "listen")%>" />
+											<input type="submit" class="btn btn-default pull-right" name="button"
+												value="<%=(blabber.getNumberListening() == 1 ? "Ignore" : "Listen")%>" />
+										</form>
+									</td>
+								</tr>
+								<%
+									}
+								%>
 							</tbody>
 						</table>
 					</div>
@@ -120,8 +137,6 @@
 			<div class="col-md-3"></div>
 
 		</div>
-	</div>
-	</div>
 	</div>
 	<!-- /container -->
 

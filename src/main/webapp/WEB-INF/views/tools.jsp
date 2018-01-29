@@ -2,8 +2,8 @@
 	pageEncoding="US-ASCII"%>
 <%@ page import="com.veracode.verademo.utils.*"%>
 <%@ page import="java.util.*"%>
-<%@ page isELIgnored="false" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page isELIgnored="false"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
 
 <!DOCTYPE html>
@@ -58,26 +58,27 @@
 			<h4>Tools</h4>
 		</div>
 		<div>
+			<p>Check the uptime of a host here by pinging it. Example: google.com </p>
 			<form method="post">
-			    <label for="host">Host:</label>
-			    <input type="text" name="host" <% if (request.getParameter("host") != null) { %>value="<%=request.getParameter("host") %>" <% } %>/>
-			    <input type="submit" value="Check" />
+				<label for="host">Host:</label> <input type="text" name="host"
+					<%if (request.getParameter("host") != null) {%>
+					value="<%=request.getParameter("host")%>" <%}%> /> <input
+					type="submit" value="Check" />
 			</form>
 			<pre>${ping}</pre>
 		</div>
 		<div>
-			<h5>Which fortunes should we show you?</h5>
+			<h5>Show a UNIX fortune from one of the 2 supported dictionaries.</h5>
 			<form method="post">
-			   <select name="fortunefile">
-			   		<option value="funny.txt">funny</option>
-			   		<option value="offensive.txt">offensive</option>
-			   </select>
-			   <input type="submit" value="Change" />
+				<select name="fortunefile">
+					<option value="funny.txt">funny</option>
+					<option value="offensive.txt">offensive</option>
+				</select> <input type="submit" value="Change" />
 			</form>
 			<pre>${fortunes}</pre>
 		</div>
 	</div>
-	
+
 	<!-- Bootstrap core JavaScript
     ================================================== -->
 	<!-- Placed at the end of the document so the pages load faster -->

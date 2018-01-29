@@ -1,3 +1,4 @@
+build/
 target/
 *.swp
 idea/
@@ -7,3 +8,4 @@ idea/
 .settings/
 .project
 WebContent/
+flaws.json

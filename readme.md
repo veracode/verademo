@@ -4,7 +4,7 @@
 
 Blab-a-Gag is a fairly simple forum type application which allows:
  - users to post a one-liner joke
- - users to follow the jokes of other users or not (heckle or ignore)
+ - users to follow the jokes of other users or not (listen or ignore)
  - users to comment on other users messages (heckle)
  
 ### URLs
@@ -16,13 +16,15 @@ Blab-a-Gag is a fairly simple forum type application which allows:
   
 `/feed` shows the jokes/heckles that are relevant to the current user.
 
-`/blabbers` shows a list of all other users and allows the current user to heckle or ignore.
+`/blabbers` shows a list of all other users and allows the current user to listen or ignore.
 
 `/profile` allows the current user to modify their profile.
 
 `/login` allows you to log in to your account
 
 `/register` allows you to create a new user account
+
+`/tools` shows a tools page that shows a fortune or lets you ping a host.
    
 ## Configure
 
@@ -35,6 +37,10 @@ The simplest way to aquire these on MacOS is via [Homebrew](http://brew.sh/). In
 ### Database
 
 Set up a database in MySQL called `blab` with a user of `blab` and password `z2^E6J4$;u;d`
+ 
+### Switching between good/bad code
+
+There are two git branches `development` and `release`. Use the `git checkout <branch-name>` command to checkout the required code.
  
 ## Run
 
