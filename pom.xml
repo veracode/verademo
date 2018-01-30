@@ -28,9 +28,9 @@
 			<version>1.2</version>
 		</dependency>
 		<dependency>
-			<groupId>com.veracode</groupId>
-			<artifactId>annotations</artifactId>
-			<version>1.0</version>
+			<groupId>com.veracode.annotation</groupId>
+			<artifactId>VeracodeAnnotations</artifactId>
+			<version>[1.0.4,)</version>
 		</dependency>
 		<dependency>
 			<groupId>org.owasp.encoder</groupId>
