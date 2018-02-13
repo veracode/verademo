@@ -48,6 +48,12 @@ Open `/reset` in your browser and follow the instructions to prep the database
 
 Login with your username/password as defined in `Utils.java`
 
-## ASC bits
+## AWS Deployment
+
+Verademo will also run out-of-the-box in AWS. Simply upload the `target/verademo.war` file into a Tomcat Elastic Beanstalk environment (with associated Amazon RDS). The database credentials listed above are not required when running in AWS.
+
+On the first environment deployment, a script will automatically setup the database. Subsequent application re-deploys (without environment re-deploy), or application server restarts will not alter the database.
+
+## Exploitation Demos
 
 See the `docs` folder
