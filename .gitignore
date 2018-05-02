@@ -1,7 +1,7 @@
 build/
 target/
 *.swp
-idea/
+.idea/
 .DS_Store
 *.iml
 .classpath
@@ -9,3 +9,4 @@ idea/
 .project
 WebContent/
 flaws.json
+.vscode/settings.json
