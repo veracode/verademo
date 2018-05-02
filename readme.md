@@ -38,15 +38,11 @@ The simplest way to aquire these on MacOS is via [Homebrew](http://brew.sh/). In
 
 Set up a database in MySQL called `blab` with a user of `blab` and password `z2^E6J4$;u;d`
  
-### Switching between good/bad code
-
-There are two git branches `development` and `release`. Use the `git checkout <branch-name>` command to checkout the required code.
- 
 ## Run
 
 `mvn package` will build the web application and output a war file to `target/verademo.war`
 
-Deploy the resulting war file to Tomcat.
+Deploy the resulting war file to Tomcat (or run a SAST scan on it).
 
 Open `/reset` in your browser and follow the instructions to prep the database
 
