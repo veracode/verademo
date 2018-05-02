@@ -47,3 +47,7 @@ Deploy the resulting war file to Tomcat (or run a SAST scan on it).
 Open `/reset` in your browser and follow the instructions to prep the database
 
 Login with your username/password as defined in `Utils.java`
+
+## ASC bits
+
+See the `docs` folder
