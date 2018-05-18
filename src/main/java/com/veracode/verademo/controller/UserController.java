@@ -895,7 +895,7 @@ public class UserController {
 		return false;
 	}
 
-	private String getProfileImageNameFromUsername(String username) {
+	private String getProfileImageNameFromUsername(final String username) {
 		File f = new File(context.getRealPath("/resources/images"));
 		File[] matchingFiles = f.listFiles(new FilenameFilter() {
 		    public boolean accept(File dir, String name) {
