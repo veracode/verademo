@@ -12,7 +12,7 @@ maven:
         - mvn compile package
     artifacts:
         paths:
-            - target/
+            - target/verademo.war
 
 development-upload-for-sast:
     stage: scan
@@ -20,7 +20,7 @@ development-upload-for-sast:
         - development
     script:
         - java -jar $HOME/helpers/VeracodeJavaAPI.jar -vid ${TEAM_ANALYSISCENTER_ID} -vkey ${TEAM_ANALYSISCENTER_KEY}
-          -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true -sandboxname "gitlab/development"
+          -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true -sandboxname "gitlab-development"
           -filepath ./target/verademo.war -version "Job ${CI_JOB_ID} in pipeline ${CI_PIPELINE_ID}"
     allow_failure: true
     
@@ -30,21 +30,17 @@ release-upload-for-sast:
         - release
     script:
         - java -jar $HOME/helpers/VeracodeJavaAPI.jar -vid ${TEAM_ANALYSISCENTER_ID} -vkey ${TEAM_ANALYSISCENTER_KEY}
-          -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true -sandboxname "gitlab/release"
+          -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true -sandboxname "gitlab-release"
           -filepath ./target/verademo.war -version "Job ${CI_JOB_ID} in pipeline ${CI_PIPELINE_ID}"
     allow_failure: true
     
 policy-upload-for-sast:
-    image: docker-ro.laputa.veracode.io/agora/buildbox:centos7-m3-python-latest
     stage: scan
     only:
         - schedules
         - master
-    before_script:
-        - pyenv install 3.6.1
-        - pyenv local 3.6.1
-        - git clone https://ccampbell@gitlab.laputa.veracode.io/ccampbell/upload-and-scan.git
     script:
-        - python upload-and-scan/uploadandscan.py $HOME/helpers/VeracodeJavaAPI.jar ${TEAM_ANALYSISCENTER_ID} ${TEAM_ANALYSISCENTER_KEY}
-          --breakthebuild --waitmax 3600 --waitinterval 60
-          -appname "Verademo" -createprofile false -autoscan true -filepath ./target/verademo.war -version "Job ${CI_JOB_ID} in pipeline ${CI_PIPELINE_ID}"
+        - java -jar $HOME/helpers/VeracodeJavaAPI.jar -vid ${TEAM_ANALYSISCENTER_ID} -vkey ${TEAM_ANALYSISCENTER_KEY}
+          -action UploadAndScan -appname "Verademo" -createprofile false -autoscan true
+          -filepath ./target/verademo.war -version "Job ${CI_JOB_ID} in pipeline ${CI_PIPELINE_ID}"
+          -scantimeout 15
