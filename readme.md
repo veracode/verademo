@@ -25,14 +25,21 @@ Blab-a-Gag is a fairly simple forum type application which allows:
 `/register` allows you to create a new user account
 
 `/tools` shows a tools page that shows a fortune or lets you ping a host.
-   
+
+
+## Build
+
+To build Verademo [Maven](https://maven.apache.org) is required.
+
+`mvn package` will build the web application and output a war file to `target/verademo.war`. This war file can be uploaded to Veracode for static analysis.
+
 ## Configure
 
-Build and installation requires [Maven](https://maven.apache.org), [MySQL](https://www.mysql.com/) and [Tomcat](https://tomcat.apache.org/).
+To run Verademo [MySQL](https://www.mysql.com/) and [Tomcat](https://tomcat.apache.org/) are required.
 
 The simplest way to aquire these on MacOS is via [Homebrew](http://brew.sh/). Install Homebrew then:
 
-    brew install maven mysql tomcat
+    brew install mysql tomcat
 
 ### Database
 
@@ -40,13 +47,11 @@ Set up a database in MySQL called `blab` with a user of `blab` and password `z2^
  
 ## Run
 
-`mvn package` will build the web application and output a war file to `target/verademo.war`
-
-Deploy the resulting war file to Tomcat (or run a SAST scan on it).
+Deploy the build output war file to Tomcat.
 
 Open `/reset` in your browser and follow the instructions to prep the database
 
-Login with your username/password as defined in `Utils.java`
+Login with a username/password as defined in `Utils.java`
 
 ## AWS Deployment
 
