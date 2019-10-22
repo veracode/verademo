@@ -2,6 +2,7 @@
 	pageEncoding="US-ASCII"%>
 <%@ page import="com.veracode.verademo.model.Blabber"%>
 <%@ page import="java.util.*"%>
+<%@ page import="org.springframework.web.util.HtmlUtils" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -83,8 +84,6 @@
 									<th class="commenterName"><a href="?sort=blab_name ASC">Name</a></th>
 									<th class="commenterJoinDate"><a
 										href="?sort=date_created DESC">Join date</a></th>
-									<th class="commenterListening"><a
-										href="?sort=listening DESC">Listening</a></th>
 									<th class="commenterListeners"><a
 										href="?sort=listeners DESC">Listeners</a></th>
 									<th></th>
@@ -107,9 +106,6 @@
 									<td class="commenterJoinDate">
 										<%= blabber.getCreatedDateString() %>
 									</td>
-									<td class="commenterListeners">
-										&nbsp;<%= blabber.getNumberListeners() %>&nbsp;
-									</td>
 									<td class="commenterListening">
 										&nbsp;<%= blabber.getNumberListening() %>&nbsp;
 									</td>
@@ -119,9 +115,9 @@
 											<input type="hidden" name="blabberUsername"
 												value="<%= blabber.getUsername() %>" />
 											<input type="hidden" name="command"
-												value="<%=(blabber.getNumberListening() == 1 ? "ignore" : "listen")%>" />
+												value="<%=(blabber.getNumberListeners() == 1 ? "ignore" : "listen")%>" />
 											<input type="submit" class="btn btn-default pull-right" name="button"
-												value="<%=(blabber.getNumberListening() == 1 ? "Ignore" : "Listen")%>" />
+												value="<%=(blabber.getNumberListeners() == 1 ? "Ignore" : "Listen")%>" />
 										</form>
 									</td>
 								</tr>
