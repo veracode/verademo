@@ -94,7 +94,7 @@
 								<%
 									@SuppressWarnings("unchecked")
 									ArrayList<Blabber> blabbers = (ArrayList<Blabber>) request.getAttribute("blabbers");
-									
+
 									for (Blabber blabber : blabbers) {
 								%>
 								<tr>
@@ -117,7 +117,7 @@
 										<form class="form-inline" role="form" method="POST"
 											action="blabbers">
 											<input type="hidden" name="blabberUsername"
-												value="<%= blabber.getUsername() %>" />
+												value="<%= HtmlUtils.htmlEscape(blabber.getUsername()) %>" />
 											<input type="hidden" name="command"
 												value="<%=(blabber.getNumberListening() == 1 ? "ignore" : "listen")%>" />
 											<input type="submit" class="btn btn-default pull-right" name="button"

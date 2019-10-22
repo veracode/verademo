@@ -229,22 +229,22 @@ public class UserController {
 		logger.info("Redirecting to view: " + nextView);
 		return nextView;
 	}
-	
+
 	@RequestMapping(value = "/password-hint", method = RequestMethod.GET)
 	@ResponseBody
 	public String showPasswordHint(String username)
 	{
 		logger.info("Entering password-hint with username: " + username);
-		
+
 		if (username == null || username.isEmpty()) {
 			return "No username provided, please type in your username first";
 		}
 
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			
+
 			Connection connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
-	
+
 			String sql = "SELECT password_hint FROM users WHERE username = '" + username + "'";
 			logger.info(sql);
 			Statement statement = connect.createStatement();
@@ -255,7 +255,7 @@ public class UserController {
 				logger.info(formatString);
 				return String.format(
 						formatString,
-						password, 
+						password,
 						String.format("%0" + (password.length() - 2) + "d", 0).replace("0", "*")
 				);
 			}
@@ -267,7 +267,7 @@ public class UserController {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return "ERROR!";
 	}
 
@@ -382,6 +382,7 @@ public class UserController {
 
 			sqlStatement = connect.createStatement();
 			sqlStatement.execute(query.toString());
+			logger.info(query.toString());
 			/* END BAD CODE */
 
 			emailUser(username);
@@ -642,13 +643,13 @@ public class UserController {
 		// Update user profile image
 		if (file != null && !file.isEmpty()) {
 			String imageDir = context.getRealPath("/resources/images") + File.separator;
-			
+
 			// Get old image name, if any, to delete
 			String oldImage = getProfileImageNameFromUsername(username);
 			if (oldImage != null) {
 				new File(imageDir + oldImage).delete();
 			}
-			
+
 			// TODO: check if file is png first
 			try {
 				String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
@@ -749,7 +750,7 @@ public class UserController {
 
 	/**
 	 * Check if the username already exists
-	 * 
+	 *
 	 * @param username
 	 *            The username to check
 	 * @return true if the username exists, false otherwise
@@ -805,7 +806,7 @@ public class UserController {
 
 	/**
 	 * Change the user's username. Since the username is the DB key, we have a lot to do
-	 * 
+	 *
 	 * @param oldUsername
 	 *            Prior username
 	 * @param newUsername
@@ -902,7 +903,7 @@ public class UserController {
 		        return name.startsWith(username + ".");
 		    }
 		});
-		
+
 		if (matchingFiles.length < 1) {
 			return null;
 		}
@@ -951,7 +952,7 @@ public class UserController {
 			mex.printStackTrace();
 		}
 	}
-	
+
 	private static String md5(String val)
 	{
 		MessageDigest md;
@@ -965,7 +966,7 @@ public class UserController {
 		catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
-		
+
 		return ret;
 	}
 }
