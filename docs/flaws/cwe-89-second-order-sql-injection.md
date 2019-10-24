@@ -10,10 +10,8 @@ in an SQL query, so that if I create a user with username 'test"),(1,"admin was 
 
 Exploit
 -------
-** TODO: UPDATEME, this now works with the blab_name **
-**WARNING: STEP 1 will generate a 500 error, that's okay, just ignore it**
 1. Register an account with the following data:
-   Username: test"),(1,"admin was hacked
+   Username: test"),("admin","admin was hacked
    Password: test
    Confirm Password: test
    Real Name: Ms SQL Hacker
