@@ -24,9 +24,12 @@ pipeline {
                     powershell """
                         curl  https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip -o pipeline-scan.zip
                         Expand-Archive -Force -Path pipeline-scan.zip -DestinationPath veracode_scanner
-                        java -jar veracode_scanner\\pipeline-scan.jar --veracode_api_id '${vid}' \
+                        java -jar veracode_scanner\\pipeline-scan.jar 
+                        --veracode_api_id '${vid}' \
                         --veracode_api_key '${vkey}' \
-                        --file target/verademo.war
+                        --file target/verademo.war \
+                        --fail_on_severity="Very High, High" \
+                        --fail_on_cwe="80"
                     """
                 }
             }
