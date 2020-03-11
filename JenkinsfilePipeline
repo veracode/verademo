@@ -1,0 +1,32 @@
+
+pipeline {
+    agent any-with-jdk8-maven-curl-unzip
+    stages {
+        stage('Maven Build') {
+            steps {
+                - sh 'maven clean verify'
+            }
+        }
+        // stage('Veracode Static Pipeline Scan') {
+        //     steps {
+        //         - sh `curl -O https://downloads.veracode.com/securityscan/devops-scanner-java-LATEST.zip`
+        //         - sh `unzip devops-scanner-java-LATEST.zip devops-scanner-java.jar`
+        //         - sh `java -jar devops-scanner-java.jar \
+        //           --api_id "${VERACODE_API_ID}" \
+        //           --api_secret_key "${VERACODE_API_SECRET}" \
+        //           --binary_file "build/libs/sample.jar" \
+        //           --project_name "${env.JOB_NAME}" \
+        //           --project_url "${env.GIT_URL}" \
+        //           --project_ref "${env.GIT_COMMIT}" \
+        //           --fail_on_severity="Very High, High" \
+        //           --fail_on_cwe="80" \
+        //           --baseline_file "${CI_BASELINE_PATH}"
+        //     }
+        // }
+    }
+    // post {
+    //     always {
+    //         archiveArtifacts artifacts: 'results.json', fingerprint: true
+    //     }
+    // }
+}
