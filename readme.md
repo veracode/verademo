@@ -29,8 +29,21 @@ Blab-a-Gag is a fairly simple forum type application which allows:
 
 ## Docker
 
+
+### Running
+
+```
+docker run --rm -it -p 8080:8080 antfie/verademo
+```
+
 ```
 mvn spring-boot:run
+```
+
+### Building
+
+```
+docker build -t antfie/verademo .
 ```
 
 ## Build
