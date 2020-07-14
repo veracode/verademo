@@ -122,6 +122,26 @@
 			<version>2.4</version>
 		</dependency>
 
+		<!-- Vuln Method libs -->
+		<dependency>
+			<groupId>org.apache.sling</groupId>
+			<artifactId>maven-sling-plugin</artifactId>
+			<version>2.0.4-incubator</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.mindrot</groupId>
+			<artifactId>jbcrypt</artifactId>
+			<version>0.3m</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-saml-core</artifactId>
+			<version>1.8.1.Final</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
