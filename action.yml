@@ -64,3 +64,33 @@ inputs:
   toplevel:
     description: 'teams'
     required: false
+
+
+ 
+# outputs:
+#   time: # id of output
+#     description: 'The time we greeted you'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.appname }}
+    - ${{ inputs.createprofile }}
+    - ${{ inputs.filepath }}
+    - ${{ inputs.version }}
+    - ${{ inputs.vid }}
+    - ${{ inputs.vkey }}
+    - ${{ inputs.createsandbox}}
+    - ${{ inputs.sandboxname }}
+    - ${{ inputs.scantimeout }}
+    - ${{ inputs.exclude }}
+    - ${{ inputs.include }}
+    - ${{ inputs.criticality }}
+    - ${{ inputs.pattern }}
+    - ${{ inputs.replacement }}
+    - ${{ inputs.sandboxid }}
+    - ${{ inputs.scanallnonfataltoplevelmodules }}
+    - ${{ inputs.selected }}
+    - ${{ inputs.selectedpreviously }}
+    - ${{ inputs.teams }}
+    - ${{ inputs.toplevel }}
