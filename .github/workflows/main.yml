@@ -22,19 +22,21 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-#     - uses: actions/upload-artifact@v2
-#       with:
-#         path: target/*.jar
-    - name: Veracode Upload and Scan Action Step
-      uses: ./ # Uses an action in the root directory
-      id: upload_and_scan
+    
+    - uses: actions/setup-java@v1 # Make java accessible on path so the uploadandscan action can run.
+      with: 
+        java-version: '8'
+    - uses: actions/upload-artifact@v2 # Copy files from repository to docker container so the next uploadandscan action can access them.
       with:
-        appname: '${{ github.repository }}'
-        version: '${{ github.run_id }}'
-        filepath: 'target/*.jar'
+        path: target/*.jar # Wildcards can be used to filter the files copied into the container. See: https://github.com/actions/upload-artifact
+    - uses: veracode/veracode-uploadandscan-action@master # Run the uploadandscan action. Inputs are described above.
+      with:
+        filepath: 'target/'
         vid: '${{ secrets.VERACODE_API_ID }}'
         vkey: '${{ secrets.VERACODE_API_KEY }}'
-        createsandbox: true
+        createsandbox: 'true'
         sandboxname: 'Github - ${{ github.ref }}'
         scantimeout: 15
+#         exclude: '*.js'
+        include: '*.war'
         criticality: 'VeryHigh'
