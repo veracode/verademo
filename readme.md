@@ -3,16 +3,18 @@
 ## About
 
 Blab-a-Gag is a fairly simple forum type application which allows:
- - users to post a one-liner joke
- - users to follow the jokes of other users or not (listen or ignore)
- - users to comment on other users messages (heckle)
- 
+
+- users to post a one-liner joke
+- users to follow the jokes of other users or not (listen or ignore)
+- users to comment on other users messages (heckle)
+
 ### URLs
 
 `/reset` will reset the data in the database with a load of:
- - users
- - jokes
- - heckles
+
+- users
+- jokes
+- heckles
   
 `/feed` shows the jokes/heckles that are relevant to the current user.
 
@@ -25,7 +27,6 @@ Blab-a-Gag is a fairly simple forum type application which allows:
 `/register` allows you to create a new user account
 
 `/tools` shows a tools page that shows a fortune or lets you ping a host.
-
 
 ## Build
 
@@ -44,7 +45,7 @@ The simplest way to aquire these on MacOS is via [Homebrew](http://brew.sh/). In
 ### Database
 
 Set up a database in MySQL called `blab` with a user of `blab` and password `z2^E6J4$;u;d`
- 
+
 ## Run
 
 Deploy the build output war file to Tomcat.
@@ -61,4 +62,4 @@ On the first environment deployment, a script will automatically setup the datab
 
 ## Exploitation Demos
 
-See the `docs` folder
+See the `docs` folder.
