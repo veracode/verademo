@@ -34,7 +34,7 @@ jobs:
     - run: unzip -o pipeline-scan-LATEST.zip
     
   #  Submit  project to pipeline scan     
-    - run: java -jar pipeline-scan.jar --veracode_api_id "${{secrets.VERACODE_API_ID}}" --veracode_api_key "${{secrets.VERACODE_API_KEY}}" --fail_on_severity="Very High, High" --file "project.zip" --app_id "${{secrets.VERACODE_APP_ID}}"
+    - run: java -jar pipeline-scan.jar --veracode_api_id "${{secrets.VERACODE_API_ID}}" --veracode_api_key "${{secrets.VERACODE_API_KEY}}" --fail_on_severity="Very High, High" --file "target/verademo.war" --app_id "${{secrets.VERACODE_APP_ID}}"
       continue-on-error: true
     - uses: actions/upload-artifact@v1
       with:
