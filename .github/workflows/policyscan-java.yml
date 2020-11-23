@@ -27,11 +27,11 @@ jobs:
 
       - uses: actions/upload-artifact@v2 # Copy files from repository to docker container so the next uploadandscan action can access them.
         with:
-          path: '**.war' # Wildcards can be used to filter the files copied into the container. See: https://github.com/actions/upload-artifact
+          path: '**/*.war' # Wildcards can be used to filter the files copied into the container. See: https://github.com/actions/upload-artifact
       - uses: veracode/veracode-uploadandscan-action@master # Run the uploadandscan action. Inputs are described above.
         with:
           appname: '${{ secrets.VERACODE_APP_NAME }}'
-          filepath: '**.war'
+          filepath: '**/*.war'
           vid: '${{ secrets.VERACODE_API_ID }}'
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           scantimeout: 15
