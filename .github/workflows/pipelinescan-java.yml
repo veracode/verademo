@@ -49,6 +49,10 @@ jobs:
         name: CodePackage
         path: /github/home
         
+    - name: Display structure of downloaded files
+      run: ls -R
+      working-directory: /github/home
+        
     #- name: Unzip artifact  
     #  uses: montudor/action-zip@v0.1.1
     #  with: 
