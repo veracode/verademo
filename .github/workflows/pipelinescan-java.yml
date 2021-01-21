@@ -48,21 +48,11 @@ jobs:
       with:
         name: CodePackage
         path: /github/home
-        
-    - name: Display structure of downloaded files
-      run: ls -l -R
-      working-directory: /github/home/target
-        
-    #- name: Unzip artifact  
-    #  uses: montudor/action-zip@v0.1.1
-    #  with: 
-    #    args: unzip -qq /github/home/CodePackage.zip -d dir
     
     #  Submit  project to pipeline scan
     - name: Pipeline Scan
       run: |
         cd /github/home/target
-        ls -l -R
         java -jar /opt/veracode/pipeline-scan.jar --veracode_api_id="${{secrets.VERACODE_API_ID}}" --veracode_api_key="${{secrets.VERACODE_API_KEY}}" --fail_on_severity="Very High, High" --file="verademo.war" --app_id="${{secrets.VERACODE_APP_ID}}" --json_output_file="results.json"
       continue-on-error: true
 
