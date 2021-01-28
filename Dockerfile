@@ -27,8 +27,7 @@ COPY entrypoint.sh /
 WORKDIR /app
 COPY app /app
 
-# Compile
-RUN mvn dependency:go-offline && mvn compile
+RUN mvn package && rm -rf target
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["-c"]

@@ -58,7 +58,7 @@
 			<h4>Tools</h4>
 		</div>
 		<div>
-			<p>Check the uptime of a host here by pinging it. Example: google.com </p>
+			<p>Check the uptime of a host here by pinging it. Example: 127.0.0.1</p>
 			<form method="post">
 				<label for="host">Host:</label> <input type="text" name="host"
 					<%if (request.getParameter("host") != null) {%>
