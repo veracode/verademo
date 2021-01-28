@@ -71,8 +71,8 @@
 			<h5>Show a UNIX fortune from one of the 2 supported dictionaries.</h5>
 			<form method="post">
 				<select name="fortunefile">
-					<option value="funny.txt">funny</option>
-					<option value="offensive.txt">offensive</option>
+					<option value="literature">literature</option>
+					<option value="riddles">riddles</option>
 				</select> <input type="submit" value="Change" />
 			</form>
 			<pre>${fortunes}</pre>

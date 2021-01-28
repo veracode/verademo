@@ -52,7 +52,7 @@ public class ToolsController {
 		Process proc;
 		try {
 			/* START BAD CODE */
-			proc = Runtime.getRuntime().exec("ping " + host);
+			proc = Runtime.getRuntime().exec("ping -c1 " + host);
 			/* END BAD CODE */
 
 			InputStreamReader isr = new InputStreamReader(proc.getInputStream());
@@ -72,7 +72,7 @@ public class ToolsController {
 
 	private String fortune(String fortuneFile)
 	{
-		String cmd = "/bin/fortune " + context.getRealPath("\\resources\\bin\\" + fortuneFile);
+		String cmd = "/bin/fortune " + fortuneFile;
 
 		String output = "";
 		Process proc;
