@@ -52,12 +52,7 @@ public class ToolsController {
 		Process proc;
 		try {
 			/* START BAD CODE */
-			if (System.getProperty("os.name").startsWith("Windows")) {
-				proc = Runtime.getRuntime().exec("cmd.exe /c ping " + host);
-			}
-			else {
-				proc = Runtime.getRuntime().exec("ping " + host);
-			}
+			proc = Runtime.getRuntime().exec("ping " + host);
 			/* END BAD CODE */
 
 			InputStreamReader isr = new InputStreamReader(proc.getInputStream());
@@ -77,19 +72,13 @@ public class ToolsController {
 
 	private String fortune(String fortuneFile)
 	{
-		String cmd = context.getRealPath("\\resources\\bin\\fortune-go.exe") + " "
-				+ context.getRealPath("\\resources\\bin\\" + fortuneFile);
+		String cmd = "/bin/fortune " + context.getRealPath("\\resources\\bin\\" + fortuneFile);
 
 		String output = "";
 		Process proc;
 		try {
 			/* START BAD CODE */
-			if (System.getProperty("os.name").startsWith("Windows")) {
-				proc = Runtime.getRuntime().exec(new String[] { "cmd.exe", "/c", cmd });
-			}
-			else {
-				proc = Runtime.getRuntime().exec(cmd);
-			}
+			proc = Runtime.getRuntime().exec(cmd);
 			/* END BAD CODE */
 
 			InputStreamReader isr = new InputStreamReader(proc.getInputStream());
