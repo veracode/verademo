@@ -26,9 +26,10 @@ COPY entrypoint.sh /
 
 WORKDIR /app
 COPY app /app
+COPY maven-settings.xml /usr/share/maven/conf/settings.xml
 
 # Compile
-RUN mvn package && rm -rf target
+RUN mvn clean package && rm -rf target
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["-c"]
