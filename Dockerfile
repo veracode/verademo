@@ -27,6 +27,7 @@ COPY entrypoint.sh /
 WORKDIR /app
 COPY app /app
 
+# Compile
 RUN mvn package && rm -rf target
 
 ENTRYPOINT ["/entrypoint.sh"]
