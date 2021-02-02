@@ -3,6 +3,7 @@ package com.veracode.verademo.controller;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletContext;
 
@@ -39,7 +40,7 @@ public class ToolsController {
 		model.addAttribute("ping", host != null ? ping(host) : "");
 
 		if (fortuneFile == null) {
-			fortuneFile = "funny.txt";
+			fortuneFile = "literature";
 		}
 		model.addAttribute("fortunes", fortune(fortuneFile));
 
@@ -52,9 +53,10 @@ public class ToolsController {
 		Process proc;
 		try {
 			/* START BAD CODE */
-			proc = Runtime.getRuntime().exec("ping -c1 " + host);
+			proc = Runtime.getRuntime().exec(new String[]{"bash", "-c", "ping -c1 " + host});
 			/* END BAD CODE */
 
+			proc.waitFor(5, TimeUnit.SECONDS);
 			InputStreamReader isr = new InputStreamReader(proc.getInputStream());
 			BufferedReader br = new BufferedReader(isr);
 
@@ -63,10 +65,18 @@ public class ToolsController {
 			while ((line = br.readLine()) != null) {
 				output += line + "\n";
 			}
+
+
+
+			logger.info(proc.exitValue());
 		}
 		catch (IOException ex) {
 			logger.error(ex);
 		}
+		catch (InterruptedException ex) {
+			logger.error(ex);
+		}
+		
 		return output;
 	}
 
@@ -78,9 +88,10 @@ public class ToolsController {
 		Process proc;
 		try {
 			/* START BAD CODE */
-			proc = Runtime.getRuntime().exec(cmd);
+			proc = Runtime.getRuntime().exec(new String[] {"bash", "-c", cmd});
 			/* END BAD CODE */
 
+			proc.waitFor(5, TimeUnit.SECONDS);
 			InputStreamReader isr = new InputStreamReader(proc.getInputStream());
 			BufferedReader br = new BufferedReader(isr);
 
@@ -93,6 +104,10 @@ public class ToolsController {
 		catch (IOException ex) {
 			logger.error(ex);
 		}
+		catch (InterruptedException ex) {
+			logger.error(ex);
+		}
+		
 		return output;
 	}
 }
