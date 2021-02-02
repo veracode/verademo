@@ -35,7 +35,7 @@
 		<div class="header clearfix">
 			<nav>
 				<ul class="nav nav-pills pull-right">
-					<li role="presentation"><a href="reset" class="active">Reset</a></li>
+					<li role="presentation" class="active"><a href="reset">Reset</a></li>
 					<li role="presentation"><a href="login">Login</a></li>
 					<li role="presentation"><a href="register">Register</a></li>
 				</ul>

@@ -36,7 +36,7 @@
 				<ul class="nav nav-pills pull-right">
 					<!-- <li role="presentation"><a href="reset">Reset</a></li> -->
 					<li role="presentation"><a href="login">Login</a></li>
-					<li role="presentation"><a href="register" class="active">Register</a></li>
+					<li role="presentation" class="active"><a href="register">Register</a></li>
 				</ul>
 			</nav>
 			<img src="resources/images/Tokyoship_Talk_icon.svg" height="100"
