@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.core.env.Environment;
 
 import com.veracode.verademo.model.Blabber;
 import com.veracode.verademo.utils.Constants;
@@ -61,6 +62,9 @@ public class UserController {
 
 	@Autowired
 	ServletContext context;
+
+	@Autowired
+	private Environment env;
 
 	/**
 	 * @param target
@@ -413,10 +417,10 @@ public class UserController {
 
 	private void emailUser(String username)
 	{
-		String to = "admin@example.com";
-		String from = "verademo@veracode.com";
-		String host = "localhost";
-		String port = "5555";
+		String to = env.getProperty("mail.to");
+		String from = env.getProperty("mail.from");
+		String host = env.getProperty("mail.smtp.host");
+		String port = env.getProperty("mail.smtp.port");
 
 		Properties properties = System.getProperties();
 		properties.setProperty("mail.smtp.host", host);
@@ -430,7 +434,7 @@ public class UserController {
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
 			/* START BAD CODE */
-			message.setSubject("New user registered: " + username);
+			message.setSubject(env.getProperty("mail.subject.new_user") + " " + username);
 			/* END BAD CODE */
 
 			message.setText("A new VeraDemo user registered: " + username);
