@@ -318,6 +318,7 @@ public class BlabController {
 				// Get the blab contents
 				model.addAttribute("content", blabDetailsResults.getString(1));
 				model.addAttribute("blab_name", blabDetailsResults.getString(2));
+				model.addAttribute("blabid", blabid);
 
 				// Now lets get the comments...
 				logger.info("Preparing the blabComments Prepared Statement");
