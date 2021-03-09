@@ -4,7 +4,7 @@
 #
 #https://hub.docker.com/_/mariadb/
 # This is Ubuntu 20.04.1 LTS
-FROM mariadb
+FROM mariadb:10.5.9
 
 # Configure MariaDB
 ENV MYSQL_RANDOM_ROOT_PASSWORD=true
@@ -17,7 +17,6 @@ COPY db /docker-entrypoint-initdb.d
 # Also install the fortune-mod fortune game
 # https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu
 RUN apt-get update \
-    && apt-get -y dist-upgrade \
     && apt-get -y install openjdk-8-jdk-headless openjdk-8-jre-headless maven fortune-mod iputils-ping \
     && ln -s /usr/games/fortune /bin/ \
     && rm -rf /var/lib/apt/lists/*

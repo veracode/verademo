@@ -40,7 +40,8 @@ See the `docs` folder.
 
 To build the container run this:
 ```
-docker build -t verademo .
+docker pull mariadb:10.5.9
+docker build --no-cache -t verademo .
 ```
 
 To run the container for local development run this:
