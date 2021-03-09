@@ -3,7 +3,7 @@
 # the other way around. We are using Maven to enable re-compilation within the lab.
 #
 #https://hub.docker.com/_/mariadb/
-# This is Ubuntu 20.04.1 LTS
+# This is Ubuntu 20.04.2 LTS
 FROM mariadb:10.5.9
 
 # Configure MariaDB
