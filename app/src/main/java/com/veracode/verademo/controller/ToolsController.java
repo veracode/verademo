@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @Scope("request")
 public class ToolsController {
-	private static final Logger logger = LogManager.getLogger("VeraDemo:BlabController");
+	private static final Logger logger = LogManager.getLogger("VeraDemo:ToolsController");
 	
 	@Autowired
 	ServletContext context;

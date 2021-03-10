@@ -30,7 +30,7 @@ import java.io.IOException;
 @Controller
 @Scope("request")
 public class ResetController {
-	private static final Logger logger = LogManager.getLogger("VeraDemo:Utils");
+	private static final Logger logger = LogManager.getLogger("VeraDemo:ResetController");
 
 	@Autowired
 	ServletContext context;
