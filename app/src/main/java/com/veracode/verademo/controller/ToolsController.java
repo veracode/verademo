@@ -51,6 +51,9 @@ public class ToolsController {
 	{
 		String output = "";
 		Process proc;
+
+		logger.info("Pinging: " + host);
+
 		try {
 			/* START BAD CODE */
 			proc = Runtime.getRuntime().exec(new String[]{"bash", "-c", "ping -c1 " + host});
