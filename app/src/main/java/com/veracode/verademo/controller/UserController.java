@@ -186,6 +186,11 @@ public class UserController {
 				}
 
 				req.getSession().setAttribute("username", result.getString("username"));
+
+				// Update last login timestamp
+				PreparedStatement update = connect.prepareStatement("UPDATE users SET last_login=NOW() WHERE username=?;");
+				update.setString(1, result.getString("username"));
+				update.execute();
 			}
 			else {
 				// Login failed...
