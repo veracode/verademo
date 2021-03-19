@@ -21,22 +21,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Scope("request")
 public class ToolsController {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:ToolsController");
-	
+
 	@Autowired
 	ServletContext context;
 
 	@RequestMapping(value = "/tools", method = RequestMethod.GET)
-	public String tools()
-	{
+	public String tools() {
 		return "tools";
 	}
 
 	@RequestMapping(value = "/tools", method = RequestMethod.POST)
-	public String tools(
-			@RequestParam(value = "host", required = false) String host,
-			@RequestParam(value = "fortunefile", required = false) String fortuneFile,
-			Model model)
-	{
+	public String tools(@RequestParam(value = "host", required = false) String host, @RequestParam(value = "fortunefile", required = false) String fortuneFile, Model model) {
 		model.addAttribute("ping", host != null ? ping(host) : "");
 
 		if (fortuneFile == null) {
@@ -47,8 +42,7 @@ public class ToolsController {
 		return "tools";
 	}
 
-	private String ping(String host)
-	{
+	private String ping(String host) {
 		String output = "";
 		Process proc;
 
@@ -56,7 +50,7 @@ public class ToolsController {
 
 		try {
 			/* START BAD CODE */
-			proc = Runtime.getRuntime().exec(new String[]{"bash", "-c", "ping -c1 " + host});
+			proc = Runtime.getRuntime().exec(new String[] { "bash", "-c", "ping -c1 " + host });
 			/* END BAD CODE */
 
 			proc.waitFor(5, TimeUnit.SECONDS);
@@ -69,29 +63,24 @@ public class ToolsController {
 				output += line + "\n";
 			}
 
-
-
 			logger.info(proc.exitValue());
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
+			logger.error(ex);
+		} catch (InterruptedException ex) {
 			logger.error(ex);
 		}
-		catch (InterruptedException ex) {
-			logger.error(ex);
-		}
-		
+
 		return output;
 	}
 
-	private String fortune(String fortuneFile)
-	{
+	private String fortune(String fortuneFile) {
 		String cmd = "/bin/fortune " + fortuneFile;
 
 		String output = "";
 		Process proc;
 		try {
 			/* START BAD CODE */
-			proc = Runtime.getRuntime().exec(new String[] {"bash", "-c", cmd});
+			proc = Runtime.getRuntime().exec(new String[] { "bash", "-c", cmd });
 			/* END BAD CODE */
 
 			proc.waitFor(5, TimeUnit.SECONDS);
@@ -103,14 +92,12 @@ public class ToolsController {
 			while ((line = br.readLine()) != null) {
 				output += line + "\n";
 			}
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
+			logger.error(ex);
+		} catch (InterruptedException ex) {
 			logger.error(ex);
 		}
-		catch (InterruptedException ex) {
-			logger.error(ex);
-		}
-		
+
 		return output;
 	}
 }

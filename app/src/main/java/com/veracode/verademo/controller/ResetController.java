@@ -1,5 +1,9 @@
 package com.veracode.verademo.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,7 +11,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Random;
+
 import javax.servlet.ServletContext;
+
+import com.veracode.verademo.utils.Constants;
+import com.veracode.verademo.utils.User;
+import com.veracode.verademo.utils.Utils;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -18,14 +27,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.veracode.verademo.utils.Constants;
-import com.veracode.verademo.utils.User;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 
 @Controller
 @Scope("request")
@@ -66,8 +67,7 @@ public class ResetController {
 			User.create("scottsim", "Scott Simpson", "Scott Simpson") };
 
 	@RequestMapping(value = "/reset", method = RequestMethod.GET)
-	public String showReset()
-	{
+	public String showReset() {
 		logger.info("Entering showReset");
 
 		return "reset";
@@ -77,8 +77,7 @@ public class ResetController {
 	public String processReset(
 			@RequestParam(value = "confirm", required = true) String confirm,
 			@RequestParam(value = "primary", required = false) String primary,
-			Model model)
-	{
+			Model model) {
 		logger.info("Entering processReset");
 
 		Connection connect = null;
@@ -200,61 +199,53 @@ public class ResetController {
 				}
 			}
 			connect.commit();
-		}
-		catch (SQLException | ClassNotFoundException ex) {
+		} catch (SQLException | ClassNotFoundException ex) {
 			logger.error(ex);
-		}
-		finally {
+		} finally {
 			try {
 				if (usersStatement != null) {
 					usersStatement.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (listenersStatement != null) {
 					listenersStatement.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (blabsStatement != null) {
 					blabsStatement.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (commentsStatement != null) {
 					commentsStatement.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
 
-		return "redirect:reset";
+		return Utils.redirect("reset");
 	}
 
 	/**
 	 * Drop and recreate the entire database schema
 	 */
-	private void recreateDatabaseSchema()
-	{
+	private void recreateDatabaseSchema() {
 		// Fetch database schema
 		logger.info("Reading database schema from file");
 		String[] schemaSql = loadFile("blab_schema.sql", new String[] { "--", "/*" }, ";");
@@ -277,56 +268,48 @@ public class ResetController {
 					stmt.executeUpdate(sql);
 				}
 			}
-		}
-		catch (ClassNotFoundException | SQLException ex) {
+		} catch (ClassNotFoundException | SQLException ex) {
 			logger.error(ex);
-		}
-		finally {
+		} finally {
 			try {
 				if (stmt != null) {
 					stmt.close();
 				}
-			}
-			catch (SQLException ex) {
+			} catch (SQLException ex) {
 				logger.error(ex);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			}
-			catch (SQLException ex) {
+			} catch (SQLException ex) {
 				logger.error(ex);
 			}
 		}
 	}
 
 	/**
-	 * Read a file from the non-web accessible resources directory. This overload discards no lines and separates
-	 * content by newlines.
+	 * Read a file from the non-web accessible resources directory. This overload
+	 * discards no lines and separates content by newlines.
 	 * 
-	 * @param filename
-	 *            Name and extension of the file to read
+	 * @param filename Name and extension of the file to read
 	 * @return A String array containing the contents of the file broken by newlines
 	 */
-	private String[] loadFile(String filename)
-	{
+	private String[] loadFile(String filename) {
 		return loadFile(filename, new String[0], System.lineSeparator());
 	}
 
 	/**
 	 * Read a file from the non-web accessible resources directory
 	 * 
-	 * @param filename
-	 *            Name and extension of the file to read
-	 * @param skipCharacters
-	 *            A String array of sequences to skip, should the lines start with them
-	 * @param delimiter
-	 *            A String to break the contents of the file by
-	 * @return A String array containing the contents of the file broken by the delimiter
+	 * @param filename       Name and extension of the file to read
+	 * @param skipCharacters A String array of sequences to skip, should the lines
+	 *                       start with them
+	 * @param delimiter      A String to break the contents of the file by
+	 * @return A String array containing the contents of the file broken by the
+	 *         delimiter
 	 */
-	private String[] loadFile(String filename, String[] skipCharacters, String delimiter)
-	{
+	private String[] loadFile(String filename, String[] skipCharacters, String delimiter) {
 		String path = "/app/src/main/resources" + File.separator + filename;
 
 		String regex = "";
@@ -357,17 +340,14 @@ public class ResetController {
 
 			// Break content by delimiter
 			lines = sb.toString().split(delimiter);
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			logger.error(ex);
-		}
-		finally {
+		} finally {
 			try {
 				if (br != null) {
 					br.close();
 				}
-			}
-			catch (IOException ex) {
+			} catch (IOException ex) {
 				logger.error(ex);
 			}
 		}

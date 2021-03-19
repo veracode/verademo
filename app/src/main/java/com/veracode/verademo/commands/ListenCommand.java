@@ -11,11 +11,11 @@ import org.apache.log4j.Logger;
 
 public class ListenCommand implements BlabberCommand {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:ListenCommand");
-	
+
 	private Connection connect;
-	
+
 	private String username;
-	
+
 	public ListenCommand(Connection connect, String username) {
 		super();
 		this.connect = connect;
@@ -29,7 +29,7 @@ public class ListenCommand implements BlabberCommand {
 		PreparedStatement action;
 		try {
 			action = connect.prepareStatement(sqlQuery);
-			
+
 			action.setString(1, blabberUsername);
 			action.setString(2, username);
 			action.execute();
@@ -39,7 +39,7 @@ public class ListenCommand implements BlabberCommand {
 			logger.info(sqlQuery);
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
 			result.next();
-			
+
 			/* START BAD CODE */
 			String event = username + " started listening to " + blabberUsername + " (" + result.getString(1) + ")";
 			sqlQuery = "INSERT INTO users_history (blabber, event) VALUES (\"" + username + "\", \"" + event + "\")";

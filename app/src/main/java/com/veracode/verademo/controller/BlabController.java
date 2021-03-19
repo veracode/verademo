@@ -12,6 +12,13 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.veracode.verademo.commands.BlabberCommand;
+import com.veracode.verademo.model.Blab;
+import com.veracode.verademo.model.Blabber;
+import com.veracode.verademo.model.Comment;
+import com.veracode.verademo.utils.Constants;
+import com.veracode.verademo.utils.Utils;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.springframework.context.annotation.Scope;
@@ -21,12 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.veracode.verademo.commands.BlabberCommand;
-import com.veracode.verademo.model.Blab;
-import com.veracode.verademo.model.Blabber;
-import com.veracode.verademo.model.Comment;
-import com.veracode.verademo.utils.Constants;
 
 @Controller
 @Scope("request")
@@ -46,15 +47,14 @@ public class BlabController {
 	public String showFeed(
 			@RequestParam(value = "type", required = false) String type,
 			Model model,
-			HttpServletRequest httpRequest)
-	{
+			HttpServletRequest httpRequest) {
 		logger.info("Entering showFeed");
 
 		String username = (String) httpRequest.getSession().getAttribute("username");
 		// Ensure user is logged in
 		if (username == null) {
 			logger.info("User is not Logged In - redirecting...");
-			return "redirect:login?target=profile";
+			return Utils.redirect("login?target=profile");
 		}
 
 		logger.info("User is Logged In - continuing...");
@@ -113,33 +113,28 @@ public class BlabController {
 				myBlabs.add(post);
 			}
 			model.addAttribute("blabsByMe", myBlabs);
-		}
-		catch (SQLException | ClassNotFoundException ex) {
+		} catch (SQLException | ClassNotFoundException ex) {
 			logger.error(ex);
-		}
-		finally {
+		} finally {
 			try {
 				if (blabsByMe != null) {
 					blabsByMe.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (blabsForMe != null) {
 					blabsForMe.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -153,8 +148,7 @@ public class BlabController {
 			@RequestParam(value = "count", required = true) String count,
 			@RequestParam(value = "len", required = true) String length,
 			Model model,
-			HttpServletRequest httpRequest)
-	{
+			HttpServletRequest httpRequest) {
 		String template = "<li><div>" + "\t<div class=\"commenterImage\">" + "\t\t<img src=\"resources/images/%s.png\">"
 				+ "\t</div>" + "\t<div class=\"commentText\">" + "\t\t<p>%s</p>"
 				+ "\t\t<span class=\"date sub-text\">by %s on %s</span><br>"
@@ -166,8 +160,7 @@ public class BlabController {
 			// Convert input to integers
 			cnt = Integer.parseInt(count);
 			len = Integer.parseInt(length);
-		}
-		catch (NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return "";
 		}
 
@@ -196,8 +189,7 @@ public class BlabController {
 						results.getInt(5) // comment count
 				));
 			}
-		}
-		catch (SQLException | ClassNotFoundException ex) {
+		} catch (SQLException | ClassNotFoundException ex) {
 			logger.error(ex);
 		}
 
@@ -208,16 +200,15 @@ public class BlabController {
 	public String processFeed(
 			@RequestParam(value = "blab", required = true) String blab,
 			Model model,
-			HttpServletRequest httpRequest)
-	{
-		String nextView = "redirect:feed";
+			HttpServletRequest httpRequest) {
+		String nextView = Utils.redirect("feed");
 		logger.info("Entering processBlab");
 
 		String username = (String) httpRequest.getSession().getAttribute("username");
 		// Ensure user is logged in
 		if (username == null) {
 			logger.info("User is not Logged In - redirecting...");
-			return "redirect:login?target=profile";
+			return Utils.redirect("login?target=profile");
 		}
 		logger.info("User is Logged In - continuing...");
 
@@ -246,26 +237,22 @@ public class BlabController {
 				// failure
 				model.addAttribute("error", "Failed to add comment");
 			}
-			nextView = "redirect:feed";
-		}
-		catch (SQLException | ClassNotFoundException ex) {
+			nextView = Utils.redirect("feed");
+		} catch (SQLException | ClassNotFoundException ex) {
 			logger.error(ex);
-		}
-		finally {
+		} finally {
 			try {
 				if (addBlab != null) {
 					addBlab.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -277,18 +264,17 @@ public class BlabController {
 	public String showBlab(
 			@RequestParam(value = "blabid", required = true) Integer blabid,
 			Model model,
-			HttpServletRequest httpRequest)
-	{
-		String nextView = "redirect:feed";
+			HttpServletRequest httpRequest) {
+		String nextView = Utils.redirect("feed");
 		logger.info("Entering showBlab");
 
 		String username = (String) httpRequest.getSession().getAttribute("username");
 		// Ensure user is logged in
 		if (username == null) {
 			logger.info("User is not Logged In - redirecting...");
-			return "redirect:login?target=profile";
+			return Utils.redirect("login?target=profile");
 		}
-		
+
 		logger.info("User is Logged In - continuing...");
 
 		Connection connect = null;
@@ -346,25 +332,21 @@ public class BlabController {
 				nextView = "blab";
 			}
 
-		}
-		catch (SQLException | ClassNotFoundException ex) {
+		} catch (SQLException | ClassNotFoundException ex) {
 			logger.error(ex);
-		}
-		finally {
+		} finally {
 			try {
 				if (blabDetails != null) {
 					blabDetails.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -377,16 +359,15 @@ public class BlabController {
 			@RequestParam(value = "comment", required = true) String comment,
 			@RequestParam(value = "blabid", required = true) Integer blabid,
 			Model model,
-			HttpServletRequest httpRequest)
-	{
-		String nextView = "redirect:feed";
+			HttpServletRequest httpRequest) {
+		String nextView = Utils.redirect("feed");
 		logger.info("Entering processBlab");
 
 		String username = (String) httpRequest.getSession().getAttribute("username");
 		// Ensure user is logged in
 		if (username == null) {
 			logger.info("User is not Logged In - redirecting...");
-			return "redirect:login?target=feed";
+			return Utils.redirect("login?target=feed");
 		}
 
 		logger.info("User is Logged In - continuing...");
@@ -418,26 +399,22 @@ public class BlabController {
 				model.addAttribute("error", "Failed to add comment");
 			}
 
-			nextView = "redirect:blab?blabid=" + blabid;
-		}
-		catch (SQLException | ClassNotFoundException ex) {
+			nextView = Utils.redirect("blab?blabid=" + blabid);
+		} catch (SQLException | ClassNotFoundException ex) {
 			logger.error(ex);
-		}
-		finally {
+		} finally {
 			try {
 				if (addComment != null) {
 					addComment.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -449,20 +426,19 @@ public class BlabController {
 	public String showBlabbers(
 			@RequestParam(value = "sort", required = false) String sort,
 			Model model,
-			HttpServletRequest httpRequest)
-	{
+			HttpServletRequest httpRequest) {
 		if (sort == null || sort.isEmpty()) {
 			sort = "blab_name ASC";
 		}
 
-		String nextView = "redirect:feed";
+		String nextView = Utils.redirect("feed");
 		logger.info("Entering showBlabbers");
 
 		String username = (String) httpRequest.getSession().getAttribute("username");
 		// Ensure user is logged in
 		if (username == null) {
 			logger.info("User is not Logged In - redirecting...");
-			return "redirect:login?target=blabbers";
+			return Utils.redirect("login?target=blabbers");
 		}
 
 		logger.info("User is Logged In - continuing...");
@@ -506,25 +482,21 @@ public class BlabController {
 
 			nextView = "blabbers";
 
-		}
-		catch (SQLException | ClassNotFoundException ex) {
+		} catch (SQLException | ClassNotFoundException ex) {
 			logger.error(ex);
-		}
-		finally {
+		} finally {
 			try {
 				if (blabberQuery != null) {
 					blabberQuery.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
@@ -537,23 +509,22 @@ public class BlabController {
 			@RequestParam(value = "blabberUsername", required = true) String blabberUsername,
 			@RequestParam(value = "command", required = true) String command,
 			Model model,
-			HttpServletRequest httpRequest)
-	{
-		String nextView = "redirect:feed";
+			HttpServletRequest httpRequest) {
+		String nextView = Utils.redirect("feed");
 		logger.info("Entering processBlabbers");
 
 		String username = (String) httpRequest.getSession().getAttribute("username");
 		// Ensure user is logged in
 		if (username == null) {
 			logger.info("User is not Logged In - redirecting...");
-			return "redirect:login?target=blabbers";
+			return Utils.redirect("login?target=blabbers");
 		}
 
 		logger.info("User is Logged In - continuing...");
 
 		if (command == null || command.isEmpty()) {
 			logger.info("Empty command provided...");
-			return nextView = "redirect:login?target=blabbers";
+			return nextView = Utils.redirect("login?target=blabbers");
 		}
 
 		logger.info("blabberUsername = " + blabberUsername);
@@ -575,36 +546,31 @@ public class BlabController {
 			cmdObj.execute(blabberUsername);
 			/* END BAD CODE */
 
-			nextView = "redirect:blabbers";
+			nextView = Utils.redirect("blabbers");
 
-		}
-		catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException
+		} catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
 			logger.error(ex);
-		}
-		finally {
+		} finally {
 			try {
 				if (action != null) {
 					action.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 			try {
 				if (connect != null) {
 					connect.close();
 				}
-			}
-			catch (SQLException exceptSql) {
+			} catch (SQLException exceptSql) {
 				logger.error(exceptSql);
 			}
 		}
 		return nextView;
 	}
 
-	final private static String ucfirst(String subject)
-	{
+	final private static String ucfirst(String subject) {
 		return Character.toUpperCase(subject.charAt(0)) + subject.substring(1);
 	}
 }

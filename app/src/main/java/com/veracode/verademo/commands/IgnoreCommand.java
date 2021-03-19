@@ -9,11 +9,11 @@ import java.sql.Statement;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-public class IgnoreCommand implements BlabberCommand {	
+public class IgnoreCommand implements BlabberCommand {
 	private static final Logger logger = LogManager.getLogger("VeraDemo:IgnoreCommand");
-	
+
 	private Connection connect;
-	
+
 	private String username;
 
 	public IgnoreCommand(Connection connect, String username) {
@@ -29,17 +29,17 @@ public class IgnoreCommand implements BlabberCommand {
 		PreparedStatement action;
 		try {
 			action = connect.prepareStatement(sqlQuery);
-			
+
 			action.setString(1, blabberUsername);
 			action.setString(2, username);
 			action.execute();
-						
+
 			sqlQuery = "SELECT blab_name FROM users WHERE username = '" + blabberUsername + "'";
 			Statement sqlStatement = connect.createStatement();
 			logger.info(sqlQuery);
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
 			result.next();
-			
+
 			/* START BAD CODE */
 			String event = username + " is now ignoring " + blabberUsername + " (" + result.getString(1) + ")";
 			sqlQuery = "INSERT INTO users_history (blabber, event) VALUES (\"" + username + "\", \"" + event + "\")";
