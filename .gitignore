@@ -1,12 +1,1 @@
-build/
-target/
-*.swp
-.idea/
-.DS_Store
-*.iml
-.classpath
-.settings/
-.project
-WebContent/
-flaws.json
-.vscode/settings.json
+app/target/
