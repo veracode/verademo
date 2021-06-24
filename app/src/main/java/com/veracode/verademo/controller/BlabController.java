@@ -57,7 +57,7 @@ public class BlabController {
 			return Utils.redirect("login?target=profile");
 		}
 
-		logger.info("User is Logged In - continuing...");
+		logger.info("User is Logged In - continuing... UA=" + httpRequest.getHeader("User-Agent") + " U=" + username);
 
 		Connection connect = null;
 		PreparedStatement blabsByMe = null;
@@ -210,7 +210,7 @@ public class BlabController {
 			logger.info("User is not Logged In - redirecting...");
 			return Utils.redirect("login?target=profile");
 		}
-		logger.info("User is Logged In - continuing...");
+		logger.info("User is Logged In - continuing... UA=" + httpRequest.getHeader("User-Agent") + " U=" + username);
 
 		Connection connect = null;
 		PreparedStatement addBlab = null;
@@ -275,7 +275,7 @@ public class BlabController {
 			return Utils.redirect("login?target=profile");
 		}
 
-		logger.info("User is Logged In - continuing...");
+		logger.info("User is Logged In - continuing... UA=" + httpRequest.getHeader("User-Agent") + " U=" + username);
 
 		Connection connect = null;
 		PreparedStatement blabDetails = null;
@@ -370,7 +370,7 @@ public class BlabController {
 			return Utils.redirect("login?target=feed");
 		}
 
-		logger.info("User is Logged In - continuing...");
+		logger.info("User is Logged In - continuing... UA=" + httpRequest.getHeader("User-Agent") + " U=" + username);
 		Connection connect = null;
 		PreparedStatement addComment = null;
 		String addCommentSql = "INSERT INTO comments (blabid, blabber, content, timestamp) values (?, ?, ?, ?);";
@@ -441,7 +441,7 @@ public class BlabController {
 			return Utils.redirect("login?target=blabbers");
 		}
 
-		logger.info("User is Logged In - continuing...");
+		logger.info("User is Logged In - continuing... UA=" + httpRequest.getHeader("User-Agent") + " U=" + username);
 
 		Connection connect = null;
 		PreparedStatement blabberQuery = null;
@@ -520,7 +520,7 @@ public class BlabController {
 			return Utils.redirect("login?target=blabbers");
 		}
 
-		logger.info("User is Logged In - continuing...");
+		logger.info("User is Logged In - continuing... UA=" + httpRequest.getHeader("User-Agent") + " U=" + username);
 
 		if (command == null || command.isEmpty()) {
 			logger.info("Empty command provided...");
