@@ -3,8 +3,8 @@
 # the other way around. We are using Maven to enable re-compilation within the lab.
 #
 #https://hub.docker.com/_/mariadb/
-# This is Ubuntu 20.04.2 LTS
-FROM mariadb:10.5.9
+# This is Ubuntu 20.04 LTS
+FROM mariadb:10.6.2
 
 # Configure MariaDB
 ENV MYSQL_RANDOM_ROOT_PASSWORD=true
@@ -22,6 +22,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY entrypoint.sh /
+RUN chmod +x /entrypoint.sh
 
 WORKDIR /app
 COPY app /app

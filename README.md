@@ -40,7 +40,7 @@ See the `docs` folder.
 
 To build the container run this:
 ```
-docker pull mariadb:10.5.9
+docker pull mariadb:10.6.2
 docker build --no-cache -t verademo .
 ```
 
