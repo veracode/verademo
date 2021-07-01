@@ -126,7 +126,7 @@
 
 		var oReq = new XMLHttpRequest();
 		oReq.addEventListener("load", alerter);
-		oReq.open("GET", "/verademo/password-hint?username=" + document.forms[0].user.value);
+		oReq.open("GET", "/password-hint?username=" + document.forms[0].user.value);
 		oReq.send();
 	}
 	</script>
