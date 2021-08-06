@@ -25,9 +25,25 @@ jobs:
       with: 
         java-version: '8'
 
-    - name: Build with Maven
+    - name: Check for Maven build
+      id: check_maven
+      uses: andstor/file-existence-action@v1
+      with:
+        files: "pom.xml"
+
+    - name: Check for Gradle build
+      id: check_gradle
+      uses: andstor/file-existence-action@v1
+      with:
+        files: "build.gradle"
+
+    - name: Build application with mvn
+      if: steps.check_maven.outputs.files_exists == 'true'
       run: mvn -B package --file pom.xml
 
+    - name: Build application with gradle
+      if: steps.check_gradle.outputs.files_exists == 'true'
+      run: gradle clean build
       
     - name: Archive package
       uses: actions/upload-artifact@v2

@@ -10,3 +10,8 @@ target/
 WebContent/
 flaws.json
 .vscode/settings.json
+
+filtered_results.json
+results.json
+pipeline-scan-LATEST.zip
+pipeline-scan.jar
