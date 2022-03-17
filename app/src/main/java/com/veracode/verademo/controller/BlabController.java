@@ -446,7 +446,7 @@ public class BlabController {
 		Connection connect = null;
 		PreparedStatement blabberQuery = null;
 
-		/* START BAD CODE */
+		/* START EXAMPLE VULNERABILITY */
 		String blabbersSql = "SELECT users.username," + " users.blab_name," + " users.created_at,"
 				+ " SUM(if(listeners.listener=?, 1, 0)) as listeners,"
 				+ " SUM(if(listeners.status='Active',1,0)) as listening"
@@ -465,7 +465,7 @@ public class BlabController {
 			blabberQuery.setString(1, username);
 			blabberQuery.setString(2, username);
 			ResultSet blabbersResults = blabberQuery.executeQuery();
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 			List<Blabber> blabbers = new ArrayList<Blabber>();
 			while (blabbersResults.next()) {
@@ -539,12 +539,12 @@ public class BlabController {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
-			/* START BAD CODE */
+			/* START EXAMPLE VULNERABILITY */
 			Class<?> cmdClass = Class.forName("com.veracode.verademo.commands." + ucfirst(command) + "Command");
 			BlabberCommand cmdObj = (BlabberCommand) cmdClass.getDeclaredConstructor(Connection.class, String.class)
 					.newInstance(connect, username);
 			cmdObj.execute(blabberUsername);
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 			nextView = Utils.redirect("blabbers");
 

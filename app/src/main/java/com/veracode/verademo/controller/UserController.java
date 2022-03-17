@@ -155,7 +155,7 @@ public class UserController {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
-			/* START BAD CODE */
+			/* START EXAMPLE VULNERABILITY */
 			// Execute the query
 			logger.info("Creating the Statement");
 			String sqlQuery = "select username, password, password_hint, created_at, last_login, real_name, blab_name from users where username='"
@@ -163,7 +163,7 @@ public class UserController {
 			sqlStatement = connect.createStatement();
 			logger.info("Execute the Statement");
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 			// Did we find exactly 1 user that matched?
 			if (result.first()) {
@@ -357,7 +357,7 @@ public class UserController {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager.getConnection(Constants.create().getJdbcConnectionString());
 
-			/* START BAD CODE */
+			/* START EXAMPLE VULNERABILITY */
 			// Execute the query
 			String mysqlCurrentDateTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
 					.format(Calendar.getInstance().getTime());
@@ -373,7 +373,7 @@ public class UserController {
 			sqlStatement = connect.createStatement();
 			sqlStatement.execute(query.toString());
 			logger.info(query.toString());
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 			emailUser(username);
 		} catch (SQLException | ClassNotFoundException ex) {
@@ -415,9 +415,9 @@ public class UserController {
 			message.setFrom(new InternetAddress(from));
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
-			/* START BAD CODE */
+			/* START EXAMPLE VULNERABILITY */
 			message.setSubject(env.getProperty("mail.subject.new_user") + " " + username);
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 			message.setText("A new VeraDemo user registered: " + username);
 
@@ -471,13 +471,13 @@ public class UserController {
 			// Get the audit trail for this user
 			ArrayList<String> events = new ArrayList<String>();
 
-			/* START BAD CODE */
+			/* START EXAMPLE VULNERABILITY */
 			String sqlMyEvents = "select event from users_history where blabber=\"" + username
 					+ "\" ORDER BY eventid DESC; ";
 			logger.info(sqlMyEvents);
 			Statement sqlStatement = connect.createStatement();
 			ResultSet userHistoryResult = sqlStatement.executeQuery(sqlMyEvents);
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 			while (userHistoryResult.next()) {
 				events.add(userHistoryResult.getString(1));
@@ -888,9 +888,9 @@ public class UserController {
 			message.setFrom(new InternetAddress(from));
 			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
-			/* START BAD CODE */
+			/* START EXAMPLE VULNERABILITY */
 			message.setSubject("Error detected: " + t.getMessage());
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 			message.setText(t.getMessage() + "<br>" + properties.getProperty("test") + displayErrorForWeb(t));
 
