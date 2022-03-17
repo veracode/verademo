@@ -38,11 +38,11 @@ public class UserFactory {
 		InputStream decodedstream = Base64.getDecoder().wrap(stream);
 		ObjectInputStream in;
 		try {
-			/* START BAD CODE */
+			/* START EXAMPLE VULNERABILITY */
 			in = new ObjectInputStream(decodedstream);
 			User user = (User) in.readObject();
 			in.close();
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 			return user;
 
