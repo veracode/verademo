@@ -42,7 +42,7 @@ public class RemoveAccountCommand implements BlabberCommand {
 			ResultSet result = sqlStatement.executeQuery(sqlQuery);
 			result.next();
 
-			/* START BAD CODE */
+			/* START EXAMPLE VULNERABILITY */
 			String event = "Removed account for blabber " + result.getString(1);
 			sqlQuery = "INSERT INTO users_history (blabber, event) VALUES ('" + blabberUsername + "', '" + event + "')";
 			logger.info(sqlQuery);
@@ -51,7 +51,7 @@ public class RemoveAccountCommand implements BlabberCommand {
 			sqlQuery = "DELETE FROM users WHERE username = '" + blabberUsername + "'";
 			logger.info(sqlQuery);
 			sqlStatement.execute(sqlQuery);
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -1,5 +1,9 @@
 # VeraDemo - Blab-a-Gag
 
+### :information_source: Notice
+
+This project is intentionally vulnerable! It contains known vulnerabilities and security errors in its code and is meant as an example project for software security scanning tools such as Veracode. Please do not report vulnerabilities in this project; the odds are they’re there on purpose :) .
+
 ## About
 
 Blab-a-Gag is a fairly simple forum type application which allows:

@@ -49,9 +49,9 @@ public class ToolsController {
 		logger.info("Pinging: " + host);
 
 		try {
-			/* START BAD CODE */
+			/* START EXAMPLE VULNERABILITY */
 			proc = Runtime.getRuntime().exec(new String[] { "bash", "-c", "ping -c1 " + host });
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 			proc.waitFor(5, TimeUnit.SECONDS);
 			InputStreamReader isr = new InputStreamReader(proc.getInputStream());
@@ -79,9 +79,9 @@ public class ToolsController {
 		String output = "";
 		Process proc;
 		try {
-			/* START BAD CODE */
+			/* START EXAMPLE VULNERABILITY */
 			proc = Runtime.getRuntime().exec(new String[] { "bash", "-c", cmd });
-			/* END BAD CODE */
+			/* END EXAMPLE VULNERABILITY */
 
 			proc.waitFor(5, TimeUnit.SECONDS);
 			InputStreamReader isr = new InputStreamReader(proc.getInputStream());
