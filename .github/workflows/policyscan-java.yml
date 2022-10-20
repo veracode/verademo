@@ -51,6 +51,5 @@ jobs:
         python-version: '3.9'
         cache: 'pip'
     - run:
-        export VERACODE_API_KEY_ID = ${{ secrets.VERACODE_API_ID
         pip install veracode-api-signing
         http --auth-type=veracode_hmac "http://api.veracode.com/appsec/v1/applications?legacy_id=$VERACODE_APP_ID"
