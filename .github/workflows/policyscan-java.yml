@@ -7,6 +7,10 @@ name: Veracode Policy Scan
 on:
   workflow_dispatch:
 
+env:
+  VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
+  VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -32,7 +36,20 @@ jobs:
         with:
           appname: '${{ secrets.VERACODE_APP_NAME }}'
           filepath: '**/*.war'
-          vid: '${{ secrets.VERACODE_API_ID }}'
-          vkey: '${{ secrets.VERACODE_API_KEY }}'
+          vid: '$VERACODE_API_KEY_ID'
+          vkey: '$VERACODE_API_KEY_SECRET'
           scantimeout: 15
           createprofile: false
+          
+  sbom:
+    needs: build-and-policy-scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+    - run:
+        pip install veracode-api-signing
+        http --auth-type=veracode_hmac "http://api.veracode.com/appsec/v1/applications?legacy_id=$VERACODE_APP_ID"
