@@ -38,8 +38,8 @@ jobs:
           createprofile: false
           
   sbom:
-    if: ${{ always() }} #run even if the policy scan fails
-    needs: build-and-policy-scan
+    #if: ${{ always() }} #run even if the policy scan fails
+    #needs: build-and-policy-scan
     runs-on: ubuntu-latest
     env:
       VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
