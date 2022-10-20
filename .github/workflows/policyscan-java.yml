@@ -38,6 +38,7 @@ jobs:
           createprofile: false
           
   sbom:
+    if: ${{ always() }} #run even if the policy scan fails
     needs: build-and-policy-scan
     runs-on: ubuntu-latest
     env:
