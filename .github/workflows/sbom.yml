@@ -7,7 +7,9 @@ on:
 jobs:
   sbom:
     name: setup
-    runs-on: veracode/api-signing:cmd
+    runs-on: ubuntu-latest
+    container: 
+      image: veracode/api-signing:cmd
     env:
       VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
       VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
