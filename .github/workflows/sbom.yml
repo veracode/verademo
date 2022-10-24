@@ -17,4 +17,4 @@ jobs:
     steps:
       - name: HelloWorld
         run: |
-          http --auth-type=veracode_hmac "https://api.veracode.com/appsec/v1/applications"         
+          http --auth-type=veracode_hmac GET "https://api.veracode.com/appsec/v1/applications"         
