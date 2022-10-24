@@ -1,3 +1,8 @@
+# This workflow retrieves the SBOM for the application being scanned and saves it as an artifact in the pipeline.
+# Required secrets (also used by the pipelinescan-*.yml workflows):
+# VERACODE_API_ID, VERACODE_API_KEY: API credentials for a Veracode user
+# VERACODE_APP_ID: Numeric application ID for the application profile for this project
+
 ---
 name: SBOM
 
