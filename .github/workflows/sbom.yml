@@ -17,5 +17,4 @@ jobs:
     steps:
       - name: HelloWorld
         run: | 
-          http --auth-type=veracode_hmac GET "https://api.veracode.com/api/authn/v2/users/self" | jq '.user_name'
-          http --auth-type=veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?legacy_id=301001"
+          http --auth-type=veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?legacy_id=301001" | jq -r '._embedded.applications[0].guid'
