@@ -12,10 +12,6 @@ jobs:
       VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
       VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
 
-    strategy:
-      matrix:
-        python-version: ["3.6", "3.7", "3.8", "pypy3"]
-
     steps:
       - name: HelloWorld
         run: |
