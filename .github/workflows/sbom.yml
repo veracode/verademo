@@ -24,7 +24,7 @@ jobs:
           http --auth-type=veracode_hmac GET "https://api.veracode.com/srcclr/sbom/v1/targets/${appguid}/cyclonedx?type=application" > sbom.json
           ls -l
       - name: save sbom file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: sbom
           path: /tmp/sbom.json
