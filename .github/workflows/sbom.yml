@@ -17,4 +17,5 @@ jobs:
     steps:
       - name: HelloWorld
         run: | 
-         http --auth-type=veracode_hmac GET "https://api.veracode.com/appsec/v1/applications" "legacy_id == ${{ secrets.VERACODE_APP_ID }}"
+          echo legacyid = ${{ secrets.VERACODE_APP_ID }}
+          http --auth-type=veracode_hmac GET "https://api.veracode.com/appsec/v1/applications" "legacy_id == ${legacyid}"
