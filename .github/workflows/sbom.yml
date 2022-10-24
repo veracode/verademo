@@ -20,4 +20,4 @@ jobs:
           export LEGACYID=${{ secrets.VERACODE_APP_ID }}
           appguid=$(http --auth-type=veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?legacy_id=${LEGACYID}" | jq -r '._embedded.applications[0].guid')
           echo GUID: ${appguid}
-          http --auth-type=veracde_hmac GET "https://api.veracode.com/srcclr/sbom/v1/targets/${appguid}/cyclonedx?type=application"
+          http --auth-type=veracode_hmac GET "https://api.veracode.com/srcclr/sbom/v1/targets/${appguid}/cyclonedx?type=application"
