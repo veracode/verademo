@@ -9,7 +9,7 @@ jobs:
     name: setup
     runs-on: ubuntu-latest
     container: 
-      image: veracode/api-signing:cmd
+      image: veracode/api-signing:latest
     env:
       VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
       VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
@@ -17,4 +17,4 @@ jobs:
     steps:
       - name: HelloWorld
         run: |
-          https://api.veracode.com/api/authn/v2/users/self          
+          http --auth-type=veracode_hmac "https://api.veracode.com/api/authn/v2/users/self"         
