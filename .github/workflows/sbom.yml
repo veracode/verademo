@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: veracode/api-signing:latest
-    env:
+    env30
       VERACODE_API_KEY_ID: ${{ secrets.VERACODE_API_ID }}
       VERACODE_API_KEY_SECRET : ${{ secrets.VERACODE_API_KEY }}
 
     steps:
       - name: HelloWorld
         run: | 
-          http --auth-type=veracode_hmac GET "https://api.veracode.com/appsec/v1/applications"
+          http --auth-type=veracode_hmac GET "https://api.veracode.com/appsec/v1/applications" "legacy_id == 301001"
