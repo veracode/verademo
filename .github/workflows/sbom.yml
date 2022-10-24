@@ -11,8 +11,8 @@ jobs:
     container: 
       image: veracode/api-signing:latest
     env:
-      VERACODE_API_KEY_ID: ${{ secrets.VERACODE_API_ID }}
-      VERACODE_API_KEY_SECRET : ${{ secrets.VERACODE_API_KEY }}
+      VERACODE_API_KEY_ID: 73dd1be88c30c0058b9f3b160dfc3e52
+      VERACODE_API_KEY_SECRET : 7dabe4674fac6a73605313c6f8ab5eae429a10561549188ff6981a5267bcd241b3a2f031c5368aedff03238bb0ebb0a5f3d3952916b1db9cbdba34b868f72efd
 
     steps:
       - name: HelloWorld
