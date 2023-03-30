@@ -1,0 +1,10 @@
+setup:
+build:
+  docker:
+    web: Dockerfile
+release:
+  image: web
+run:
+  web: |
+    docker build -t web .
+    docker run --rm -it -p 0.0.0.0:8080:8080 --entrypoint bash -v "$(pwd)/app:/app" web

@@ -55,3 +55,16 @@ docker run --rm -it -p 127.0.0.1:8080:8080 --entrypoint bash -v "$(pwd)/app:/app
 ```
 
 You will then need to manually run the two commands within `/entrypoint.sh`. The first starts the DB in the background whereas the second compiles and runs the application. Typically a container shouldn't have multiple services but this was done for convenience.
+
+## Heroku
+
+To run the container in Heroku, run this:
+
+```sh
+heroku create # Run this only once
+heroku container:push web
+heroku container:release web
+heroku ps:scale web=1
+heroku logs --tail # ctrl-c to exit this, just for viewing logs
+heroku open
+```
