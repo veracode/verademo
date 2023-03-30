@@ -58,7 +58,7 @@ You will then need to manually run the two commands within `/entrypoint.sh`. The
 
 ## Heroku
 
-To run the container in Heroku, run this:
+To deploy the container in [Heroku](https://heroku.com), run the below commands, after installing the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli).
 
 ```sh
 heroku create # Run this only once
