@@ -146,6 +146,9 @@
 				<configuration>
 					<debug>true</debug>
 					<debuglevel>lines,vars,source</debuglevel>
+					<compilerargs>
+						<arg>-g:source,lines,vars</arg>
+					</compilerargs>
 				</configuration>
 			</plugin>
 		</plugins>
