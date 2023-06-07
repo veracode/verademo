@@ -33,7 +33,7 @@ Navigate to: http://127.0.0.1:8080.
 
 ## Exploitation Demos
 
-See the `docs` folder.
+See the `/docs` folder. [Pipeline Scan](https://docs.veracode.com/r/Pipeline_Scan) results of this application are in `/docs/scan_results/results.json`. 
 
 ## Technologies Used
 
