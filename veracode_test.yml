@@ -1,0 +1,2 @@
+- name: Veracode Static Analysis Pipeline Scan and SARIF import
+  uses: veracode/veracode-pipeline-scan-results-to-sarif@v1.0.5
