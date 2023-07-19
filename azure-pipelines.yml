@@ -19,13 +19,36 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
+
 - task: Bash@3
-  displayName: Veracode Pipeline
+  enabled: true
+  continueOnError: true
+  displayName: Veracode Pipeline SAST Scan (Inline)
   inputs:
     targetType: 'inline'
     script: |
       curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
       unzip -o pipeline-scan-LATEST.zip
-      java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f /home/vsts/work/1/s/app/target/verademo.war || true
+      java -jar pipeline-scan.jar -vid "$(VERACODE_API_ID)" -vkey "$(VERACODE_API_KEY)" -f /home/vsts/work/1/s/app/target/verademo.war
+
+- task: Bash@3
+  enabled: false
+  displayName: Veracode SAST Scan (Out-of-Band)
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Download the API wrapper if it does not exist.
+      if [ ! -f "VeracodeJavaAPI.jar" ]; then 
+        curl -sS -o "VeracodeJavaAPI.jar" https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java/23.4.11.2/vosp-api-wrappers-java-23.4.11.2.jar
+      fi
+
+      version=`date +%Y%M%d-%H:%M`"-automated"
+      filepath=/home/vsts/work/1/s/app/target/verademo.war
+      appname="test"
+
+      # Upload a packaged artifact and run a SAST scan.
+      java -jar VeracodeJavaAPI.jar \
+        -action UploadAndScan -vid "$(VERACODE_API_ID)" -vkey "$(VERACODE_API_KEY)" -version $version -createprofile 'false' -appname $appname -filepath $filepath
+
 - publish: $(System.DefaultWorkingDirectory)/results.json
   artifact: VeracodeBaseline
