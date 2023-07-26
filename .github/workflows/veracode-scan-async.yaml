@@ -1,0 +1,21 @@
+name: Veracode Async Scan
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    # the checkout action persists the passed credentials by default
+    # subsequent git commands will pick them up automatically
+    - uses: actions/checkout@v2
+      with:
+        token: ${{secrets.PAT}}
+    - run: |
+        # do something
+        git status
+        
+        
