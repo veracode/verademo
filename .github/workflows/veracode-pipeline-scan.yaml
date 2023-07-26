@@ -1,4 +1,4 @@
-name: Veracode Async Scan
+name: Veracode Pipeline Scan
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
           # Compile war file
           mvn install -f app/pom.xml
 
-      - name: "Veracode Async Scan"
+      - name: "Veracode Pipeline Scan"
         run: |
           curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
           unzip -o pipeline-scan-LATEST.zip
