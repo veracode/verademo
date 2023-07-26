@@ -21,4 +21,4 @@ jobs:
         run: |
           curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
           unzip -o pipeline-scan-LATEST.zip
-          java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f ./app/target/verademo.war 
+          java -jar pipeline-scan.jar -vid ${{ secrets.VERACODE_API_KEY_ID }} -vkey ${{ secrets.VERACODE_API_KEY_SECRET }} -f ./app/target/verademo.war 
