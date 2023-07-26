@@ -1,0 +1,25 @@
+name: Veracode Async Scan
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout source code"
+        uses: "actions/checkout@v2.4.0"
+
+      - name: "Build Maven App"
+        run: |
+          # Compile war file
+          mvn install -f app/pom.xml
+
+      - name: "Veracode Async Scan"
+        run: |
+          exit 1
+          # curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+          # unzip -o pipeline-scan-LATEST.zip
+          # java -jar pipeline-scan.jar -vid ${{ secrets.VERACODE_API_KEY_ID }} -vkey ${{ secrets.VERACODE_API_KEY_SECRET }} -f ./app/target/verademo.war 
