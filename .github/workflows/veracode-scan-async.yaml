@@ -9,13 +9,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    # the checkout action persists the passed credentials by default
-    # subsequent git commands will pick them up automatically
-    - uses: actions/checkout@v2
-      with:
-        token: ${{secrets.PAT}}
-    - run: |
-        # do something
-        git status
-        
-        
+      - name: "Checkout source code"
+        uses: "actions/checkout@v2.4.0"
+
+      - name: "Build Maven App"
+        run: |
+          # Compile war file
+          mvn install -f app/pom.xml
+
+      - name: "Veracode Async Scan"
+        run: |
+          curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+          unzip -o pipeline-scan-LATEST.zip
+          java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f ./app/target/verademo.war 
