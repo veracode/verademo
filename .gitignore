@@ -15,3 +15,4 @@ filtered_results.json
 results.json
 pipeline-scan-LATEST.zip
 pipeline-scan.jar
+out/
