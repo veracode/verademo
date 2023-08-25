@@ -13,7 +13,7 @@ Blab-a-Gag is a fairly simple forum type application which allows:
 
 ### URLs
 
-* `/feed` shows the jokes/heckles that are relevant to the current user.
+* `/feed` shows the jokes/heckles that are relevant to the current user. 
 * `/blabbers` shows a list of all other users and allows the current user to listen or ignore.
 * `/profile` allows the current user to modify their profile.
 * `/login` allows you to log in to your account
