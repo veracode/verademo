@@ -69,7 +69,7 @@ jobs:
     #  Submit  project to pipeline scan
     - name: Pipeline Scan
       run: |
-        ./veracode static scan verademo.war --fail-on-severity="Very High, High" --app-id="${{secrets.VERACODE_APP_ID}}" --results-file="results.json"
+        ./veracode static scan "target/verademo.war" --fail-on-severity="Very High, High" --app-id="${{secrets.VERACODE_APP_ID}}" --results-file="results.json"
       continue-on-error: true
 
     - uses: actions/upload-artifact@v3
