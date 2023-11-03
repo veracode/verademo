@@ -70,7 +70,6 @@ jobs:
     - name: Pipeline Scan
       run: |
         ls -l
-        cd target
         ./veracode version
         ./veracode static scan verademo.war --fail_on_severity="Very High, High" --app_id="${{secrets.VERACODE_APP_ID}}" --results_file="results.json"
       continue-on-error: true
