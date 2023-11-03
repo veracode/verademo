@@ -23,13 +23,13 @@ jobs:
   # build the application
     - name: Check for Maven build
       id: check_maven
-      uses: andstor/file-existence-action@v1
+      uses: andstor/file-existence-action@v2
       with:
         files: "pom.xml"
 
     - name: Check for Gradle build
       id: check_gradle
-      uses: andstor/file-existence-action@v1
+      uses: andstor/file-existence-action@v2
       with:
         files: "build.gradle"
 
@@ -42,7 +42,7 @@ jobs:
       run: gradle clean build
       
     - name: Archive package
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: CodePackage
         path: '**/*.war'
@@ -62,7 +62,7 @@ jobs:
       continue-on-error: false
 
     - name: Retrieve artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: CodePackage
     
@@ -72,7 +72,7 @@ jobs:
         ./veracode static scan verademo.war --fail-on-severity="Very High, High" --app-id="${{secrets.VERACODE_APP_ID}}" --results-file="results.json"
       continue-on-error: true
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ScanResults
         path: target/results.json
@@ -84,7 +84,7 @@ jobs:
     steps:
 
     - name: Retrieve results
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: ScanResults
 
@@ -95,7 +95,7 @@ jobs:
         output-results-sarif: veracode-results.sarif
         finding-rule-level: "4:3:0"
         
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: SarifFile
         path: veracode-results.sarif
