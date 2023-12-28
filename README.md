@@ -50,12 +50,13 @@ docker build --no-cache -t verademo .
 
 To run the container for local development run this:
 
-Test1
-
 ```
 docker run --rm -it -p 127.0.0.1:8080:8080 --entrypoint bash -v "$(pwd)/app:/app" verademo
 ```
 
 You will then need to manually run the two commands within `/entrypoint.sh`. The first starts the DB in the background whereas the second compiles and runs the application. Typically a container shouldn't have multiple services but this was done for convenience.
 
+Test1
 Test2
+Test3
+
