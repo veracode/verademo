@@ -59,4 +59,5 @@ You will then need to manually run the two commands within `/entrypoint.sh`. The
 Test1
 Test2
 Test3
+Test4
 
