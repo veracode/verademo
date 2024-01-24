@@ -5,6 +5,8 @@
 # This is an example of using VeraDemo Java test application with the Veracode Static Pipeline scanner.  A Veracode subscription is required.
 trigger:
 - main
+pool:
+  name: Default
 steps:
 - task: Maven@3
   displayName: Build with Maven
