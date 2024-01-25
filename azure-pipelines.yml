@@ -5,19 +5,11 @@
 # This is an example of using VeraDemo Java test application with the Veracode Static Pipeline scanner.  A Veracode subscription is required.
 trigger:
 - main
+
 pool:
   name: Default
+
 steps:
-- task: JavaToolInstaller@0
-  inputs:
-    versionSpec: '18'  # Especifica la versión de Java que deseas instalar
-    jdkArchitectureOption: x64
-    jdkSourceOption: PreInstalled
-
-- script: |
-    # Verificar la instalación
-    java -version
-
 - task: Maven@3
   displayName: Build with Maven
   inputs:
@@ -29,6 +21,7 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
+    
 - task: Bash@3
   displayName: Veracode Pipeline
   inputs:
