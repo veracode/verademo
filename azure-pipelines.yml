@@ -23,6 +23,7 @@ steps:
     effectivePomSkip: false
     sonarQubeRunAnalysis: false
 
+
 - task: Bash@3
   displayName: Veracode Pipeline
   inputs:
