@@ -7,10 +7,9 @@ trigger:
 - main
 
 pool:
-  name: Default
+  vmImage: 'ubuntu-latest'
 
 steps:
-
 - task: Maven@4
   inputs:
     mavenPomFile: 'app/pom.xml'
