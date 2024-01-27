@@ -1,8 +1,4 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
-# This is an example of using VeraDemo Java test application with the Veracode Static Pipeline scanner.  A Veracode subscription is required.
+# Veracode Demo to Azure Pipeline
 trigger:
 - main
 
@@ -12,28 +8,42 @@ pool:
 variables:
 - group: VERACODE_API
 
-steps:
-- task: Maven@4
-  inputs:
-    mavenPomFile: 'app/pom.xml'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    mavenVersionOption: 'Default'
-    mavenAuthenticateFeed: false
-    effectivePomSkip: false
-    sonarQubeRunAnalysis: false
+jobs:
+- job: BuildAndTest
+  displayName: 'Build and Test'
+  steps:
+  - task: Maven@4
+    displayName: Compile VeraDemo
+    inputs:
+      mavenPomFile: 'app/pom.xml'
+      publishJUnitResults: true
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+      javaHomeOption: 'JDKVersion'
+      jdkVersionOption: '1.8'
+      mavenVersionOption: 'Default'
+      mavenAuthenticateFeed: false
+      effectivePomSkip: false
+      sonarQubeRunAnalysis: false
+
+  - publish: /home/vsts/work/1/s/app/target/verademo.war
+    displayName: 'Publish Artifact'
+    artifact: WARCompiled
+
+- job: VeracodeScan
+  displayName: 'Veracode Scan Pipeline'
+  dependsOn: BuildAndTest
+  steps:
+  - download: current
+    artifact: WARCompiled
+    displayName: 'Download Artifacts'
+    
+  - task: Bash@3
+    displayName: Local Veracode Pipeline/Scan
+    inputs:
+      targetType: 'inline'
+      script: |
+        curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+        unzip -o pipeline-scan-LATEST.zip
+        java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f verademo.war || true
 
 
-- task: Bash@3
-  displayName: Veracode Pipeline
-  inputs:
-    targetType: 'inline'
-    script: |
-      curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
-      unzip -o pipeline-scan-LATEST.zip
-      java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f /home/vsts/work/1/s/app/target/verademo.war || true
-
-- publish: $(System.DefaultWorkingDirectory)/results.json
-  artifact: VeracodeBaseline
