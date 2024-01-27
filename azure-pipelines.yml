@@ -9,6 +9,9 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+- group: VERACODE_API
+
 steps:
 - task: Maven@4
   inputs:
@@ -25,8 +28,6 @@ steps:
 
 - task: Bash@3
   displayName: Veracode Pipeline
-  variables:
-    - group: VERACODE_API
   inputs:
     targetType: 'inline'
     script: |
