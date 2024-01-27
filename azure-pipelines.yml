@@ -25,6 +25,14 @@ jobs:
       effectivePomSkip: false
       sonarQubeRunAnalysis: false
 
+  - script: |
+      echo System.DefaultWorkingDirectory:
+      echo $(System.DefaultWorkingDirectory)
+      echo Pipeline.Workspace
+      echo $(Pipeline.Workspace)
+      echo Build.ArtifactStagingDirectory
+      echo $(Build.ArtifactStagingDirectory)
+
   - publish: $(System.DefaultWorkingDirectory)/app/target/verademo.war
     displayName: 'Publish Artifact'
     artifact: WARCompiled
