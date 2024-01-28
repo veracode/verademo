@@ -67,9 +67,9 @@ jobs:
     inputs:
       ConnectionDetailsSelection: 'Service Connection'
       AnalysisService: 'Veracode Nubuss'
-      veracodeAppProfile: '$(system.teamProject)'
+      veracodeAppProfile: 'VeraDemo'
       version: '$(build.buildNumber)'
       filepath: '$(Pipeline.Workspace)/WARCompiled/verademo.war'
-      optargs: '-criticality high -deleteIncompleteScan 1'
+      optargs: '-criticality high -deleteIncompleteScan 2'
       importResults: true
       maximumWaitTime: '360' 
