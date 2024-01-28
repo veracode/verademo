@@ -37,7 +37,7 @@ jobs:
     displayName: 'Publish Artifact'
     artifact: WARCompiled
 
-- job: VeracodeScan
+- job: VeracodePipelineScan
   displayName: 'Veracode Scan Pipeline'
   dependsOn: BuildAndTest
   steps:
@@ -54,4 +54,22 @@ jobs:
         unzip -o pipeline-scan-LATEST.zip
         java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f $(Pipeline.Workspace)/WARCompiled/verademo.war || true
 
+  - publish: $(System.DefaultWorkingDirectory)/results.json
+    artifact: VeracodePipelineScan
 
+- job: VeracodeUploadAndScan
+  displayName: "Veracode Upload and Scan"
+  steps:
+  - download: current
+    artifact: WARCompiled
+    displayName: 'Download Artifacts'
+  - task: Veracode@3
+    inputs:
+      ConnectionDetailsSelection: 'Service Connection'
+      AnalysisService: 'Veracode Nubuss'
+      veracodeAppProfile: '$(system.teamProject)'
+      version: '$(build.buildNumber)'
+      filepath: '$(Pipeline.Workspace)/WARCompiled/verademo.war'
+      optargs: '-criticality high -deleteIncompleteScan 1'
+      importResults: true
+      maximumWaitTime: '360' 
