@@ -37,25 +37,25 @@ jobs:
     displayName: 'Publish Artifact'
     artifact: WARCompiled
 
-- job: VeracodePipelineScan
-  displayName: 'Veracode Scan Pipeline'
-  dependsOn: BuildAndTest
-  steps:
-  - download: current
-    artifact: WARCompiled
-    displayName: 'Download Artifacts'
+# - job: VeracodePipelineScan
+#   displayName: 'Veracode Scan Pipeline'
+#   dependsOn: BuildAndTest
+#   steps:
+#   - download: current
+#     artifact: WARCompiled
+#     displayName: 'Download Artifacts'
     
-  - task: Bash@3
-    displayName: Local Veracode Pipeline/Scan
-    inputs:
-      targetType: 'inline'
-      script: |
-        curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
-        unzip -o pipeline-scan-LATEST.zip
-        java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f $(Pipeline.Workspace)/WARCompiled/verademo.war || true
+#   - task: Bash@3
+#     displayName: Local Veracode Pipeline/Scan
+#     inputs:
+#       targetType: 'inline'
+#       script: |
+#         curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+#         unzip -o pipeline-scan-LATEST.zip
+#         java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f $(Pipeline.Workspace)/WARCompiled/verademo.war || true
 
-  - publish: $(System.DefaultWorkingDirectory)/results.json
-    artifact: VeracodePipelineScan
+#   - publish: $(System.DefaultWorkingDirectory)/results.json
+#     artifact: VeracodePipelineScan
 
 - job: VeracodeUploadAndScan
   displayName: "Veracode Upload and Scan"
@@ -71,5 +71,7 @@ jobs:
       version: '$(build.buildNumber)'
       filepath: '$(Pipeline.Workspace)/WARCompiled/verademo.war'
       optargs: '-criticality high -deleteIncompleteScan 2'
-      importResults: true
+      importResults: false
       maximumWaitTime: '360' 
+  - script: |
+    echo "Hola Mundo"
