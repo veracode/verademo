@@ -51,6 +51,7 @@ jobs:
 
 - job: VeracodeUploadAndScan
   displayName: "Veracode Upload and Scan"
+  dependsOn: VeracodePipelineScan
   steps:
   - download: current
     artifact: WARCompiled
@@ -63,7 +64,7 @@ jobs:
       version: '$(build.buildNumber)'
       filepath: '$(Pipeline.Workspace)/WARCompiled/verademo.war'
       optargs: '-criticality high -deleteIncompleteScan 2'
-      importResults: false
+      importResults: true
       maximumWaitTime: '360' 
   - script: |
       echo "Fin"
