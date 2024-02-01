@@ -4,6 +4,8 @@
 
 Este proyecto se basa en un fork del repositorio Verademo de Veracode, donde se ha modificado el pipeline para incluir la integración con la plataforma Veracode. El objetivo es automatizar el proceso de compilación, prueba y escaneo de seguridad del código Java utilizando Maven y las herramientas de Veracode.
 
+![alt text](verademo-azuredevops-demo.drawio.png)
+
 ## Requerimientos o Requisitos
 Antes de comenzar con la integración en Azure DevOps, asegúrate de tener los siguientes requisitos:
 
