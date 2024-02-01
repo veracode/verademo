@@ -60,11 +60,13 @@ jobs:
     inputs:
       ConnectionDetailsSelection: 'Service Connection'
       AnalysisService: 'Veracode Nubuss'
-      veracodeAppProfile: 'VeraDemo'
+      veracodeAppProfile: 'VeraDemo-AzureDevOps'
       version: '$(build.buildNumber)'
       filepath: '$(Pipeline.Workspace)/WARCompiled/verademo.war'
       optargs: '-criticality high -deleteIncompleteScan 2'
       importResults: true
       maximumWaitTime: '360' 
+      createProfile: true
+      failBuildOnPolicyFail: false
   - script: |
       echo "Fin"
