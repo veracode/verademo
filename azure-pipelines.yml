@@ -1,72 +1,139 @@
 # Veracode Demo to Azure Pipeline
 trigger:
-- main
+  - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: "ubuntu-latest"
 
 variables:
-- group: VERACODE_API
+  - group: VERACODE_API
 
 jobs:
-- job: BuildAndTest
-  displayName: 'Build and Test'
-  steps:
-  - task: Maven@4
-    displayName: Compile VeraDemo
-    inputs:
-      mavenPomFile: 'app/pom.xml'
-      publishJUnitResults: true
-      testResultsFiles: '**/surefire-reports/TEST-*.xml'
-      javaHomeOption: 'JDKVersion'
-      jdkVersionOption: '1.8'
-      mavenVersionOption: 'Default'
-      mavenAuthenticateFeed: false
-      effectivePomSkip: false
-      sonarQubeRunAnalysis: false
+  - job: VeracodeContainerScann
+    displayName: "Veracode Container pipeline"
+    steps:
+      - task: Bash@3
+        displayName: Veracode Container Security - Scan
+        inputs:
+          targetType: "inline"
+          script: |
+            curl -fsS https://tools.veracode.com/veracode-cli/install | sh
+            export VERACODE_API_ID=$(VID)
+            export VERACODE_API_KEY=$(VKEY)
+            ./veracode scan --source vulnerables/web-dvwa --type image -f table
+            ./veracode scan --source vulnerables/web-dvwa --type image -f vulnerableWebDvwa.json
+            
 
-  - publish: $(System.DefaultWorkingDirectory)/app/target/verademo.war
-    displayName: 'Publish Artifact'
-    artifact: WARCompiled
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "vulnerableWebDvwa.json"
+          ArtifactName: "vulnerableWebDvwa.json"
+          publishLocation: "Container"
 
-- job: VeracodePipelineScan
-  displayName: 'Veracode Scan Pipeline'
-  dependsOn: BuildAndTest
-  steps:
-  - download: current
-    artifact: WARCompiled
-    displayName: 'Download Artifacts'
-  
-  - task: Bash@3
-    displayName: Local Veracode Pipeline/Scan
-    inputs:
-      targetType: 'inline'
-      script: |
-        curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
-        unzip -o pipeline-scan-LATEST.zip
-        java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f $(Pipeline.Workspace)/WARCompiled/verademo.war || true
+      - task: Bash@3
+        displayName: "Veracode Container Security - Policy Check"
+        inputs:
+          targetType: "inline"
+          script: |
+            PASS=$(jq -r '."policy-passed"' vulnerableWebDvwa.json)
+            echo "Passed policy: $PASS"
+            if $PASS; then
+              exit 0
+            else
+              exit 1
+            fi
 
-  - publish: $(System.DefaultWorkingDirectory)/results.json
-    artifact: VeracodePipelineScan
 
-- job: VeracodeUploadAndScan
-  displayName: "Veracode Upload and Scan"
-  dependsOn: VeracodePipelineScan
-  steps:
-  - download: current
-    artifact: WARCompiled
-    displayName: 'Download Artifacts'
-  - task: Veracode@3
-    inputs:
-      ConnectionDetailsSelection: 'Service Connection'
-      AnalysisService: 'Veracode Nubuss'
-      veracodeAppProfile: 'VeraDemo-AzureDevOps'
-      version: '$(build.buildNumber)'
-      filepath: '$(Pipeline.Workspace)/WARCompiled/verademo.war'
-      optargs: '-criticality high -deleteIncompleteScan 2'
-      importResults: true
-      maximumWaitTime: '360' 
-      createProfile: true
-      failBuildOnPolicyFail: false
-  - script: |
-      echo "Fin"
+  - job: VeracodeIaCScann
+    displayName: "Veracode IaC and Secret Scann pipeline"
+    steps:    
+      - task: Bash@3
+        displayName: Veracode Iac repo Security - Scan
+        inputs:
+          targetType: "inline"
+          script: |
+            curl -fsS https://tools.veracode.com/veracode-cli/install | sh
+            export VERACODE_API_ID=$(VID)
+            export VERACODE_API_KEY=$(VKEY)
+            ./veracode scan --type repo --source https://github.com/bridgecrewio/terragoat -o terragoat.json  
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "terragoat.json"
+          ArtifactName: "terragoat.json"
+          publishLocation: "Container"
+
+      - task: Bash@3
+        displayName: "Veracode IaC Security - Policy Check"
+        inputs:
+          targetType: "inline"
+          script: |
+            PASS=$(jq -r '."policy-passed"' terragoat.json)
+            echo "Passed policy: $PASS"
+            if $PASS; then
+              exit 0
+            else
+              exit 1
+            fi  
+
+  - job: BuildAndTestVeraDemo
+    displayName: "Build and Test"
+    steps:
+      - task: Maven@4
+        displayName: Compile VeraDemo
+        inputs:
+          mavenPomFile: "app/pom.xml"
+          publishJUnitResults: true
+          testResultsFiles: "**/surefire-reports/TEST-*.xml"
+          javaHomeOption: "JDKVersion"
+          jdkVersionOption: "1.8"
+          mavenVersionOption: "Default"
+          mavenAuthenticateFeed: false
+          effectivePomSkip: false
+          sonarQubeRunAnalysis: false
+
+      - publish: $(System.DefaultWorkingDirectory)/app/target/verademo.war
+        displayName: "Publish Artifact"
+        artifact: WARCompiled
+
+  - job: VeracodePipelineScan
+    displayName: "Veracode Scan Pipeline"
+    dependsOn: BuildAndTest
+    steps:
+      - download: current
+        artifact: WARCompiled
+        displayName: "Download Artifacts"
+
+      - task: Bash@3
+        displayName: Local Veracode Pipeline/Scan
+        inputs:
+          targetType: "inline"
+          script: |
+            curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+            unzip -o pipeline-scan-LATEST.zip
+            java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f $(Pipeline.Workspace)/WARCompiled/verademo.war || true
+
+      - publish: $(System.DefaultWorkingDirectory)/results.json
+        artifact: VeracodePipelineScan
+
+  - job: VeracodeUploadAndScan
+    displayName: "Veracode Upload and Scan"
+    dependsOn: VeracodePipelineScan
+    steps:
+      - download: current
+        artifact: WARCompiled
+        displayName: "Download Artifacts"
+      - task: Veracode@3
+        inputs:
+          ConnectionDetailsSelection: "Service Connection"
+          AnalysisService: "Veracode Nubuss"
+          veracodeAppProfile: "VeraDemo-AzureDevOps"
+          version: "$(build.buildNumber)"
+          filepath: "$(Pipeline.Workspace)/WARCompiled/verademo.war"
+          optargs: "-criticality high -deleteIncompleteScan 2"
+          importResults: true
+          maximumWaitTime: "360"
+          createProfile: true
+          failBuildOnPolicyFail: false
+      - script: |
+          echo "Fin"
