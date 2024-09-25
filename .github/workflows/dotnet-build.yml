@@ -10,7 +10,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      solution: '**/*.sln'
+      solution: 'Verademo-dotnet.sln'
       buildPlatform: 'Any CPU'
       buildConfiguration: 'Release'
 
@@ -21,16 +21,16 @@ jobs:
 
       # Setup NuGet
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v2
+        uses: NuGet/setup-nuget@v1
 
-      # Restore NuGet packages
+      # Restore NuGet packages (using the .sln file)
       - name: Restore NuGet Packages
         run: nuget restore ${{ env.solution }}
 
       # Build the solution
       - name: Build Solution
         run: |
-          msbuild ${{ env.solution }} /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ github.workspace }}/artifacts" /p:Platform="${{ env.buildPlatform }}" /p:Configuration="${{ env.buildConfiguration }}
+          msbuild ${{ env.solution }} /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ github.workspace }}/artifacts" /p:Platform="${{ env.buildPlatform }}" /p:Configuration="${{ env.buildConfiguration }}"
 
       # Download and run Veracode Static Pipeline Scanner
       - name: Veracode Static Pipeline Scanner
