@@ -21,7 +21,7 @@ jobs:
 
       # Setup NuGet
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1
+        uses: NuGet/setup-nuget@v2
 
       # Restore NuGet packages
       - name: Restore NuGet Packages
