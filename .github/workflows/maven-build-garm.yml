@@ -1,4 +1,4 @@
-name: Build and Veracode Scan
+name: Build and Veracode Scan GARM
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: aws
 
     steps:
       # Checkout code
