@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:  # Add this to enable manual trigger from the GitHub UI
 
 jobs:
   build:
