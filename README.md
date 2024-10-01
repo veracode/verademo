@@ -1,5 +1,12 @@
 # VeraDemo - Blab-a-Gag
 
+
+[Github hosted runner](https://github.com/sjultra/verademo/actions/workflows/maven-build.yml)
+
+[Garm runner t2.small](https://github.com/sjultra/verademo/actions/workflows/maven-build-garm.yml)
+
+[Garm runner t3.xlarge](https://github.com/sjultra/verademo/actions/workflows/maven-build-garm-xl.yml)
+
 ### :information_source: Notice
 
 This project is intentionally vulnerable! It contains known vulnerabilities and security errors in its code and is meant as an example project for software security scanning tools such as Veracode. Please do not report vulnerabilities in this project; the odds are they’re there on purpose :) .
