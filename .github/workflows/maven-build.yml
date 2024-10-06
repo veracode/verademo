@@ -26,12 +26,14 @@ jobs:
       - name: Build with Maven
         run: mvn -f app/pom.xml package
 
-      # Veracode Static Pipeline Scanner
-      - name: Veracode Static Pipeline Scanner
-        run: |
-          curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
-          unzip -o pipeline-scan-LATEST.zip
-          java -jar pipeline-scan.jar -vid ${{ secrets.VERACODE_API_ID }} -vkey ${{ secrets.VERACODE_API_KEY }} -f app/target/verademo.war || true
+      - name: Veracode Upload And Scan
+        uses: veracode/veracode-uploadandscan-action@0.2.6
+        with:
+            createprofile: true
+            filepath: app/target/verademo.war
+            vid: ${{ secrets.VERACODE_API_ID }}
+            vkey: ${{ secrets.VERACODE_API_KEY }}
+            debug: true
 
       # Upload Veracode results as an artifact
       - name: Upload Veracode Scan Results
