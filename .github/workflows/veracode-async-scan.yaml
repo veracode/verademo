@@ -1,0 +1,34 @@
+name: Veracode Async Scan
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout source code"
+        uses: "actions/checkout@v2.4.0"
+
+      - name: "Build Maven App"
+        run: |
+          # Compile war file
+          mvn install -f app/pom.xml
+
+      - name: "Veracode Async Scan"
+        run: |
+          # Download the API wrapper if it does not exist.
+          if [ ! -f "VeracodeJavaAPI.jar" ]; then 
+            curl -sS -o "VeracodeJavaAPI.jar" https://repo1.maven.org/maven2/com/veracode/vosp/api/wrappers/vosp-api-wrappers-java/23.4.11.2/vosp-api-wrappers-java-23.4.11.2.jar
+          fi
+
+          version=`date +%Y%M%d-%H:%M`"-automated"
+          filepath=./app/target/verademo.war
+          appname="test"
+
+          # Upload a packaged artifact and run a SAST scan.
+          java -jar VeracodeJavaAPI.jar \
+            -action UploadAndScan -vid ${{ secrets.VERACODE_API_KEY_ID }} -vkey ${{ secrets.VERACODE_API_KEY_SECRET }} \
+            -version $version -createprofile 'false' -appname $appname -filepath $filepath
